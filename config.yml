@@ -1,0 +1,71 @@
+#
+##
+###1. BASIC DANCER CONFIG
+##
+#
+
+#layout: "main"
+logger: "console"
+log: "debug"
+appname: "Salsa_OAI2"
+
+#
+##
+###2. FILES AND DIRS
+##
+#
+
+xml_undigested: todo
+#dir or file with large xml file containing multiple records
+#is processed by script (todo)
+
+xml_store: "/home/Mengel/projects/Salsa_OAI/index/fs"
+#xml source directory where xml records lie (1 record per file)
+
+headercache_YAML: "/home/Mengel/projects/Salsa_OAI/index/ListIdentifiers.yaml"
+#headercache is a yaml file containing all information for the OAI headers
+#is written by script (which?) and read by SALSA OAI
+
+
+#
+##
+### 3 TRANSFORMATIONS
+##
+#
+
+
+XSLT_dir: "/home/Mengel/projects/Salsa_OAI/xslt"
+
+
+
+#
+##
+### 4 OAI IDENTIFY FOR THIS SERVER
+##
+#
+
+oai_adminEmail: "mauricemengel@gmail.com"
+oai_baseURL: "http://localhost:3000/oai"
+oai_deletedRecord: "no"
+#oai_deletedRecord: no, persistent, transient
+oai_granularity: "YYYY-MM-DDThh:mm:ssZ"
+oai_repositoryName: "agoodname"
+oai_requestURL: "http://localhost:3000/oai?Identify"
+
+#
+##
+### 5 SUPPORTED METADATA FORMATS
+##
+#
+
+GlobalFormats:
+  mpx:
+   ns_uri: "http://www.mpx.org/mpx"
+   ns_schema: "file:/c:/cygwin/home/Mengel/usr/levelup/lib/mpx-lvl2.v2.xsd"
+  lido:
+   ns_uri: "http://www.lido-schema.org"
+   ns_schema: "http://www.lido-schema.org/schema/v0.9/lido-v0.9.xsd"
+  oai_dc:
+   ns_uri: "http://www.openarchives.org/OAI/2.0/oai_dc/"
+   ns_schema: "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+

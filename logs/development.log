@@ -1,0 +1,67 @@
+[1416]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[1416]  core @1.312500> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[9432]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[9432]  core @1.265625> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[8432]  core @0.000026> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[4416]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[4416]  core @1.265625> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[9176]  core @0.000026> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[9176]  core @1.281250> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[10144]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[10144]  core @1.250000> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[10064]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[10064]  core @1.250000> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[3516]  core @0.000026> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[3516]  core @1.281250> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[11640]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[11640]  core @1.265625> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[11912]  core @0.000026> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[11912]  core @1.250000> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[11540]  core @0.000026> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[11540]  core @1.515625> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[9996]  core @0.000027> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[9996]  core @1.312500> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[9996]  core @0.003731> request: GET / from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[9996] debug @0.007502> [hit #1] trying to match `/' against /^\/oai$/ in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 73
+[9996]  core @0.325107> [hit #1] response: 404 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[9996]  core @0.001635> request: GET /favicon.ico from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[9996]  core @0.005899> [hit #2] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[9996]  core @0.000000> request: GET /oai from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[9996] debug @0.003295> [hit #3] trying to match `/oai' against /^\/oai$/ in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 73
+[9996]  core @0.005359> [hit #3]   --> got 1 in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 79
+[9996] debug @0.008596> [hit #3] This dance is over. How long did it take? in lib/Salsa_OAI2.pm l. 71
+[9996]  core @0.286822> [hit #3] response:  in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[9996]  core @0.001609> request: GET /css/error.css from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[9996]  core @0.006083> [hit #4] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[10656]  core @0.000028> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[10656]  core @1.281250> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[10656]  core @0.001549> request: GET /oai from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[10656] debug @0.004781> [hit #1] trying to match `/oai' against /^\/oai$/ in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 73
+[10656]  core @0.006752> [hit #1]   --> got 1 in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 79
+[10656] debug @0.009084> [hit #1] This dance is over. How long did it take? in lib/Salsa_OAI2.pm l. 71
+[10656]  core @0.011275> [hit #1] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[10656]  core @0.001963> request: GET /favicon.ico from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[10656]  core @0.092915> [hit #2] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[10656]  core @0.000000> request: GET /oai from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[10656] debug @0.003306> [hit #3] trying to match `/oai' against /^\/oai$/ in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 73
+[10656]  core @0.005277> [hit #3]   --> got 1 in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 79
+[10656] debug @0.007406> [hit #3] This dance is over. How long did it take? in lib/Salsa_OAI2.pm l. 71
+[10656]  core @0.009583> [hit #3] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[10656]  core @0.001619> request: GET /favicon.ico from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[10656]  core @0.005624> [hit #4] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[10656]  core @0.001651> request: GET /oai from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[10656] debug @0.004883> [hit #5] trying to match `/oai' against /^\/oai$/ in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 73
+[10656]  core @0.006937> [hit #5]   --> got 1 in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 79
+[10656]  core @0.092122> [hit #5] response: 500 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[10656]  core @0.003896> request: GET /css/error.css from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[10656]  core @0.009432> [hit #6] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[11576]  core @0.000030> loading application Salsa_OAI2 in /usr/lib/perl5/site_perl/5.10/Dancer.pm l. 179
+[11576]  core @1.406250> loading Standalone handler in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 29
+[11576]  core @0.001697> request: GET /oai from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[11576] debug @0.006349> [hit #1] trying to match `/oai' against /^\/oai$/ in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 73
+[11576]  core @0.008436> [hit #1]   --> got 1 in /usr/lib/perl5/site_perl/5.10/Dancer/Route.pm l. 79
+[11576]  core @0.105433> [hit #1] response: 500 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[11576]  core @0.001699> request: GET /css/error.css from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[11576]  core @0.094082> [hit #2] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102
+[11576]  core @0.002213> request: GET /favicon.ico from 127.0.0.1 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 44
+[11576]  core @0.007196> [hit #3] response: 200 in /usr/lib/perl5/site_perl/5.10/Dancer/Handler.pm l. 102

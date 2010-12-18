@@ -1,0 +1,312 @@
+package Salsa_OAI2;
+use Dancer ':syntax';
+use HTTP::OAI;
+use HTTP::OAI::Repository qw/validate_request/;
+use lib '/home/Mengel/projects/HTTP-OAI-DataProvider-Simple/lib';
+use HTTP::OAI::DataProvider::Simple;
+use Carp qw/carp croak/;
+our $dp      = init_dp();    #do this when starting the webapp
+our $VERSION = '0.1';
+
+=head1 NAME
+
+Salsa_OAI - Simple OAI data provider based on Dancer
+
+=head1 SYNOPSIS
+
+This is a small webapp which acts as a OAI data provider based on
+HTTP::OAI::DataProvider::Simple and Tim Brody's HTTP::OAI.
+
+=head1 FEATURES
+
+This data provider is just one notch up from a static repository:
+- no database, instead header information is parsed to memory
+- metadata format freedom: on the fly conversations from native format to
+  whatever external format you supply an XSLT transformation for, see below.
+- easy to maintain since simple
+- deployment freedom with dancer, see Dancer::Deployment
+- OAI-PMH Protocol version 2.0
+- Sets: partly
+
+=head2 NOT SUPPORTED
+- streaming. Currently request has to be finished to start transmit.
+- Resumption tokens
+- compression. If deployed right, e.g. with PLACK::Middleware::Deflate should
+  take care of that.
+
+Major disadvantage: Dancer currently does not support streaming data. Therefore,
+I consider writing a catalyst version once this version runs well.
+
+Some of the concept's are derived from OCLC's OAIcat, but this is perl and needs
+only felt 10% of the code (I didn't count it, but that's what it feels like).
+
+Metadata Freedom: Salsa_OAI is not agnostic concerning its metadata formats.
+Internally it works with mpx format, but you could easily adapt the code to
+fit your own format.
+
+=head1 SEE ALSO
+
+Dancer at cpan or perldancer.org.
+
+=cut
+
+#
+# THE ONLY ROUTE
+#
+
+any [ 'get', 'post' ] => '/oai' => sub {
+	my $ret;    # avoid perl's magic returns
+
+	if ( my $verb = params->{verb} ) {
+		my $error = validate_request(params);
+
+		if ($error) {
+
+			#outputs error as txt, and not as xml
+			#return $error->code . ' ' . $error->message;
+			my $response = new HTTP::OAI::Response;
+			$response->errors($error);
+			return $response->toDOM->toString;
+		}
+
+		no strict "refs";
+		$ret = $dp->$verb( params() );
+		use strict "refs";
+
+	} else {
+		$ret = welcome();
+	}
+	debug "This dance is over. How long did it take?";
+	return $ret;
+};
+dance;
+true;
+
+sub welcome {
+	my $out = <<EOF;
+<html><header><title>Salsa OAI - Minimalistic OAI data provider based on
+Dancer </title></header><body>
+<h1>Salsa OAI</h1>
+<p>Test with http client of your choice, e.g. web browser, Tim Brody's
+oai_browser.pl or curl</p>
+<p>Some shortcuts:
+  <ul>
+EOF
+
+	my @shortcuts = (
+		[ 'oai?verb=Identify', 'Identify', 'describe repository' ],
+		[
+			'oai?verb=ListMetadataFormats', 'ListMetadataFormats', 'show
+    	  metadataFormats supported by repository, identifier is an optional
+    	  argument'
+		],
+		[
+			'oai?verb=ListIdentifiers&metadataPrefix=mpx',
+			'ListIdentifiers (metadataPrefix=mpx)',
+			'list all identifiers in the repository'
+		],
+		[
+			'oai?verb=ListIdentifiers&metadataPrefix=mpxXX',
+			'ListIdentifiers (metadataPrefix=mpxXX',
+			'list all identifiers in the repository'
+		],
+		[
+			'oai?verb=ListRecords',
+			'ListRecords ()',
+			'list all records in specified metadataFormat; should fail'
+		],
+		[
+			'oai?verb=GetRecord', 'GetRecord()',
+			'a incomplete GetRecord, should fail'
+		],
+		[
+			'oai?verb=GetRecord&identifier=spk-berlin.de:EM-objId-100064&metadataPrefix=mpx',
+			'GetRecord(identifier=spk-berlin.de:EM-objId-100064, metadataPrefix=mpx)',
+			'a incomplete GetRecord, should pass'
+		],
+		[
+			'oai?verb=ListRecords&metadataPrefix=mpx',
+			'ListRecords (metadataPrefix=mpx)',
+'list all records in specified metadataFormat; should eventually pass'
+		],
+	);
+
+	foreach my $triple (@shortcuts) {
+		my @triple = @{$triple};
+		$out .= "<li><a href=\"$triple[0]\">$triple[1]</a> ($triple[2])</li>";
+	}
+
+	$out .= <<EOF;
+  </ul>
+</p><p> <a href="http://perldancer.org">Dancer</a> is leight-weight, heavy-duty and
+fun!</p></body></html>
+EOF
+
+	return $out;
+
+}
+
+sub salsa_Identify {
+	debug " Enter salsa_Identify ";
+	use XML::SAX::Writer;
+	use HTTP::OAI;
+
+	#
+	# Metadata handling
+	#
+
+	#take info from config
+	#I should complain intelligble when info not there
+
+	foreach my $test (
+		qw/repositoryName baseURL adminEmail deletedRecord
+		granularity requestURL/
+	  )
+	{
+		if ( !config->{" oai_ $test"} ) {
+
+			#should not just be a debug
+			die " oai_ $test setting in Dancer's config missing !";
+		}
+	}
+
+	my $obj = new HTTP::OAI::Identify(
+		repositoryName => config->{oai_repositoryName},
+		baseURL        => config->{oai_baseURL},
+		adminEmail     => config->{oai_adminEmail},
+		deletedRecord  => config->{oai_deletedRecord},
+		granularity    => config->{oai_granularity},
+		requestURL     => config->{oai_requestURL},
+	  )
+	  or return " Cannot create new HTTP::OAI::Identify ";
+
+	#	TODO: this needs to go somewhere in HTTP::OAI::DataProvider::Simple
+	#	return $obj->Salsa_OAI::toString;
+	my $xml;
+	$obj->set_handler( XML::SAX::Writer->new( Output => \$xml ) );
+	$obj->generate;
+	return $xml;
+
+}
+
+=head2 $dp=init_dp();
+
+=cut
+
+sub init_dp {
+
+	debug " data provider needs to be initialized ONCE ";
+
+	#step 1 set up callbacks (mostly mapping related)
+	my $dp = HTTP::OAI::DataProvider::Simple->new(
+		extractHeader => 'salsa_extractHeader',
+		id2file       => 'salsa_id2file',
+		Identify      => 'Salsa_OAI2::salsa_Identify',
+		locateXSL     => 'salsa_locateXSL',
+		nativeFormatPrefix => 'mpx',    #not used at the moment
+	);
+
+	#step 2: init global metadata formats from Dancer config
+	my %cnf = %{ config->{GlobalFormats} };
+
+	foreach my $prefix ( keys %cnf ) {
+		debug " Registering global format $prefix";
+		if ( !$cnf{$prefix}{ns_uri} or !$cnf{$prefix}{ns_schema} ) {
+			die "GlobalFormat $prefix in yaml configuration incomplete";
+		}
+
+		$dp->registerFormat(
+			ns_prefix => $prefix,
+			ns_uri    => $cnf{$prefix}{ns_uri},
+			ns_schema => $cnf{$prefix}{ns_schema},
+		);
+
+	}
+
+	#step 3: load header cache
+	debug "Load header cache to memory";
+	$dp->load_headers( config->{headercache_YAML} );
+
+	#we should be ready to go
+	#debug "data provider initialized!";
+	return $dp;
+}
+
+=head2 @oaiheaders=extractHeader ($doc)
+
+$doc is an mpx, either one record per file or multiple. @oaiheaders is an array
+of HTTP::OAI::Headers which contains
+ oai identifier
+ datestamp
+ set information
+=cut
+
+sub salsa_extractHeader {
+
+	#TODO: Currently not tested
+	#where is documentation for the interface. Should be in DP::Simple
+
+	my $doc = shift;    # this is an mpx from xml store.
+	my @result;
+
+	croak "Error: No doc" if !$doc;
+
+	my @nodes = $doc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
+
+	foreach my $node (@nodes) {
+		my @objIds      = $node->findnodes('@objId');
+		my $id_orig     = $objIds[0]->value;
+		my $id_oai      = 'spk-berlin.de:EM-objId-' . $id_orig;
+		my @exportdatum = $node->findnodes('@exportdatum');
+		my $exportdatum = $exportdatum[0]->value . 'Z';
+
+		print "\t$id_oai--$exportdatum\n";
+		my $header = new HTTP::OAI::Header(
+			identifier => $id_oai,
+			datestamp  => $exportdatum,
+
+			#TODO:status=> 'deleted', #deleted or none;
+		);
+
+		$node = XML::LibXML::XPathContext->new($node);
+		$node->registerNs( 'mpx', 'http://' );
+
+		#$node=_registerNS ($self,$node);
+
+		#example of mapping set to simple mpx criteria
+		my $objekttyp = $node->findvalue('mpx:objekttyp');
+		print "\tobjekttyp: $objekttyp\n";
+		if ( $objekttyp eq 'Musikinstrument' ) {
+			$header->setSpec('MIMO');
+		}
+		push @result, $header;
+	}
+	return @result;
+}
+
+=head2 my $fn=id2file ($id);
+
+id2file callback expects an identifier ($id) and will return full path to an xml
+document which contains the full metadata for this record (and no other
+record).
+
+=cut
+
+sub salsa_id2file {
+	my $id = shift;    #which kind of identifier is this?
+	return config->{xml_store} . 'objId-' . $id . '.mpx';
+}
+
+=head2 my xslt_fn=locateXSL($prefix);
+
+locateXSL callback expects a metadataFormat prefix and will return the full
+path to the xsl which is responsible for this transformation. On failure:
+returns nothing.
+
+=cut
+
+sub salsa_locateXSL {
+	my $prefix       = shift;
+	my $nativeFormat = 'mpx';
+	return config->{XSLT_dir} . $nativeFormat . '2' . $prefix . '.xsl';
+}
