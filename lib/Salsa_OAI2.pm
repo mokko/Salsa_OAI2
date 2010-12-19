@@ -199,10 +199,10 @@ sub init_dp {
 
 	#step 1 set up callbacks (mostly mapping related)
 	my $dp = HTTP::OAI::DataProvider::Simple->new(
-		extractHeader => 'salsa_extractHeader',
-		id2file       => 'salsa_id2file',
+		extractHeader => 'Salsa_OAI2::salsa_extractHeader',
+		id2file       => 'Salsa_OAI2::salsa_id2file',
 		Identify      => 'Salsa_OAI2::salsa_Identify',
-		locateXSL     => 'salsa_locateXSL',
+		locateXSL     => 'Salsa_OAI2::salsa_locateXSL',
 		nativeFormatPrefix => 'mpx',    #not used at the moment
 	);
 
@@ -297,7 +297,7 @@ sub salsa_id2file {
 	return config->{xml_store} . 'objId-' . $id . '.mpx';
 }
 
-=head2 my xslt_fn=locateXSL($prefix);
+=head2 my xslt_fn=salsa_locateXSL($prefix);
 
 locateXSL callback expects a metadataFormat prefix and will return the full
 path to the xsl which is responsible for this transformation. On failure:
@@ -308,5 +308,5 @@ returns nothing.
 sub salsa_locateXSL {
 	my $prefix       = shift;
 	my $nativeFormat = 'mpx';
-	return config->{XSLT_dir} . $nativeFormat . '2' . $prefix . '.xsl';
+	return config->{XSLT_dir} .'/'. $nativeFormat . '2' . $prefix . '.xsl';
 }
