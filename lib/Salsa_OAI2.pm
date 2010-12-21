@@ -27,27 +27,23 @@ This data provider is just one notch up from a static repository:
 - easy to maintain since simple
 - deployment freedom with dancer, see Dancer::Deployment
 - OAI-PMH Protocol version 2.0
-- Sets: partly
-
-=head2 NOT SUPPORTED
-- streaming. Currently request has to be finished to start transmit.
-- Resumption tokens
+- Sets: basically work, but not set hierarchies
 - compression. If deployed right, e.g. with PLACK::Middleware::Deflate should
   take care of that.
 
-Major disadvantage: Dancer currently does not support streaming data. Therefore,
-I consider writing a catalyst version once this version runs well.
+=head1 NOT SUPPORTED
+- streaming. Currently request has to be finished to start transmit.
+- Resumption tokens
 
-Some of the concept's are derived from OCLC's OAIcat, but this is perl and needs
-only felt 10% of the code (I didn't count it, but that's what it feels like).
-
-Metadata Freedom: Salsa_OAI is not agnostic concerning its metadata formats.
-Internally it works with mpx format, but you could easily adapt the code to
-fit your own format.
+Metadata Freedom: Salsa_OAI is agnostic concerning its metadata formats.
+Use XSLT 1.0 to tranform your native format in whatever you like.
 
 =head1 SEE ALSO
 
-Dancer at cpan or perldancer.org.
+- Dancer at cpan or perldancer.org.
+- Some ideas concerning inheritance and abstracion derived from OCLC's OAIcat.
+- HTTP::OAI
+- HTTP::OAI::DataProvider
 
 =cut
 
@@ -192,7 +188,7 @@ sub salsa_Identify {
 	  )
 	  or return " Cannot create new HTTP::OAI::Identify ";
 
-	$obj->xslt('/oai2.xsl');
+	$obj->xslt(config->{XSLT});
 
 	#	TODO: this needs to go somewhere in HTTP::OAI::DataProvider::Simple
 	#	return $obj->Salsa_OAI::toString;
@@ -218,6 +214,7 @@ sub init_dp {
 		Identify      => 'Salsa_OAI2::salsa_Identify',
 		locateXSL     => 'Salsa_OAI2::salsa_locateXSL',
 		setLibrary    => 'Salsa_OAI2::salsa_setLibrary',
+		xslt          => config->{XSLT},
 		nativeFormatPrefix => 'mpx',    #not used at the moment
 	);
 
@@ -362,6 +359,7 @@ objects.
 =cut
 
 sub salsa_setLibrary {
+
 	#debug "Enter salsa_setLibrary";
 	my $setLibrary = config->{setLibrary};
 
