@@ -1,3 +1,4 @@
+logger: "console"
 log: "debug"
 warnings: 1
 show_errors: 1

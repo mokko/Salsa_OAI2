@@ -73,13 +73,14 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	} else {
 		$ret = welcome();
 	}
-	debug "This dance is over. How long did it take?";
+	warning "This dance is over. How long did it take?";
 	return $ret;
 };
 dance;
 true;
 
 sub welcome {
+	content_type 'text/html';
 	my $out = <<EOF;
 <html><header><title>Salsa OAI - Minimalistic OAI data provider based on
 Dancer </title></header><body>
