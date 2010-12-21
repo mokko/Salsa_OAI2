@@ -1,3 +1,7 @@
 Makefile
-*~
+.*~
 blib
+logs
+data
+bak
+test-devel

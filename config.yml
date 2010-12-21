@@ -6,6 +6,7 @@
 #
 
 #layout: "main"
+#log does not work because overwritten in envirnonment config
 log: "debug"
 logger: "console"
 appname: "Salsa_OAI2"
