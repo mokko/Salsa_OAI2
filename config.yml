@@ -1,3 +1,4 @@
+##NEW CONFIG
 #
 ##
 ###1. BASIC DANCER CONFIG
@@ -5,8 +6,8 @@
 #
 
 #layout: "main"
-logger: "console"
 log: "debug"
+logger: "console"
 appname: "Salsa_OAI2"
 
 #
@@ -68,4 +69,26 @@ GlobalFormats:
   oai_dc:
    ns_uri: "http://www.openarchives.org/OAI/2.0/oai_dc/"
    ns_schema: "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+#
+##
+### 6 SET LIBRARY
+##
+#
+#this format allows only for one setDescription, but in fact there can be many
+setLibrary:
+  test:
+   setName: "this is a longer name"
+   setDescription:
+    - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
+    - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
+  Maurice:
+   setName: 'mamamama'
+   setDescription:
+    - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
+  Sydney:
+   setName: "v"
+  another_test:
+   setName: "b"
+
+
 

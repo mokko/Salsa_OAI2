@@ -7,6 +7,7 @@ use HTTP::OAI::DataProvider::Simple;
 use Carp qw/carp croak/;
 our $dp      = init_dp();    #do this when starting the webapp
 our $VERSION = '0.1';
+use Data::Dumper qw/Dumper/;
 
 =head1 NAME
 
@@ -120,14 +121,25 @@ EOF
 			'a incomplete GetRecord, should fail'
 		],
 		[
-			'oai?verb=GetRecord&identifier=spk-berlin.de:EM-objId-100064&metadataPrefix=mpx',
-			'GetRecord(identifier=spk-berlin.de:EM-objId-100064, metadataPrefix=mpx)',
-			'a incomplete GetRecord, should pass'
+'oai?verb=GetRecord&identifier=spk-berlin.de:EM-objId-100064&metadataPrefix=mpx',
+'GetRecord(identifier=spk-berlin.de:EM-objId-100064, metadataPrefix=mpx)',
+			'a GetRecord, wtihout transformation, should pass'
 		],
+		[
+'oai?verb=GetRecord&identifier=spk-berlin.de:EM-objId-100064&metadataPrefix=oai_dc',
+'GetRecord(identifier=spk-berlin.de:EM-objId-100064, metadataPrefix=oai_dc)',
+			'a GetRecord with transformation, should pass'
+		],
+
 		[
 			'oai?verb=ListRecords&metadataPrefix=mpx',
 			'ListRecords (metadataPrefix=mpx)',
 'list all records in specified metadataFormat; should eventually pass'
+		],
+		[
+			'oai?verb=ListSets',
+			'ListSets ()',
+			'list all sets ; should eventually pass'
 		],
 	);
 
@@ -203,11 +215,15 @@ sub init_dp {
 		id2file       => 'Salsa_OAI2::salsa_id2file',
 		Identify      => 'Salsa_OAI2::salsa_Identify',
 		locateXSL     => 'Salsa_OAI2::salsa_locateXSL',
+		setLibrary    => 'Salsa_OAI2::salsa_setLibrary',
 		nativeFormatPrefix => 'mpx',    #not used at the moment
 	);
 
 	#step 2: init global metadata formats from Dancer config
-	my %cnf = %{ config->{GlobalFormats} };
+	my %cnf;
+	if ( config->{GlobalFormats} ) {
+		%cnf = %{ config->{GlobalFormats} };
+	}
 
 	foreach my $prefix ( keys %cnf ) {
 		debug " Registering global format $prefix";
@@ -224,7 +240,7 @@ sub init_dp {
 	}
 
 	#step 3: load header cache
-	debug "Load header cache to memory";
+	debug "Loading header cache into memory";
 	$dp->load_headers( config->{headercache_YAML} );
 
 	#we should be ready to go
@@ -293,8 +309,27 @@ record).
 =cut
 
 sub salsa_id2file {
-	my $id = shift;    #which kind of identifier is this?
-	return config->{xml_store} . 'objId-' . $id . '.mpx';
+
+	#debug "Enter salsa_id2file"
+	my $identifier = shift;    #which kind of identifier is this?
+
+	$identifier =~ /-(\d+)$/;
+
+	my $id_no = $1;
+
+	#debug " $identifier -> $id_no";
+
+	if ( !$id_no ) {
+		die "Could not find a file.";
+	}
+
+	#I do NOT test whether this file exists here!
+
+	my $abs_path = config->{xml_store} . '/objId-' . $id_no . '.mpx';
+
+	#debug "absolute path: $identifier -> $abs_path";
+
+	return $abs_path;
 }
 
 =head2 my xslt_fn=salsa_locateXSL($prefix);
@@ -308,5 +343,54 @@ returns nothing.
 sub salsa_locateXSL {
 	my $prefix       = shift;
 	my $nativeFormat = 'mpx';
-	return config->{XSLT_dir} .'/'. $nativeFormat . '2' . $prefix . '.xsl';
+	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
+
+=head2 my $library=salsa_setLibrary();
+
+Reads the setLibrary from dancer's config file. setNames and setDescriptions
+are not stored with OAI headers, but instead in the setLibrary.
+HTTP::OAI::DataProvider::Simple::SetLibrary associates setSpecs with setNames
+and setDescriptions. This callback parses the config file for the setLibrary
+info and returns as HTTP::OAI::ListSet object.
+
+Returns a HTTP::OAI::ListSets object which includes one or more HTTP::OAI::Set
+objects.
+
+=cut
+
+sub salsa_setLibrary {
+	debug "Enter salsa_setLibrary";
+	my $setLibrary = config->{setLibrary};
+
+	if ( %{$setLibrary} ) {
+		my $listSets = new HTTP::OAI::ListSets;
+
+		foreach my $setSpec ( keys %{$setLibrary} ) {
+
+			my $s = new HTTP::OAI::Set;
+			$s->setSpec($setSpec);
+			$s->setName( $setLibrary->{$setSpec}->{setName} );
+
+			debug "setSpec: $setSpec";
+			debug "setName: " . $setLibrary->{$setSpec}->{setName};
+
+			if ( $setLibrary->{$setSpec}->{setDescription} ) {
+
+				foreach my $desc ( @{$setLibrary->{$setSpec}->{setDescription}} ) {
+					#not sure if the if is necessary, but maybe there cd be an
+					#empty array element. Who knows?
+
+					my $dom = XML::LibXML->load_xml(string => $desc);
+					$s->setDescription( new HTTP::OAI::Metadata( dom => $dom ) );
+				}
+			}
+			$listSets->set($s);
+		}
+		return $listSets;
+		warn "no setLibrary found in Dancer's config file";
+
+		#return empty-handed and fail
+	}
+}
+
