@@ -9,6 +9,7 @@
 log: "debug"
 logger: "console"
 appname: "Salsa_OAI2"
+content_type: "text/xml"
 
 #
 ##

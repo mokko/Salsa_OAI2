@@ -175,10 +175,10 @@ sub salsa_Identify {
 		granularity requestURL/
 	  )
 	{
-		if ( !config->{" oai_ $test"} ) {
+		if ( !config->{"oai_$test"} ) {
 
 			#should not just be a debug
-			die " oai_ $test setting in Dancer's config missing !";
+			die "oai_$test setting in Dancer's config missing !";
 		}
 	}
 
@@ -191,6 +191,8 @@ sub salsa_Identify {
 		requestURL     => config->{oai_requestURL},
 	  )
 	  or return " Cannot create new HTTP::OAI::Identify ";
+
+	$obj->xslt('/oai2.xsl');
 
 	#	TODO: this needs to go somewhere in HTTP::OAI::DataProvider::Simple
 	#	return $obj->Salsa_OAI::toString;
@@ -360,7 +362,7 @@ objects.
 =cut
 
 sub salsa_setLibrary {
-	debug "Enter salsa_setLibrary";
+	#debug "Enter salsa_setLibrary";
 	my $setLibrary = config->{setLibrary};
 
 	if ( %{$setLibrary} ) {
@@ -372,17 +374,21 @@ sub salsa_setLibrary {
 			$s->setSpec($setSpec);
 			$s->setName( $setLibrary->{$setSpec}->{setName} );
 
-			debug "setSpec: $setSpec";
-			debug "setName: " . $setLibrary->{$setSpec}->{setName};
+			#debug "setSpec: $setSpec";
+			#debug "setName: " . $setLibrary->{$setSpec}->{setName};
 
 			if ( $setLibrary->{$setSpec}->{setDescription} ) {
 
-				foreach my $desc ( @{$setLibrary->{$setSpec}->{setDescription}} ) {
+				foreach
+				  my $desc ( @{ $setLibrary->{$setSpec}->{setDescription} } )
+				{
+
 					#not sure if the if is necessary, but maybe there cd be an
 					#empty array element. Who knows?
 
-					my $dom = XML::LibXML->load_xml(string => $desc);
-					$s->setDescription( new HTTP::OAI::Metadata( dom => $dom ) );
+					my $dom = XML::LibXML->load_xml( string => $desc );
+					$s->setDescription(
+						new HTTP::OAI::Metadata( dom => $dom ) );
 				}
 			}
 			$listSets->set($s);
