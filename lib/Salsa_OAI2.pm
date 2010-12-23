@@ -34,6 +34,7 @@ This data provider is just one notch up from a static repository:
 =head1 NOT SUPPORTED
 - streaming. Currently request has to be finished to start transmit.
 - Resumption tokens
+- Deleted Headers
 
 Metadata Freedom: Salsa_OAI is agnostic concerning its metadata formats.
 Use XSLT 1.0 to tranform your native format in whatever you like.
@@ -58,12 +59,7 @@ any [ 'get', 'post' ] => '/oai' => sub {
 		my $error = validate_request(params);
 
 		if ($error) {
-
-			#outputs error as txt, and not as xml
-			#return $error->code . ' ' . $error->message;
-			my $response = new HTTP::OAI::Response;
-			$response->errors($error);
-			return $response->toDOM->toString;
+			return err2XML_FN($error);
 		}
 
 		no strict "refs";
@@ -189,7 +185,7 @@ sub salsa_Identify {
 	  )
 	  or return " Cannot create new HTTP::OAI::Identify ";
 
-	$obj->xslt(config->{XSLT});
+	$obj->xslt( config->{XSLT} );
 
 	#	TODO: this needs to go somewhere in HTTP::OAI::DataProvider::Simple
 	#	return $obj->Salsa_OAI::toString;
@@ -200,7 +196,28 @@ sub salsa_Identify {
 
 }
 
+=head2 err2XML_FN
+
+FN indicates that this is a function, not a method.
+
+Fake a DataProvider object and pass error message(s) to
+HTTP::OAI::DataProvider::Simple. Return error msg from there.
+Returns nothing (fails) if given nothing.
+
+=cut
+
+sub err2XML_FN {
+	my $self = new HTTP::OAI::DataProvider::Simple(xslt=>config->{XSLT});
+	if (@_) {
+		return $self->err2XML(@_);
+	}
+}
+
 =head2 $dp=init_dp();
+
+Initialize the data provider with loads of settings either from Dancer's config
+if classic configuration information or from this file if code (mostly
+callbacks).
 
 =cut
 
@@ -217,9 +234,9 @@ sub init_dp {
 		setLibrary    => 'Salsa_OAI2::salsa_setLibrary',
 		xslt          => config->{XSLT},
 		nativeFormatPrefix => 'mpx',    #not used at the moment
-		#for listRecord disk cache
-		tmp_listRecord=> config->{tmp_listRecord},
-		public => config->{public}, # 'tmp'
+		                                #for listRecord disk cache
+		tmp_listRecord => config->{tmp_listRecord},
+		public         => config->{public},           # 'tmp'
 	);
 
 	#step 2: init global metadata formats from Dancer config
