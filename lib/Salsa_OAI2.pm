@@ -217,6 +217,9 @@ sub init_dp {
 		setLibrary    => 'Salsa_OAI2::salsa_setLibrary',
 		xslt          => config->{XSLT},
 		nativeFormatPrefix => 'mpx',    #not used at the moment
+		#for listRecord disk cache
+		tmp_listRecord=> config->{tmp_listRecord},
+		public => config->{public}, # 'tmp'
 	);
 
 	#step 2: init global metadata formats from Dancer config

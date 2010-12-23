@@ -8,7 +8,7 @@
 #layout: "main"
 appname: "Salsa_OAI2"
 content_type: "text/xml"
-
+#public: 'tmp'
 #
 ##
 ###2. FILES AND DIRS
@@ -25,6 +25,10 @@ xml_store: "/home/Mengel/projects/Salsa_OAI/index/fs"
 headercache_YAML: "/home/Mengel/projects/Salsa_OAI/index/ListIdentifiers.yaml"
 #headercache is a yaml file containing all information for the OAI headers
 #is written by script (which?) and read by SALSA OAI
+
+#listRecord response can easily be too big for dom, so instead it is cached
+#on disk. Path consists of dancer's public directory (see above)
+tmp_listRecord: "lr.xml"
 
 
 #
