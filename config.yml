@@ -8,7 +8,7 @@
 #layout: "main"
 appname: "Salsa_OAI2"
 content_type: "text/xml"
-#public: 'tmp'
+#public: 'public'
 #
 ##
 ###2. FILES AND DIRS
@@ -28,8 +28,10 @@ headercache_YAML: "/home/Mengel/projects/Salsa_OAI/index/ListIdentifiers.yaml"
 
 #listRecord response can easily be too big for dom, so instead it is cached
 #on disk. Path consists of dancer's public directory (see above)
-tmp_listRecord: "lr.xml"
-
+tmp_listRecord: 'tmp/lr.xml'
+cache_limit: '3000'
+#up this no of records listRecord response is served via DOM if listRecord has
+#more records, response is written on disk first (to reduce memory use)
 
 #
 ##

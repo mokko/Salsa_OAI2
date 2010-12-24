@@ -237,6 +237,7 @@ sub init_dp {
 		                                #for listRecord disk cache
 		tmp_listRecord => config->{tmp_listRecord},
 		public         => config->{public},           # 'tmp'
+		cache_limit => config->{cache_limit},
 	);
 
 	#step 2: init global metadata formats from Dancer config
