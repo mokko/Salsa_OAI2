@@ -77,78 +77,7 @@ true;
 
 sub welcome {
 	content_type 'text/html';
-	my $out = <<EOF;
-<html><header><title>Salsa OAI - Minimalistic OAI data provider based on
-Dancer </title></header><body>
-<h1>Salsa OAI</h1>
-<p>Test with http client of your choice, e.g. web browser, Tim Brody's
-oai_browser.pl or curl</p>
-<p>Some shortcuts:
-  <ul>
-EOF
-
-	my @shortcuts = (
-		[ 'oai?verb=Identify', 'Identify', 'describe repository' ],
-		[
-			'oai?verb=ListMetadataFormats', 'ListMetadataFormats', 'show
-    	  metadataFormats supported by repository, identifier is an optional
-    	  argument'
-		],
-		[
-			'oai?verb=ListIdentifiers&metadataPrefix=mpx',
-			'ListIdentifiers (metadataPrefix=mpx)',
-			'list all identifiers in the repository'
-		],
-		[
-			'oai?verb=ListIdentifiers&metadataPrefix=mpxXX',
-			'ListIdentifiers (metadataPrefix=mpxXX',
-			'list all identifiers in the repository'
-		],
-		[
-			'oai?verb=ListRecords',
-			'ListRecords ()',
-			'list all records in specified metadataFormat; should fail'
-		],
-		[
-			'oai?verb=GetRecord', 'GetRecord()',
-			'a incomplete GetRecord, should fail'
-		],
-		[
-'oai?verb=GetRecord&identifier=spk-berlin.de:EM-objId-100064&metadataPrefix=mpx',
-'GetRecord(identifier=spk-berlin.de:EM-objId-100064, metadataPrefix=mpx)',
-			'a GetRecord, wtihout transformation, should pass'
-		],
-		[
-'oai?verb=GetRecord&identifier=spk-berlin.de:EM-objId-100064&metadataPrefix=oai_dc',
-'GetRecord(identifier=spk-berlin.de:EM-objId-100064, metadataPrefix=oai_dc)',
-			'a GetRecord with transformation, should pass'
-		],
-
-		[
-			'oai?verb=ListRecords&metadataPrefix=mpx',
-			'ListRecords (metadataPrefix=mpx)',
-'list all records in specified metadataFormat; should eventually pass'
-		],
-		[
-			'oai?verb=ListSets',
-			'ListSets ()',
-			'list all sets ; should eventually pass'
-		],
-	);
-
-	foreach my $triple (@shortcuts) {
-		my @triple = @{$triple};
-		$out .= "<li><a href=\"$triple[0]\">$triple[1]</a> ($triple[2])</li>";
-	}
-
-	$out .= <<EOF;
-  </ul>
-</p><p> <a href="http://perldancer.org">Dancer</a> is leight-weight, heavy-duty and
-fun!</p></body></html>
-EOF
-
-	return $out;
-
+	send_file 'index.htm';
 }
 
 sub salsa_Identify {
@@ -261,7 +190,7 @@ sub init_dp {
 	}
 
 	#step 3: load header cache
-	debug "Loading header cache into memory";
+	warning 'Loading header cache into memory ('.config->{headercache_YAML}.')';
 	$dp->load_headers( config->{headercache_YAML} );
 
 	#we should be ready to go

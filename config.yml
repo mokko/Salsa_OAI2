@@ -23,13 +23,14 @@ xml_store: "/home/Mengel/projects/Salsa_OAI/index/fs"
 #xml source directory where xml records lie (1 record per file)
 
 headercache_YAML: "/home/Mengel/projects/Salsa_OAI/index/ListIdentifiers.yaml"
+#headercache_YAML: "/home/Mengel/projects/Salsa_OAI/index/LI-test.yaml"
 #headercache is a yaml file containing all information for the OAI headers
 #is written by script (which?) and read by SALSA OAI
 
 #listRecord response can easily be too big for dom, so instead it is cached
 #on disk. Path consists of dancer's public directory (see above)
 tmp_listRecord: 'tmp/lr.xml'
-cache_limit: '3000'
+cache_limit: '30000'
 #up this no of records listRecord response is served via DOM if listRecord has
 #more records, response is written on disk first (to reduce memory use)
 
@@ -94,6 +95,3 @@ setLibrary:
    setName: "v"
   another_test:
    setName: "b"
-
-
-

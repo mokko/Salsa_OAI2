@@ -1,0 +1,59 @@
+<html>
+<header>
+<title>Salsa OAI - Minimalistic OAI data provider with Dancer</title>
+</header>
+<body>
+<h1>About Salsa_OAI</h1>
+<p>Salsa_OAI is a simple OAI data provider. Currently it works with
+xml files (one per record) and avoids a database all together; for
+future plans, see below. It is written in perl, available on GitHub and
+uses T. Brody's excellent HTTP::OAI as well as Dancer, a new and cool
+web framework with a vibrant comunity. Salsa_OAI is written by Maurice
+Mengel for the Ethnological Museum in Berlin and MIMO (see
+http://mimo-project.eu).</p>
+<h2>Metadata formats</h2>
+<p>Salsa_OAI is agnostic about the metadata formats used. You can
+use whatever you like as the native xml format as long as you provide a
+XSLT 1.0 transformation to the desired output format. How cool is that?</p>
+
+<h2>Avoiding the database</h2>
+<p>Salsa_OAI reads OAI header information directly into memory. It
+uses a file cache to do so, which speeds up extracting the OAI header
+information from the records. This solution is NOT sustainable (i.e.
+will not scale well when your repository grow). But with a few thousand
+records it might work surprisingly well. The motto is: just one notch up
+from a static repository. The number of records you can serve
+comfortably depends mainly on the memory of your server. I might write a
+database extension later, which would offer a simple upgrade. I expect
+Salsa OAI not to run a lot faster with a database, but to be able to
+deal with a lot more records.</p>
+<p>Upshot of avoiding a database is the it makes developing, testing
+and maintaning Salsa_OAI easy!</p>
+
+<p>File Cache for ListRecords.</p>
+
+<h2>Currently supported</h2>
+<ul>
+	<li>All six verbs of OAI v2.0 should work in a rudimentary way.</li>
+</ul>
+
+<h2>Performance</h2>
+<p>Salsa OAI is written for easy maintenance and extensibility, not
+for speed. It is very possible that it is too slow for you. Should be in
+the implementation specific stuff</p>
+
+<p>I provide some performance statistics, so you can see for
+yourself.</p>
+
+<h2>Not yet supported / TODO</h2>
+<ul>
+	<li>TODO: Check that all error messages demanded by the
+	specification are supported.</li>
+	<li>resumptionToken</li>
+	<li>hierarchical Sets</li>
+	<li>Stream response. Should speed up listRecords and
+	listIdentifiers A LOT ;-)</li>
+</ul>
+
+<h2>Inspiration</h2>
+<p>Before I wrote this, I read every line of OCLC oaicat.</p>
