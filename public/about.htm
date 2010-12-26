@@ -34,7 +34,7 @@ and maintaning Salsa_OAI easy!</p>
 
 <h2>Currently supported</h2>
 <ul>
-	<li>All six verbs of OAI v2.0 should work in a rudimentary way.</li>
+	<li>All six OAI v2.0 verbs should work in a rudimentary way.</li>
 </ul>
 
 <h2>Performance</h2>
@@ -47,12 +47,25 @@ yourself.</p>
 
 <h2>Not yet supported / TODO</h2>
 <ul>
-	<li>TODO: Check that all error messages demanded by the
-	specification are supported.</li>
-	<li>resumptionToken</li>
-	<li>hierarchical Sets</li>
-	<li>Stream response. Should speed up listRecords and
-	listIdentifiers A LOT ;-)</li>
+	<li>Specification</li>
+	<ul>
+		<li>TODO: Check that all error messages demanded by the
+		specification are supported.</li>
+		<li>resumptionToken</li>
+		<li>hierarchical Sets</li>
+	</ul>
+	<li>Server setup/ Salsa_OAI architecture</li>
+	<ul>
+		<li>Stream response. Should speed up listRecords and
+		listIdentifiers A LOT ;-)</li>
+		<li>DB. If I parse the headerCache in a database it should
+		make Salsa_OAI deal with more records. But if I put actual mpx store in db,
+		it should not be necessary anymore to read in all those files, which
+		should really speed up the serving process.Question is mysql or
+		sqlite, I guess. Also which table layout. And how exactly to
+		modularize Salsa_OAI so that it deals with both ways: xml store and
+		db. Should I look at the php versions to learn how to do the database?</li>
+	</ul>
 </ul>
 
 <h2>Inspiration</h2>

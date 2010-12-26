@@ -2,7 +2,6 @@ package Salsa_OAI2;
 use Dancer ':syntax';
 use HTTP::OAI;
 use HTTP::OAI::Repository qw/validate_request/;
-use lib '/home/Mengel/projects/HTTP-OAI-DataProvider-Simple/lib';
 use HTTP::OAI::DataProvider::Simple;
 use Carp qw/carp croak/;
 our $dp      = init_dp();    #do this when starting the webapp
