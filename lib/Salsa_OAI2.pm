@@ -51,7 +51,7 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 # THE ONLY ROUTE
 #
 
-any [ 'get', 'post' ] => '/oai' => sub {
+any [ 'get', 'post' ] => config->{path} => sub {
 	my $ret;    # avoid perl's magic returns
 
 	if ( my $verb = params->{verb} ) {
@@ -92,8 +92,8 @@ sub salsa_Identify {
 	#I should complain intelligble when info not there
 
 	foreach my $test (
-		qw/repositoryName baseURL adminEmail deletedRecord
-		granularity requestURL/
+		qw/repositoryName adminEmail deletedRecord
+		granularity/
 	  )
 	{
 		if ( !config->{"oai_$test"} ) {
@@ -103,15 +103,22 @@ sub salsa_Identify {
 		}
 	}
 
+	my $early='0001-01-01';
+	if (config->{oai_earliestDatestamp}) {
+		$early=config->{oai_earliestDatestamp};
+	}
+
+	#obligatory
 	my $obj = new HTTP::OAI::Identify(
+		adminEmail    => config->{oai_adminEmail},
+		#take baseURL from dancer
+		baseURL       => uri_for( request->path ),
+		deletedRecord => config->{oai_deletedRecord},
+		granularity   => config->{oai_granularity},
 		repositoryName => config->{oai_repositoryName},
-		baseURL        => config->{oai_baseURL},
-		adminEmail     => config->{oai_adminEmail},
-		deletedRecord  => config->{oai_deletedRecord},
-		granularity    => config->{oai_granularity},
-		requestURL     => config->{oai_requestURL},
+		earliestDatestamp => $early,
 	  )
-	  or return " Cannot create new HTTP::OAI::Identify ";
+	  or return "Cannot create new HTTP::OAI::Identify ";
 
 	$obj->xslt( config->{XSLT} );
 
@@ -135,7 +142,7 @@ Returns nothing (fails) if given nothing.
 =cut
 
 sub err2XML_FN {
-	my $self = new HTTP::OAI::DataProvider::Simple(xslt=>config->{XSLT});
+	my $self = new HTTP::OAI::DataProvider::Simple( xslt => config->{XSLT} );
 	if (@_) {
 		return $self->err2XML(@_);
 	}
@@ -151,6 +158,10 @@ callbacks).
 
 sub init_dp {
 
+	if ( !config->{path} ) {
+		croak "I need a path in dancer config, e.g. '/oai'";
+	}
+
 	debug " data provider needs to be initialized ONCE ";
 
 	#step 1 set up callbacks (mostly mapping related)
@@ -165,7 +176,7 @@ sub init_dp {
 		                                #for listRecord disk cache
 		tmp_listRecord => config->{tmp_listRecord},
 		public         => config->{public},           # 'tmp'
-		cache_limit => config->{cache_limit},
+		cache_limit    => config->{cache_limit},
 	);
 
 	#step 2: init global metadata formats from Dancer config
@@ -189,7 +200,8 @@ sub init_dp {
 	}
 
 	#step 3: load header cache
-	warning 'Loading header cache into memory ('.config->{headercache_YAML}.')';
+	warning 'Loading header cache into memory ('
+	  . config->{headercache_YAML} . ')';
 	$dp->load_headers( config->{headercache_YAML} );
 
 	#we should be ready to go
