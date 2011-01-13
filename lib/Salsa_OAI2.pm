@@ -2,7 +2,7 @@ package Salsa_OAI2;
 use Dancer ':syntax';
 use HTTP::OAI;
 use HTTP::OAI::Repository qw/validate_request/;
-use HTTP::OAI::DataProvider::Simple;
+use HTTP::OAI::DataProvider;
 use Carp qw/carp croak/;
 our $dp      = init_dp();    #do this when starting the webapp
 our $VERSION = '0.1';
@@ -51,7 +51,7 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 # THE ONLY ROUTE
 #
 
-any [ 'get', 'post' ] => config->{path} => sub {
+any [ 'get', 'post' ] => '/oai'=> sub {
 	my $ret;    # avoid perl's magic returns
 
 	if ( my $verb = params->{verb} ) {
@@ -158,9 +158,9 @@ callbacks).
 
 sub init_dp {
 
-	if ( !config->{path} ) {
-		croak "I need a path in dancer config, e.g. '/oai'";
-	}
+	#if ( !config->{path} ) {
+	#	croak "I need a path in dancer config, e.g. '/oai'";
+	#}
 
 	debug " data provider needs to be initialized ONCE ";
 
