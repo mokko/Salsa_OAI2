@@ -3,16 +3,17 @@ use Dancer ':syntax';
 use HTTP::OAI;
 use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider;
+
 #necessary?
 use HTTP::OAI::Repository qw/validate_request/;
+
 #only for debugging
 use Data::Dumper qw/Dumper/;
 
-
-our $provider      = init_dp();    #do this when starting the webapp
-our $VERSION = '0.2'; #sqlite
-
+our $provider = init_dp();    #do this when starting the webapp
+our $VERSION  = '0.2';        #sqlite
 
 =head1 NAME
 
@@ -57,10 +58,11 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 # THE ONLY ROUTE
 #
 
-any [ 'get', 'post' ] => '/oai'=> sub {
+any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
 
 	if ( my $verb = params->{verb} ) {
+
 		#wd be nicer if this wd be part DataProvider
 		my $error = validate_request(params);
 
@@ -108,34 +110,27 @@ sub salsa_Identify {
 		}
 	}
 
-	my $early='0001-01-01';
-	if (config->{oai_earliestDatestamp}) {
-		$early=config->{oai_earliestDatestamp};
+	my $early = '0001-01-01';
+	if ( config->{oai_earliestDatestamp} ) {
+		$early = config->{oai_earliestDatestamp};
 	}
-	#SELECT MIN (datestamp) FROM records;
 
+	#SELECT MIN (datestamp) FROM records;
 
 	#obligatory
 	my $obj = new HTTP::OAI::Identify(
-		adminEmail    => config->{oai_adminEmail},
+		adminEmail => config->{oai_adminEmail},
+
 		#take baseURL from dancer
-		baseURL       => uri_for( request->path ),
-		deletedRecord => config->{oai_deletedRecord},
-		granularity   => config->{oai_granularity},
-		repositoryName => config->{oai_repositoryName},
+		baseURL           => uri_for( request->path ),
+		deletedRecord     => config->{oai_deletedRecord},
+		granularity       => config->{oai_granularity},
+		repositoryName    => config->{oai_repositoryName},
 		earliestDatestamp => $early,
 	  )
 	  or return "Cannot create new HTTP::OAI::Identify ";
 
 	return $obj;
-
-	#$obj->xslt( config->{XSLT} );
-	#	TODO: this needs to go somewhere in HTTP::OAI::DataProvider::Simple
-	#	return $obj->Salsa_OAI::toString;
-	#my $xml;
-	#$obj->set_handler( XML::SAX::Writer->new( Output => \$xml ) );
-	#$obj->generate;
-	#return $xml;
 
 }
 
@@ -173,10 +168,10 @@ sub init_dp {
 
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
-		Identify      => 'Salsa_OAI::salsa_Identify',
-		locateXSL     => 'Salsa_OAI::salsa_locateXSL',
-		setLibrary    => 'Salsa_OAI::salsa_setLibrary',
-		xslt          => config->{XSLT},
+		Identify   => 'Salsa_OAI::salsa_Identify',
+		locateXSL  => 'Salsa_OAI::salsa_locateXSL',
+		setLibrary => 'Salsa_OAI::salsa_setLibrary',
+		xslt       => config->{XSLT},
 		nativeFormatPrefix => 'mpx',    #not used at the moment
 		                                #for listRecord disk cache
 	);
@@ -187,7 +182,7 @@ sub init_dp {
 		%cnf = %{ config->{GlobalFormats} };
 	}
 
-	my $globalFormats=new HTTP::OAI::DataProvider::GlobalFormats;
+	my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
 
 	foreach my $prefix ( keys %cnf ) {
 		debug " Registering global format $prefix";
@@ -202,16 +197,16 @@ sub init_dp {
 		);
 
 	}
+
 	#I am cheating here somewhat
-	$provider->{globalFormats}=$globalFormats;
+	$provider->{globalFormats} = $globalFormats;
 
-	$provider->{engine}=new HTTP::OAI::DataProvider::Sqlite(dbfile=>config->{dbfile});
-
+	$provider->{engine} =
+	  new HTTP::OAI::DataProvider::Sqlite( dbfile => config->{dbfile} );
 
 	#debug "data provider initialized!";
 	return $provider;
 }
-
 
 =head2 my xslt_fn=salsa_locateXSL($prefix);
 
@@ -280,3 +275,200 @@ sub salsa_setLibrary {
 	}
 }
 
+#
+# sqlite mapping - not sure if it deserves its own pacakge!?
+#
+
+
+=head2 my @records=extractRecords ($doc);
+
+Expects an mpx document as dom and returns an array of HTTP::OAI::Records.
+Calls setRules on every record to ensure application OAI sets. Gets called from
+digest_single at the moment.
+
+Todo: What to do on failure?
+
+Todo: Should be in Salsa_OAI
+
+=cut
+
+sub extractRecords {
+	my $self = shift;
+	my $doc  = shift;    #old document
+
+	debug "Enter extractRecords ($doc)";
+
+	if ( !$doc ) {
+		die "Error: No doc";
+	}
+
+	my @nodes = $doc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
+
+	my $counter = 0;
+	foreach my $node (@nodes) {
+
+		#there can be only one objId
+		my @objIds = $node->findnodes('@objId');
+		my $objId  = $objIds[0]->value;
+
+		#because xpath issues make md before header
+		my $md = $self->main::_mk_md( $doc, $objId );
+
+		#header stuff except sets
+		my $header = _extractHeader($node);
+
+		#setRules:mapping set to simple mpx rules
+		$node = XML::LibXML::XPathContext->new($node);
+		$node->registerNs( $self->{ns_prefix}, $self->{ns_uri} );
+
+		( $node, $header ) = setRules( $node, $header );
+
+		debug "node:" . $node;
+		my $record = new HTTP::OAI::Record(
+			header   => $header,
+			metadata => $md,
+		);
+
+		return $record;
+	}
+}
+
+#includes the logic of how to extract OAI header information from the node
+#expects libxml node (sammlungsobjekt) and returns HTTP::OAI::Header
+#is called by extractRecord
+sub _extractHeader {
+	my $node = shift;
+
+	my @objIds      = $node->findnodes('@objId');
+	my $id_orig     = $objIds[0]->value;
+	my $id_oai      = 'spk-berlin.de:EM-objId-' . $id_orig;
+	my @exportdatum = $node->findnodes('@exportdatum');
+	my $exportdatum = $exportdatum[0]->value . 'Z';
+
+	debug "  $id_oai--$exportdatum";
+	my $header = new HTTP::OAI::Header(
+		identifier => $id_oai,
+		datestamp  => $exportdatum,
+
+		#TODO:status=> 'deleted', #deleted or none;
+	);
+
+	#debug 'NNNode:' . $node->toString;
+
+	return $header;
+
+}
+
+#expects the whole mpx/xml document as dom and the current id (objId), returns
+#metadata for one object including related data (todo) as HTTP::OAI::Metadata
+#object
+sub _mk_md {
+	my $self      = shift;
+	my $doc       = shift;    #original doc, a potentially big mpx/xml document
+	my $currentId = shift;
+
+	#get root element from original doc
+	#speed is not mission critical since this is part of the digester
+	#so I don't have to cache this operation
+	my @list = $doc->findnodes('/mpx:museumPlusExport');
+	if ( !$list[0] ) {
+		die "Cannot find root element";
+	}
+
+	#make new doc
+	my $new_doc = XML::LibXML::Document->createDocument( "1.0", "UTF-8" );
+
+	#add root
+	my $root = $list[0]->cloneNode(0);    #0 not deep. It works!
+	$new_doc->setDocumentElement($root);
+
+	#get current node
+	my @nodes =
+	  $doc->findnodes(
+		qq(/mpx:museumPlusExport/mpx:sammlungsobjekt[\@objId = '$currentId']));
+	my $node = $nodes[0];
+
+	#related info: verknüpftesObjekt
+	{
+		my $xpath =
+		  qw (/mpx:museumPlusExport/mpx:multimediaobjekt)
+		  . qq([mpx:verknüpftesObjekt = '$currentId']);
+
+		#debug "DEBUG XPATH $xpath\n";
+
+		my @mume = $doc->findnodes($xpath);
+		foreach my $mume (@mume) {
+
+			#debug 'MUME' . $mume->toString . "\n";
+			$root->appendChild($mume);
+		}
+	}
+
+	#related info: personKörperschaft
+	{
+		my $node   = $self->_registerNS($node);
+		my @kueIds = $node->findnodes('mpx:personKörperschaftRef/@id');
+
+		foreach my $kueId (@kueIds) {
+
+			my $id = $kueId->value;
+
+			my $xpath =
+			  qw (/mpx:museumPlusExport/mpx:personKörperschaft)
+			  . qq([\@kueId = '$id']);
+
+			#debug "DEBUG XPATH $xpath\n";
+
+			my @perKors = $doc->findnodes($xpath);
+			foreach my $perKor (@perKors) {
+
+				#debug 'perKor' . $perKor->toString . "\n";
+				$root->appendChild($perKor);
+			}
+		}
+	}
+
+	#attach the complete sammlungsdatensatz, there can be only one
+	$root->appendChild($node);
+
+	#should I also validate the stuff?
+
+	#MAIN DEBUG
+	#debug "debug output\n" . $new_doc->toString;
+
+	#wrap into dom into HTTP::OAI::Metadata
+	my $md = new HTTP::OAI::Metadata( dom => $new_doc );
+
+	return $md;
+}
+
+=head2 $node=setRules ($node);
+
+Gets called during extractRecords for every node (i.e. record) in the xml
+source file to map OAI sets to simple criteria on per-node-based
+rules.
+
+Todo: Should be in Salsa_OAI
+
+=cut
+
+sub setRules {
+	my $node   = shift;
+	my $header = shift;
+
+	#$debug = 0;
+	debug "Enter setRules";
+
+	#setSpec: MIMO
+	my $objekttyp = $node->findvalue('mpx:objekttyp');
+	if ($objekttyp) {
+
+		#debug "   objekttyp: $objekttyp\n";
+		if ( $objekttyp eq 'Musikinstrument' ) {
+			$header->setSpec('MIMO');
+			debug "    set setSpec MIMO";
+		}
+	}
+
+	return $node, $header;
+}
