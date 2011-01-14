@@ -1,13 +1,18 @@
-package Salsa_OAI2;
+package Salsa_OAI;
 use Dancer ':syntax';
 use HTTP::OAI;
-use HTTP::OAI::Repository qw/validate_request/;
+use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 use HTTP::OAI::DataProvider;
-use Carp qw/carp croak/;
+#necessary?
+use HTTP::OAI::Repository qw/validate_request/;
+#only for debugging
+use Data::Dumper qw/Dumper/;
+
+
 our $provider      = init_dp();    #do this when starting the webapp
 our $VERSION = '0.2'; #sqlite
-use Data::Dumper qw/Dumper/;
+
 
 =head1 NAME
 
@@ -56,6 +61,7 @@ any [ 'get', 'post' ] => '/oai'=> sub {
 	my $ret;    # avoid perl's magic returns
 
 	if ( my $verb = params->{verb} ) {
+		#wd be nicer if this wd be part DataProvider
 		my $error = validate_request(params);
 
 		if ($error) {
@@ -82,8 +88,6 @@ sub welcome {
 
 sub salsa_Identify {
 	debug " Enter salsa_Identify ";
-	use XML::SAX::Writer;
-	use HTTP::OAI;
 
 	#
 	# Metadata handling
@@ -108,6 +112,8 @@ sub salsa_Identify {
 	if (config->{oai_earliestDatestamp}) {
 		$early=config->{oai_earliestDatestamp};
 	}
+	#SELECT MIN (datestamp) FROM records;
+
 
 	#obligatory
 	my $obj = new HTTP::OAI::Identify(
@@ -121,14 +127,15 @@ sub salsa_Identify {
 	  )
 	  or return "Cannot create new HTTP::OAI::Identify ";
 
-	$obj->xslt( config->{XSLT} );
+	return $obj;
 
+	#$obj->xslt( config->{XSLT} );
 	#	TODO: this needs to go somewhere in HTTP::OAI::DataProvider::Simple
 	#	return $obj->Salsa_OAI::toString;
-	my $xml;
-	$obj->set_handler( XML::SAX::Writer->new( Output => \$xml ) );
-	$obj->generate;
-	return $xml;
+	#my $xml;
+	#$obj->set_handler( XML::SAX::Writer->new( Output => \$xml ) );
+	#$obj->generate;
+	#return $xml;
 
 }
 
@@ -166,17 +173,12 @@ sub init_dp {
 
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
-		extractHeader => 'Salsa_OAI2::salsa_extractHeader',
-		id2file       => 'Salsa_OAI2::salsa_id2file',
-		Identify      => 'Salsa_OAI2::salsa_Identify',
-		locateXSL     => 'Salsa_OAI2::salsa_locateXSL',
-		setLibrary    => 'Salsa_OAI2::salsa_setLibrary',
+		Identify      => 'Salsa_OAI::salsa_Identify',
+		locateXSL     => 'Salsa_OAI::salsa_locateXSL',
+		setLibrary    => 'Salsa_OAI::salsa_setLibrary',
 		xslt          => config->{XSLT},
 		nativeFormatPrefix => 'mpx',    #not used at the moment
 		                                #for listRecord disk cache
-		tmp_listRecord => config->{tmp_listRecord},
-		public         => config->{public},           # 'tmp'
-		cache_limit    => config->{cache_limit},
 	);
 
 	#step 2: init global metadata formats from Dancer config
@@ -200,8 +202,11 @@ sub init_dp {
 		);
 
 	}
-	#I am somewhat cheating here
+	#I am cheating here somewhat
 	$provider->{globalFormats}=$globalFormats;
+
+	$provider->{engine}=new HTTP::OAI::DataProvider::Sqlite(dbfile=>config->{dbfile});
+
 
 	#debug "data provider initialized!";
 	return $provider;
@@ -226,12 +231,12 @@ sub salsa_locateXSL {
 
 Reads the setLibrary from dancer's config file. setNames and setDescriptions
 are not stored with OAI headers, but instead in the setLibrary.
-HTTP::OAI::DataProvider::Simple::SetLibrary associates setSpecs with setNames
+HTTP::OAI::DataProvider::SetLibrary associates setSpecs with setNames
 and setDescriptions. This callback parses the config file for the setLibrary
-info and returns as HTTP::OAI::ListSet object.
+info and returns a HTTP::OAI::ListSets object which includes one or more
+HTTP::OAI::Set objects.
 
-Returns a HTTP::OAI::ListSets object which includes one or more HTTP::OAI::Set
-objects.
+On failure, should return nothing.
 
 =cut
 
