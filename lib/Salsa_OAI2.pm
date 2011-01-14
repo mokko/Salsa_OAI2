@@ -2,10 +2,11 @@ package Salsa_OAI2;
 use Dancer ':syntax';
 use HTTP::OAI;
 use HTTP::OAI::Repository qw/validate_request/;
+use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 use HTTP::OAI::DataProvider;
 use Carp qw/carp croak/;
-our $dp      = init_dp();    #do this when starting the webapp
-our $VERSION = '0.1';
+our $provider      = init_dp();    #do this when starting the webapp
+our $VERSION = '0.2'; #sqlite
 use Data::Dumper qw/Dumper/;
 
 =head1 NAME
@@ -62,7 +63,7 @@ any [ 'get', 'post' ] => '/oai'=> sub {
 		}
 
 		no strict "refs";
-		$ret = $dp->$verb( params() );
+		$ret = $provider->$verb( params() );
 		use strict "refs";
 
 	} else {
@@ -148,11 +149,10 @@ sub err2XML_FN {
 	}
 }
 
-=head2 $dp=init_dp();
+=head2 $provider=init_dp();
 
-Initialize the data provider with loads of settings either from Dancer's config
-if classic configuration information or from this file if code (mostly
-callbacks).
+Initialize the data provider with settings either from Dancer's config
+if classic configuration information or from this file (callbacks).
 
 =cut
 
@@ -165,7 +165,7 @@ sub init_dp {
 	debug " data provider needs to be initialized ONCE ";
 
 	#step 1 set up callbacks (mostly mapping related)
-	my $dp = HTTP::OAI::DataProvider::Simple->new(
+	my $provider = HTTP::OAI::DataProvider->new(
 		extractHeader => 'Salsa_OAI2::salsa_extractHeader',
 		id2file       => 'Salsa_OAI2::salsa_id2file',
 		Identify      => 'Salsa_OAI2::salsa_Identify',
@@ -185,113 +185,28 @@ sub init_dp {
 		%cnf = %{ config->{GlobalFormats} };
 	}
 
+	my $globalFormats=new HTTP::OAI::DataProvider::GlobalFormats;
+
 	foreach my $prefix ( keys %cnf ) {
 		debug " Registering global format $prefix";
 		if ( !$cnf{$prefix}{ns_uri} or !$cnf{$prefix}{ns_schema} ) {
 			die "GlobalFormat $prefix in yaml configuration incomplete";
 		}
 
-		$dp->registerFormat(
+		$globalFormats->register(
 			ns_prefix => $prefix,
 			ns_uri    => $cnf{$prefix}{ns_uri},
 			ns_schema => $cnf{$prefix}{ns_schema},
 		);
 
 	}
+	#I am somewhat cheating here
+	$provider->{globalFormats}=$globalFormats;
 
-	#step 3: load header cache
-	warning 'Loading header cache into memory ('
-	  . config->{headercache_YAML} . ')';
-	$dp->load_headers( config->{headercache_YAML} );
-
-	#we should be ready to go
 	#debug "data provider initialized!";
-	return $dp;
+	return $provider;
 }
 
-=head2 @oaiheaders=extractHeader ($doc)
-
-$doc is an mpx, either one record per file or multiple. @oaiheaders is an array
-of HTTP::OAI::Headers which contains
- oai identifier
- datestamp
- set information
-=cut
-
-sub salsa_extractHeader {
-
-	#TODO: Currently not tested
-	#where is documentation for the interface. Should be in DP::Simple
-
-	my $doc = shift;    # this is an mpx from xml store.
-	my @result;
-
-	croak "Error: No doc" if !$doc;
-
-	my @nodes = $doc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
-
-	foreach my $node (@nodes) {
-		my @objIds      = $node->findnodes('@objId');
-		my $id_orig     = $objIds[0]->value;
-		my $id_oai      = 'spk-berlin.de:EM-objId-' . $id_orig;
-		my @exportdatum = $node->findnodes('@exportdatum');
-		my $exportdatum = $exportdatum[0]->value . 'Z';
-
-		print "\t$id_oai--$exportdatum\n";
-		my $header = new HTTP::OAI::Header(
-			identifier => $id_oai,
-			datestamp  => $exportdatum,
-
-			#TODO:status=> 'deleted', #deleted or none;
-		);
-
-		$node = XML::LibXML::XPathContext->new($node);
-		$node->registerNs( 'mpx', 'http://' );
-
-		#$node=_registerNS ($self,$node);
-
-		#example of mapping set to simple mpx criteria
-		my $objekttyp = $node->findvalue('mpx:objekttyp');
-		print "\tobjekttyp: $objekttyp\n";
-		if ( $objekttyp eq 'Musikinstrument' ) {
-			$header->setSpec('MIMO');
-		}
-		push @result, $header;
-	}
-	return @result;
-}
-
-=head2 my $fn=id2file ($id);
-
-id2file callback expects an identifier ($id) and will return full path to an xml
-document which contains the full metadata for this record (and no other
-record).
-
-=cut
-
-sub salsa_id2file {
-
-	#debug "Enter salsa_id2file"
-	my $identifier = shift;    #which kind of identifier is this?
-
-	$identifier =~ /-(\d+)$/;
-
-	my $id_no = $1;
-
-	#debug " $identifier -> $id_no";
-
-	if ( !$id_no ) {
-		die "Could not find a file.";
-	}
-
-	#I do NOT test whether this file exists here!
-
-	my $abs_path = config->{xml_store} . '/objId-' . $id_no . '.mpx';
-
-	#debug "absolute path: $identifier -> $abs_path";
-
-	return $abs_path;
-}
 
 =head2 my xslt_fn=salsa_locateXSL($prefix);
 
