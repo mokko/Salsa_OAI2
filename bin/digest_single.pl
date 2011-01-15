@@ -4,18 +4,18 @@ use strict;
 use warnings;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
+
 #I don't even Debug in here
 #use Dancer::CommandLine qw/Debug Warning/;
+use Dancer::CommandLine::Config;
 
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 use HTTP::OAI::DataProvider::SQLite;
 use lib '/home/Mengel/projects/Salsa_OAI2/lib';
-#use Salsa_OAI; #currently the place where the mapping resides
-use Salsa_OAI::CommandLine qw/load_conf test_conf_var/;
-use Salsa_OAI::Mapping;
+use Salsa_OAI::MPX;
+
 #for dirty debugging
 #use Data::Dumper qw/Dumper/;
-
 
 =head1 NAME
 
@@ -81,7 +81,7 @@ todo
 =cut
 
 #
-# user input
+# command line input
 #
 
 if ( !$ARGV[0] ) {
@@ -96,26 +96,31 @@ if ( !-f $ARGV[0] ) {
 }
 
 #
-# check dancer config
+# dancer config
 #
 
-#Salsa home dir + conf file
-my $conf = load_conf();
-#croak after error if
-test_conf_var(qw/dbfile ns_prefix ns_uri/);
+#my $config_path= Dancer::CommandLine::Config::Guess;
+#todo: path has to go somewhere else
+my $c =
+  new Dancer::CommandLine::Config(
+	'/home/Mengel/projects/Salsa_OAI2/config.yml');
+
+#croak after error if vars missing in conf
+$c->test_conf_var(qw/dbfile ns_prefix ns_uri/);
+my $config=$c->get_config;
 
 #
 # init
 #
 
 my $engine = new HTTP::OAI::DataProvider::SQLite(
-	dbfile    => $conf->{dbfile},
-	ns_prefix => $conf->{ns_prefix},
-	ns_uri    => $conf->{ns_uri},
+	dbfile    => $config->{dbfile},
+	ns_prefix => $config->{ns_prefix},
+	ns_uri    => $config->{ns_uri},
 );
 
 #
-# do it
+# call digest_single
 #
 
 my $err = $engine->digest_single(

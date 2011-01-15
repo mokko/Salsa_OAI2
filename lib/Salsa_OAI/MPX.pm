@@ -1,13 +1,29 @@
-package Salsa_OAI::Mapping;
+package Salsa_OAI::MPX;
 
-use Dancer::CommandLine qw/Debug Warning/;
 use strict;
 use warnings;
+use Dancer::CommandLine qw/Debug Warning/;
 use utf8;    #for verknupftesObjekt
+use XML::LibXML;
+use XML::LibXML::XPathContext;
 
-#use Exporter;
-#our @ISA    = qw(Exporter);
-#our @EXPORT_OK = qw(extractRecords);
+=head1 NAME
+
+Salsa_OAI::MPX
+
+=head1 DESCRIPTION
+
+This package contains everything that is specific to MPX as native format.
+
+=head1 VERSION
+
+Version 0.01
+
+=cut
+
+our $VERSION = '0.01';
+
+=head1 FUNCTIONS
 
 =head2 my @records=extractRecords ($doc);
 
@@ -193,12 +209,13 @@ sub setRules {
 
 		#Debug "   objekttyp: $objekttyp\n";
 		if ( $objekttyp eq 'Musikinstrument' ) {
-			$header->setSpec('MIMO');
-			Debug "    set setSpec MIMO";
+			my $setSpec='MIMO';
+			$header->setSpec($setSpec);
+			Debug "    set setSpec '$setSpec'";
 		}
 	}
 
 	return $node, $header;
 }
 
-1; #Salsa_OAI::Mapping;
+1; #Salsa_OAI::MPX;
