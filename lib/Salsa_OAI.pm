@@ -1,5 +1,6 @@
 package Salsa_OAI;
 use Dancer ':syntax';
+use Dancer::CommandLine qw/Debug Warning/;
 use HTTP::OAI;
 use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
@@ -89,7 +90,7 @@ sub welcome {
 }
 
 sub salsa_Identify {
-	debug " Enter salsa_Identify ";
+	Debug " Enter salsa_Identify ";
 
 	#
 	# Metadata handling
@@ -115,6 +116,7 @@ sub salsa_Identify {
 		$early = config->{oai_earliestDatestamp};
 	}
 
+	#TODO: I could do an sql to determine the earliest date
 	#SELECT MIN (datestamp) FROM records;
 
 	#obligatory
@@ -128,7 +130,7 @@ sub salsa_Identify {
 		repositoryName    => config->{oai_repositoryName},
 		earliestDatestamp => $early,
 	  )
-	  or return "Cannot create new HTTP::OAI::Identify ";
+	  or return "Cannot create new HTTP::OAI::Identify";
 
 	return $obj;
 
@@ -164,7 +166,7 @@ sub init_dp {
 	#	croak "I need a path in dancer config, e.g. '/oai'";
 	#}
 
-	debug " data provider needs to be initialized ONCE ";
+	Debug " data provider needs to be initialized ONCE ";
 
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
@@ -202,7 +204,9 @@ sub init_dp {
 	$provider->{globalFormats} = $globalFormats;
 
 	$provider->{engine} =
-	  new HTTP::OAI::DataProvider::Sqlite( dbfile => config->{dbfile} );
+	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
+
+	#do I need to provide ns_uri etc.?
 
 	#debug "data provider initialized!";
 	return $provider;
@@ -237,7 +241,7 @@ On failure, should return nothing.
 
 sub salsa_setLibrary {
 
-	#debug "Enter salsa_setLibrary";
+	#Debug "Enter salsa_setLibrary";
 	my $setLibrary = config->{setLibrary};
 
 	if ( %{$setLibrary} ) {
@@ -249,8 +253,8 @@ sub salsa_setLibrary {
 			$s->setSpec($setSpec);
 			$s->setName( $setLibrary->{$setSpec}->{setName} );
 
-			#debug "setSpec: $setSpec";
-			#debug "setName: " . $setLibrary->{$setSpec}->{setName};
+			#Debug "setSpec: $setSpec";
+			#Debug "setName: " . $setLibrary->{$setSpec}->{setName};
 
 			if ( $setLibrary->{$setSpec}->{setDescription} ) {
 
@@ -296,7 +300,7 @@ sub extractRecords {
 	my $self = shift;
 	my $doc  = shift;    #old document
 
-	debug "Enter extractRecords ($doc)";
+	Debug "Enter extractRecords ($doc)";
 
 	if ( !$doc ) {
 		die "Error: No doc";
@@ -323,7 +327,7 @@ sub extractRecords {
 
 		( $node, $header ) = setRules( $node, $header );
 
-		debug "node:" . $node;
+		Debug "node:" . $node;
 		my $record = new HTTP::OAI::Record(
 			header   => $header,
 			metadata => $md,
@@ -345,7 +349,7 @@ sub _extractHeader {
 	my @exportdatum = $node->findnodes('@exportdatum');
 	my $exportdatum = $exportdatum[0]->value . 'Z';
 
-	debug "  $id_oai--$exportdatum";
+	Debug "  $id_oai--$exportdatum";
 	my $header = new HTTP::OAI::Header(
 		identifier => $id_oai,
 		datestamp  => $exportdatum,
@@ -353,7 +357,7 @@ sub _extractHeader {
 		#TODO:status=> 'deleted', #deleted or none;
 	);
 
-	#debug 'NNNode:' . $node->toString;
+	#Debug 'NNNode:' . $node->toString;
 
 	return $header;
 
@@ -394,12 +398,12 @@ sub _mk_md {
 		  qw (/mpx:museumPlusExport/mpx:multimediaobjekt)
 		  . qq([mpx:verknüpftesObjekt = '$currentId']);
 
-		#debug "DEBUG XPATH $xpath\n";
+		#Debug "DEBUG XPATH $xpath\n";
 
 		my @mume = $doc->findnodes($xpath);
 		foreach my $mume (@mume) {
 
-			#debug 'MUME' . $mume->toString . "\n";
+			#Debug 'MUME' . $mume->toString . "\n";
 			$root->appendChild($mume);
 		}
 	}
@@ -417,12 +421,12 @@ sub _mk_md {
 			  qw (/mpx:museumPlusExport/mpx:personKörperschaft)
 			  . qq([\@kueId = '$id']);
 
-			#debug "DEBUG XPATH $xpath\n";
+			#Debug "DEBUG XPATH $xpath\n";
 
 			my @perKors = $doc->findnodes($xpath);
 			foreach my $perKor (@perKors) {
 
-				#debug 'perKor' . $perKor->toString . "\n";
+				#Debug 'perKor' . $perKor->toString . "\n";
 				$root->appendChild($perKor);
 			}
 		}
@@ -434,7 +438,7 @@ sub _mk_md {
 	#should I also validate the stuff?
 
 	#MAIN DEBUG
-	#debug "debug output\n" . $new_doc->toString;
+	#Debug "Debug output\n" . $new_doc->toString;
 
 	#wrap into dom into HTTP::OAI::Metadata
 	my $md = new HTTP::OAI::Metadata( dom => $new_doc );
@@ -456,17 +460,17 @@ sub setRules {
 	my $node   = shift;
 	my $header = shift;
 
-	#$debug = 0;
-	debug "Enter setRules";
+	#$Debug = 0;
+	Debug "Enter setRules";
 
 	#setSpec: MIMO
 	my $objekttyp = $node->findvalue('mpx:objekttyp');
 	if ($objekttyp) {
 
-		#debug "   objekttyp: $objekttyp\n";
+		#Debug "   objekttyp: $objekttyp\n";
 		if ( $objekttyp eq 'Musikinstrument' ) {
 			$header->setSpec('MIMO');
-			debug "    set setSpec MIMO";
+			Debug "    set setSpec MIMO";
 		}
 	}
 

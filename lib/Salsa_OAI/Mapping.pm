@@ -1,10 +1,13 @@
 package Salsa_OAI::Mapping;
 
+use Dancer::CommandLine qw/Debug Warning/;
 use strict;
 use warnings;
-use Exporter;
-our @ISA    = qw(Exporter HTTP::OAI::DataProvider::Exporter);
-our @EXPORT_OK = qw(extractRecords);
+use utf8;    #for verknupftesObjekt
+
+#use Exporter;
+#our @ISA    = qw(Exporter);
+#our @EXPORT_OK = qw(extractRecords);
 
 =head2 my @records=extractRecords ($doc);
 
@@ -22,7 +25,7 @@ sub extractRecords {
 	my $self = shift;
 	my $doc  = shift;    #old document
 
-	debug "Enter extractRecords ($doc)";
+	Debug "Enter extractRecords ($doc)";
 
 	if ( !$doc ) {
 		die "Error: No doc";
@@ -38,7 +41,7 @@ sub extractRecords {
 		my $objId  = $objIds[0]->value;
 
 		#because xpath issues make md before header
-		my $md = $self->main::_mk_md( $doc, $objId );
+		my $md = $self->Salsa_OAI::Mapping::_mk_md( $doc, $objId );
 
 		#header stuff except sets
 		my $header = _extractHeader($node);
@@ -49,7 +52,7 @@ sub extractRecords {
 
 		( $node, $header ) = setRules( $node, $header );
 
-		debug "node:" . $node;
+		Debug "node:" . $node;
 		my $record = new HTTP::OAI::Record(
 			header   => $header,
 			metadata => $md,
@@ -71,7 +74,7 @@ sub _extractHeader {
 	my @exportdatum = $node->findnodes('@exportdatum');
 	my $exportdatum = $exportdatum[0]->value . 'Z';
 
-	debug "  $id_oai--$exportdatum";
+	Debug "  $id_oai--$exportdatum";
 	my $header = new HTTP::OAI::Header(
 		identifier => $id_oai,
 		datestamp  => $exportdatum,
@@ -79,7 +82,7 @@ sub _extractHeader {
 		#TODO:status=> 'deleted', #deleted or none;
 	);
 
-	#debug 'NNNode:' . $node->toString;
+	#Debug 'NNNode:' . $node->toString;
 
 	return $header;
 
@@ -120,12 +123,12 @@ sub _mk_md {
 		  qw (/mpx:museumPlusExport/mpx:multimediaobjekt)
 		  . qq([mpx:verknüpftesObjekt = '$currentId']);
 
-		#debug "DEBUG XPATH $xpath\n";
+		#Debug "DEBUG XPATH $xpath\n";
 
 		my @mume = $doc->findnodes($xpath);
 		foreach my $mume (@mume) {
 
-			#debug 'MUME' . $mume->toString . "\n";
+			#Debug 'MUME' . $mume->toString . "\n";
 			$root->appendChild($mume);
 		}
 	}
@@ -143,12 +146,12 @@ sub _mk_md {
 			  qw (/mpx:museumPlusExport/mpx:personKörperschaft)
 			  . qq([\@kueId = '$id']);
 
-			#debug "DEBUG XPATH $xpath\n";
+			#Debug "DEBUG XPATH $xpath\n";
 
 			my @perKors = $doc->findnodes($xpath);
 			foreach my $perKor (@perKors) {
 
-				#debug 'perKor' . $perKor->toString . "\n";
+				#Debug 'perKor' . $perKor->toString . "\n";
 				$root->appendChild($perKor);
 			}
 		}
@@ -160,7 +163,7 @@ sub _mk_md {
 	#should I also validate the stuff?
 
 	#MAIN DEBUG
-	#debug "debug output\n" . $new_doc->toString;
+	#Debug "Debug output\n" . $new_doc->toString;
 
 	#wrap into dom into HTTP::OAI::Metadata
 	my $md = new HTTP::OAI::Metadata( dom => $new_doc );
@@ -182,17 +185,16 @@ sub setRules {
 	my $node   = shift;
 	my $header = shift;
 
-	$debug = 0;
-	debug "Enter setRules";
+	Debug "Enter setRules";
 
 	#setSpec: MIMO
 	my $objekttyp = $node->findvalue('mpx:objekttyp');
 	if ($objekttyp) {
 
-		#debug "   objekttyp: $objekttyp\n";
+		#Debug "   objekttyp: $objekttyp\n";
 		if ( $objekttyp eq 'Musikinstrument' ) {
 			$header->setSpec('MIMO');
-			debug "    set setSpec MIMO";
+			Debug "    set setSpec MIMO";
 		}
 	}
 

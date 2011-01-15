@@ -2,18 +2,20 @@
 
 use strict;
 use warnings;
-use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
-use HTTP::OAI::DataProvider::SQLite;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
-use lib '/home/Mengel/projects/Salsa_OAI2/lib';
-use Salsa_OAI; #currently the place where the mapping resides
-use Salsa_OAI::CommandLine qw/load_conf test_conf_var/;
+#I don't even Debug in here
+#use Dancer::CommandLine qw/Debug Warning/;
 
-use Data::Dumper qw/Dumper/;
-use utf8;    #for verknupftesObjekt
-our $debug = 0;    #not sure if this works as intended
-sub debug;
+use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+use HTTP::OAI::DataProvider::SQLite;
+use lib '/home/Mengel/projects/Salsa_OAI2/lib';
+#use Salsa_OAI; #currently the place where the mapping resides
+use Salsa_OAI::CommandLine qw/load_conf test_conf_var/;
+use Salsa_OAI::Mapping;
+#for dirty debugging
+#use Data::Dumper qw/Dumper/;
+
 
 =head1 NAME
 
@@ -93,11 +95,18 @@ if ( !-f $ARGV[0] ) {
 	exit 1;
 }
 
-#todo: outsource configuration to a Dancer config file
+#
+# check dancer config
+#
+
 #Salsa home dir + conf file
 my $conf = load_conf();
+#croak after error if
+test_conf_var(qw/dbfile ns_prefix ns_uri/);
 
-test_conf_var($conf, qw/dbfile ns_prefix ns_uri/);
+#
+# init
+#
 
 my $engine = new HTTP::OAI::DataProvider::SQLite(
 	dbfile    => $conf->{dbfile},
@@ -105,15 +114,15 @@ my $engine = new HTTP::OAI::DataProvider::SQLite(
 	ns_uri    => $conf->{ns_uri},
 );
 
+#
+# do it
+#
+
 my $err = $engine->digest_single(
 	source  => $ARGV[0],
-	mapping => 'Salsa_OAI::extractRecords',
+	mapping => 'Salsa_OAI::Mapping::extractRecords',
 );
 
 if ($err) {
 	die $err;
 }
-
-#
-# SUBS
-#
