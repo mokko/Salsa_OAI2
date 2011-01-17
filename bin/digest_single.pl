@@ -105,7 +105,7 @@ my $c =
   new Dancer::CommandLine::Config(
 	'/home/Mengel/projects/Salsa_OAI2/config.yml');
 
-#croak after error if vars missing in conf
+#croak if vars missing in conf
 $c->test_conf_var(qw/dbfile ns_prefix ns_uri/);
 my $config=$c->get_config;
 
@@ -123,11 +123,13 @@ my $engine = new HTTP::OAI::DataProvider::SQLite(
 # call digest_single
 #
 
+
 my $err = $engine->digest_single(
 	source  => $ARGV[0],
-	mapping => 'Salsa_OAI::Mapping::extractRecords',
+	mapping => $config->{extractRecords},
 );
 
+#report errors if any
 if ($err) {
 	die $err;
 }

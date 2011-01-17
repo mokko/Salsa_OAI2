@@ -1,19 +1,19 @@
 package Salsa_OAI;
 use Dancer ':syntax';
-use Dancer::CommandLine qw/Debug Warning/;
-use HTTP::OAI;
+
+#what is in the frontend does not need to be called outside of it, right?
+#use Dancer::CommandLine qw/Debug Warning/;
 use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider;
-
-#necessary?
 use HTTP::OAI::Repository qw/validate_request/;
+use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
+use XML::LibXML;    #for salsa_setLibrary;
 
-#only for debugging
-use Data::Dumper qw/Dumper/;
+#use Data::Dumper qw/Dumper/; #for debugging, not for production
 
-our $provider = init_dp();    #do this when starting the webapp
+our $provider = init_provider();    #do this when starting the webapp
 our $VERSION  = '0.2';        #sqlite
 
 =head1 NAME
@@ -26,6 +26,8 @@ This is a small webapp which acts as a OAI data provider based on
 HTTP::OAI::DataProvider::Simple and Tim Brody's HTTP::OAI.
 
 =head1 FEATURES
+
+TODO Write new text
 
 This data provider is just one notch up from a static repository:
 - no database, instead header information is parsed to memory
@@ -62,14 +64,12 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
 
+	#this needs to stay here to check if verb is valid
+	if ( my $error = validate_request( params ) ) {
+		return $provider->err2XML($error);
+	}
+
 	if ( my $verb = params->{verb} ) {
-
-		#wd be nicer if this wd be part DataProvider
-		my $error = validate_request(params);
-
-		if ($error) {
-			return err2XML_FN($error);
-		}
 
 		no strict "refs";
 		$ret = $provider->$verb( params() );
@@ -90,83 +90,42 @@ sub welcome {
 }
 
 sub salsa_Identify {
-	my $self=shift;
-	Debug " Enter salsa_Identify ";
-
-	#
-	# Metadata handling
-	#
+	my $self = shift;
+	debug " Enter salsa_Identify ";
 
 	#take info from config
-	#I should complain intelligble when info not there
+	#Who am I complying to? Just a debug?
 
-	foreach my $test (
-		qw/repositoryName adminEmail deletedRecord
-		granularity/
-	  )
-	{
+	foreach my $test (qw/repositoryName adminEmail deletedRecord/) {
 		if ( !config->{"oai_$test"} ) {
-
-			#should not just be a debug
 			die "oai_$test setting in Dancer's config missing !";
 		}
 	}
 
-	if (!$self->{engine}) {
-		die "Engine missing";
+	my $identify = {
+		adminEmail    => config->{oai_reposityName},
+		baseURL       => uri_for( request->path ),
+		deletedRecord => config->{oai_deletedRecord},
+		repositoryName  => config->{oai_repositoryName},
+	};
 
-	}
-
-	#I assume that earliestDate will always return a meaningful value.
-
-	#obligatory
-	my $obj = new HTTP::OAI::Identify(
-		adminEmail => config->{oai_adminEmail},
-
-		#take baseURL from dancer
-		baseURL           => uri_for( request->path ),
-		deletedRecord     => config->{oai_deletedRecord},
-		granularity       => config->{oai_granularity},
-		repositoryName    => config->{oai_repositoryName},
-		earliestDatestamp => $self->{engine}->earliestDate(),
-	  )
-	  or return "Cannot create new HTTP::OAI::Identify";
-
-	return $obj;
-
+	return $identify;
 }
 
-=head2 err2XML_FN
-
-FN indicates that this is a function, not a method.
-
-Fake a DataProvider object and pass error message(s) to
-HTTP::OAI::DataProvider::Simple. Return error msg from there.
-Returns nothing (fails) if given nothing.
-
-=cut
-
-sub err2XML_FN {
-	my $self = new HTTP::OAI::DataProvider::Simple( xslt => config->{XSLT} );
-	if (@_) {
-		return $self->err2XML(@_);
-	}
-}
-
-=head2 $provider=init_dp();
+=head2 $provider=init_provider();
 
 Initialize the data provider with settings either from Dancer's config
 if classic configuration information or from callbacks.
 
 =cut
 
-sub init_dp {
+sub init_provider {
 
 	#if ( !config->{path} ) {
 	#	croak "I need a path in dancer config, e.g. '/oai'";
 	#}
 
-	Debug " data provider needs to be initialized ONCE ";
+	debug " data provider needs to be initialized ONCE ";
 
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
@@ -212,3 +171,54 @@ sub init_dp {
 	return $provider;
 }
 
+=head2 my $library=salsa_setLibrary();
+
+Reads the setLibrary from dancer's config file and returns it in form of a
+HTTP::OAI::ListSet object (which can, of course, include one or more
+HTTP::OAI::Set objects).
+
+Background: setNames and setDescriptions are not stored with OAI headers, but
+instead in the setLibrary. HTTP::OAI::DataProvider::SetLibrary associates
+setSpecs with setNames and setDescriptions.
+
+=cut
+
+sub salsa_setLibrary {
+
+	debug "Enter salsa_setLibrary";
+	my $setLibrary = config->{setLibrary};
+
+	if ( %{$setLibrary} ) {
+		my $listSets = new HTTP::OAI::ListSets;
+
+		foreach my $setSpec ( keys %{$setLibrary} ) {
+
+			my $s = new HTTP::OAI::Set;
+			$s->setSpec($setSpec);
+			$s->setName( $setLibrary->{$setSpec}->{setName} );
+
+			debug "setSpec: $setSpec";
+			debug "setName: " . $setLibrary->{$setSpec}->{setName};
+
+			if ( $setLibrary->{$setSpec}->{setDescription} ) {
+
+				foreach
+				  my $desc ( @{ $setLibrary->{$setSpec}->{setDescription} } )
+				{
+
+					#not sure if the if is necessary, but maybe there cd be an
+					#empty array element. Who knows?
+
+					my $dom = XML::LibXML->load_xml( string => $desc );
+					$s->setDescription(
+						new HTTP::OAI::Metadata( dom => $dom ) );
+				}
+			}
+			$listSets->set($s);
+		}
+		return $listSets;
+	}
+	warn "no setLibrary found in Dancer's config file";
+
+	#return empty-handed and fail
+}

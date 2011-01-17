@@ -27,13 +27,15 @@ our $VERSION = '0.01';
 
 =head2 my @records=extractRecords ($doc);
 
-Expects an mpx document as dom and returns an array of HTTP::OAI::Records.
-Calls setRules on every record to ensure application OAI sets. Gets called from
-digest_single at the moment.
+Expects an mpx document as dom and returns an array of HTTP::OAI::Records. Gets
+called from digest_single.
+
+Recent changes:
+- was a function, became a method lately.
+- DOES NOT Call setRules ANYMORE on every record to ensure OAI sets get set. It
+  now leaves that to extractHeaders.
 
 Todo: What to do on failure?
-
-Todo: Should be in Salsa_OAI
 
 =cut
 
@@ -57,16 +59,11 @@ sub extractRecords {
 		my $objId  = $objIds[0]->value;
 
 		#because xpath issues make md before header
-		my $md = $self->Salsa_OAI::Mapping::_mk_md( $doc, $objId );
+		#my $md = $self->_mk_md( $doc, $objId );
+		my $md = $self->Salsa_OAI::MPX::_mk_md( $doc, $objId );
 
-		#header stuff except sets
-		my $header = _extractHeader($node);
-
-		#setRules:mapping set to simple mpx rules
-		$node = XML::LibXML::XPathContext->new($node);
-		$node->registerNs( $self->{ns_prefix}, $self->{ns_uri} );
-
-		( $node, $header ) = setRules( $node, $header );
+		#complete header including sets
+		my $header = $self->Salsa_OAI::MPX::extractHeader($node);
 
 		Debug "node:" . $node;
 		my $record = new HTTP::OAI::Record(
@@ -81,7 +78,19 @@ sub extractRecords {
 #includes the logic of how to extract OAI header information from the node
 #expects libxml node (sammlungsobjekt) and returns HTTP::OAI::Header
 #is called by extractRecord
-sub _extractHeader {
+
+=head2 $header=extractHeader($node)
+
+extractHeader is a function, not a method. It expects a XML::LibXML object.
+(I am not sure which. Maybe XML::LibXML::Node) and returns a complete
+HTTP::OAI::Header. (I emphasize complete, because an earlier version did not
+deal with sets.) This FUNCTION gets called from extractRecord, but also from
+DataProvider::$Engine::findByIdentifier
+
+=cut
+
+sub extractHeader {
+	my $self = shift;
 	my $node = shift;
 
 	my @objIds      = $node->findnodes('@objId');
@@ -98,7 +107,7 @@ sub _extractHeader {
 		#TODO:status=> 'deleted', #deleted or none;
 	);
 
-	#Debug 'NNNode:' . $node->toString;
+	( $node, $header ) = $self->Salsa_OAI::MPX::setRules( $node, $header );
 
 	return $header;
 
@@ -198,10 +207,15 @@ Todo: Should be in Salsa_OAI
 =cut
 
 sub setRules {
+	my $self   = shift;
 	my $node   = shift;
 	my $header = shift;
 
 	Debug "Enter setRules";
+
+	#setRules:mapping set to simple mpx rules
+	$node = XML::LibXML::XPathContext->new($node);
+	$node->registerNs( $self->{ns_prefix}, $self->{ns_uri} );
 
 	#setSpec: MIMO
 	my $objekttyp = $node->findvalue('mpx:objekttyp');
@@ -209,7 +223,7 @@ sub setRules {
 
 		#Debug "   objekttyp: $objekttyp\n";
 		if ( $objekttyp eq 'Musikinstrument' ) {
-			my $setSpec='MIMO';
+			my $setSpec = 'MIMO';
 			$header->setSpec($setSpec);
 			Debug "    set setSpec '$setSpec'";
 		}
@@ -218,4 +232,4 @@ sub setRules {
 	return $node, $header;
 }
 
-1; #Salsa_OAI::MPX;
+1;    #Salsa_OAI::MPX;
