@@ -14,7 +14,7 @@ use XML::LibXML;    #for salsa_setLibrary;
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
 
 our $provider = init_provider();    #do this when starting the webapp
-our $VERSION  = '0.2';        #sqlite
+our $VERSION  = '0.2';              #sqlite
 
 =head1 NAME
 
@@ -65,11 +65,11 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
 
 	#this needs to stay here to check if verb is valid
-	if ( my $error = validate_request( params ) ) {
-		return $provider->err2XML($error);
-	}
 
 	if ( my $verb = params->{verb} ) {
+		if ( my $error = validate_request(params) ) {
+			return $provider->err2XML($error);
+		}
 
 		no strict "refs";
 		$ret = $provider->$verb( params() );
@@ -103,10 +103,10 @@ sub salsa_Identify {
 	}
 
 	my $identify = {
-		adminEmail    => config->{oai_reposityName},
-		baseURL       => uri_for( request->path ),
-		deletedRecord => config->{oai_deletedRecord},
-		repositoryName  => config->{oai_repositoryName},
+		adminEmail     => config->{oai_reposityName},
+		baseURL        => uri_for( request->path ),
+		deletedRecord  => config->{oai_deletedRecord},
+		repositoryName => config->{oai_repositoryName},
 	};
 
 	return $identify;
