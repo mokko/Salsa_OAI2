@@ -1,10 +1,11 @@
 package Salsa_OAI;
 use Dancer ':syntax';
 
-#what is in the frontend does not need to be called outside of it, right?
+#Frontend does not need to be called outside of it, right?
 #use Dancer::CommandLine qw/Debug Warning/;
 use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+use HTTP::OAI::DataProvider::Transformer;
 use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
@@ -130,11 +131,10 @@ sub init_provider {
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
 		Identify   => 'Salsa_OAI::salsa_Identify',
-		locateXSL  => 'Salsa_OAI::salsa_locateXSL',
 		setLibrary => 'Salsa_OAI::salsa_setLibrary',
 		xslt       => config->{XSLT},
-		nativeFormatPrefix => 'mpx',    #not used at the moment
-		                                #for listRecord disk cache
+		#nativeFormatPrefix => 'mpx',    #not used at the moment
+
 	);
 
 	#step 2: init global metadata formats from Dancer config
@@ -159,13 +159,21 @@ sub init_provider {
 
 	}
 
-	#I am cheating here somewhat
+	#Am I cheating here a little?
 	$provider->{globalFormats} = $globalFormats;
 
+	#step 3: intialize engine
+	debug "initialize engine";
 	$provider->{engine} =
 	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
 
-	#do I need to provide ns_uri etc.?
+
+	debug "initialize transformer";
+	#step 4: initialize transformer
+	$provider->{engine}->{transformer}=new HTTP::OAI::DataProvider::Transformer (
+		nativePrefix=>config->{native_ns_prefix},
+		locateXSL  => 'Salsa_OAI::salsa_locateXSL',
+	);
 
 	#debug "data provider initialized!";
 	return $provider;
@@ -222,3 +230,21 @@ sub salsa_setLibrary {
 
 	#return empty-handed and fail
 }
+
+
+
+=head2 my xslt_fn=salsa_locateXSL($prefix);
+
+locateXSL callback expects a metadataFormat prefix and will return the full
+path to the xsl which is responsible for this transformation. On failure:
+returns nothing.
+
+=cut
+
+sub salsa_locateXSL {
+        my $prefix       = shift;
+        my $nativeFormat = 'mpx';
+        return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
+}
+
+

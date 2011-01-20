@@ -106,7 +106,7 @@ my $c =
 	'/home/Mengel/projects/Salsa_OAI2/config.yml');
 
 #croak if vars missing in conf
-$c->test_conf_var(qw/dbfile ns_prefix ns_uri/);
+$c->test_conf_var(qw/dbfile native_ns_prefix native_ns_uri/);
 my $config=$c->get_config;
 
 #
@@ -115,8 +115,8 @@ my $config=$c->get_config;
 
 my $engine = new HTTP::OAI::DataProvider::SQLite(
 	dbfile    => $config->{dbfile},
-	ns_prefix => $config->{ns_prefix},
-	ns_uri    => $config->{ns_uri},
+	ns_prefix => $config->{native_ns_prefix},
+	ns_uri    => $config->{native_ns_uri},
 );
 
 #
