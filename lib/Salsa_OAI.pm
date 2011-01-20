@@ -5,6 +5,7 @@ use Dancer ':syntax';
 #use Dancer::CommandLine qw/Debug Warning/;
 use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+use HTTP::OAI::DataProvider::GlobalFormats;
 use HTTP::OAI::DataProvider::Transformer;
 use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider;
