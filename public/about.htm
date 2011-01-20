@@ -3,49 +3,17 @@
 <title>Salsa OAI - Minimalistic OAI data provider with Dancer</title>
 </header>
 <body>
-<h1>About Salsa_OAI</h1>
-<p>Salsa_OAI is a simple OAI data provider. Currently it works with
-xml files (one per record) and avoids a database all together; for
-future plans, see below. It is written in perl, available on GitHub and
-uses T. Brody's excellent HTTP::OAI as well as Dancer, a new and cool
-web framework with a vibrant comunity. Salsa_OAI is written by Maurice
-Mengel for the Ethnological Museum in Berlin and MIMO (see
-http://mimo-project.eu).</p>
-<h2>Metadata formats</h2>
-<p>Salsa_OAI is agnostic about the metadata formats used. You can
-use whatever you like as the native xml format as long as you provide a
-XSLT 1.0 transformation to the desired output format. How cool is that?</p>
-
-<h2>Avoiding the database</h2>
-<p>Salsa_OAI reads OAI header information directly into memory. It
-uses a file cache to do so, which speeds up extracting the OAI header
-information from the records. This solution is NOT sustainable (i.e.
-will not scale well when your repository grow). But with a few thousand
-records it might work surprisingly well. The motto is: just one notch up
-from a static repository. The number of records you can serve
-comfortably depends mainly on the memory of your server. I might write a
-database extension later, which would offer a simple upgrade. I expect
-Salsa OAI not to run a lot faster with a database, but to be able to
-deal with a lot more records.</p>
-<p>Upshot of avoiding a database is the it makes developing, testing
-and maintaning Salsa_OAI easy!</p>
-
-<p>File Cache for ListRecords.</p>
+<h1>About Salsa OAI</h1>
+<p>Salsa OAI is a simple OAI 2.0 data provider.</p>
 
 <h2>Currently supported</h2>
 <ul>
 	<li>All six OAI v2.0 verbs should work in a rudimentary way.</li>
+	<li>All error as described in the specification work. I still need
+	to check that.</li>
 </ul>
 
-<h2>Performance</h2>
-<p>Salsa OAI is written for easy maintenance and extensibility, not
-for speed. It is very possible that it is too slow for you. Should be in
-the implementation specific stuff</p>
-
-<p>I provide some performance statistics, so you can see for
-yourself.</p>
-
-<h2>Not yet supported / TODO</h2>
+<h2>Not (yet) supported</h2>
 <ul>
 	<li>Specification</li>
 	<ul>
@@ -54,19 +22,57 @@ yourself.</p>
 		<li>resumptionToken</li>
 		<li>hierarchical Sets</li>
 	</ul>
-	<li>Server setup/ Salsa_OAI architecture</li>
+	<li>Server setup / Salsa_OAI architecture</li>
 	<ul>
 		<li>Stream response. Should speed up listRecords and
 		listIdentifiers A LOT ;-)</li>
-		<li>DB. If I parse the headerCache in a database it should
-		make Salsa_OAI deal with more records. But if I put actual mpx store in db,
-		it should not be necessary anymore to read in all those files, which
-		should really speed up the serving process.Question is mysql or
-		sqlite, I guess. Also which table layout. And how exactly to
-		modularize Salsa_OAI so that it deals with both ways: xml store and
-		db. Should I look at the php versions to learn how to do the database?</li>
 	</ul>
 </ul>
+
+<h2>Components</h2>
+
+<p>Salsa OAI has several components: a backend, a frontend and a
+data store engine.</p>
+
+<h2>Engines</h2>
+
+<p>First version (which could easily be resurrected) avoided a
+database. This version uses sqlite as a database. It should soon be easy
+to plugin different database engines of your choice. Salsa OAI is
+written in perl, available on GitHub and uses T. Brody's excellent
+HTTP::OAI as well as Dancer, a new and cool web framework with a vibrant
+comunity (See <a href="http://perldancer.org">http://perldancer.org</a>
+). Salsa OAI is written by Maurice Mengel for the Ethnological Museum in
+Berlin and MIMO (see http://mimo-project.eu).</p>
+<h2>Metadata formats</h2>
+<p>Salsa OAI is mostly agnostic about the metadata formats used. You
+can use whatever you like as the native xml format as long as you
+provide a XSLT 1.0 transformation to the desired output format. How cool
+is that?</p>
+
+<h2>SQLite</h2>
+<p>New version works with SQLite.</p>
+
+<h2>Avoiding a database: memory and disk instead</h2>
+<p>Using its simple engine, Salsa OAI reads OAI header information
+directly into memory. It uses a file cache to do so, which speeds up
+extracting the OAI header information from the records. This solution is
+NOT sustainable (i.e. will not scale well when your repository grows).
+But with a few thousand records it might work surprisingly well. The
+motto is: just one notch up from a static repository. Of course, the
+number of records you can serve comfortably depends mainly on the memory
+of your server.</p>
+
+<p>I experimented with a file cache for ListRecords to save the
+potentially big result document on disk. It sort of worked.</p>
+
+<h2>Performance</h2>
+<p>Salsa OAI is written for easy maintenance and extensibility, not
+for speed. It is very possible that it is too slow for you. Should be in
+the implementation specific stuff</p>
+
+<p>I provide some performance statistics, so you can see for
+yourself.</p>
 
 <h2>Inspiration</h2>
 <p>Before I wrote this, I read every line of OCLC oaicat.</p>
