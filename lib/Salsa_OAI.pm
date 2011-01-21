@@ -104,9 +104,13 @@ sub salsa_Identify {
 		}
 	}
 
+	#I can try to identify baseURL automatically, but having the data provider
+	#some kind of reverse proxy can easily confuse the url, so better hardwire it
+	#baseURL        => uri_for( request->path ),
+
 	my $identify = {
 		adminEmail     => config->{oai_reposityName},
-		baseURL        => uri_for( request->path ),
+		baseURL        => config->{oai_baseURL},
 		deletedRecord  => config->{oai_deletedRecord},
 		repositoryName => config->{oai_repositoryName},
 	};
@@ -244,7 +248,7 @@ returns nothing.
 
 sub salsa_locateXSL {
         my $prefix       = shift;
-        my $nativeFormat = 'mpx';
+        my $nativeFormat = config->{native_ns_prefix};
         return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
 
