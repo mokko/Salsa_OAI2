@@ -143,11 +143,10 @@ sub init_provider {
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
 		Identify   => 'Salsa_OAI::salsa_Identify',
+		requestURL => 'http://spk.mimo-project.eu:8080/oai',
 		setLibrary => 'Salsa_OAI::salsa_setLibrary',
 		xslt       => config->{XSLT},
-
 		#nativeFormatPrefix => 'mpx',    #not used at the moment
-
 	);
 
 	#step 2: init global metadata formats from Dancer config
