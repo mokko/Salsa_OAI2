@@ -104,13 +104,20 @@ sub salsa_Identify {
 		}
 	}
 
-	#I can try to identify baseURL automatically, but having the data provider
-	#some kind of reverse proxy can easily confuse the url, so better hardwire it
-	#baseURL        => uri_for( request->path ),
+   #I can try to identify baseURL automatically, but having the data provider
+   #some kind of reverse proxy can easily confuse the url, so better hardwire it
+   #baseURL        => uri_for( request->path ),
+
+	my $baseURL;
+	config->{oai_baseURL}
+	  ? $baseURL =
+	  config->{oai_baseURL}
+	  : $baseURL => uri_for( request->path );
+
 
 	my $identify = {
-		adminEmail     => config->{oai_reposityName},
-		baseURL        => config->{oai_baseURL},
+		adminEmail     => config->{oai_adminEmail},
+		baseURL        => $baseURL,
 		deletedRecord  => config->{oai_deletedRecord},
 		repositoryName => config->{oai_repositoryName},
 	};
@@ -138,6 +145,7 @@ sub init_provider {
 		Identify   => 'Salsa_OAI::salsa_Identify',
 		setLibrary => 'Salsa_OAI::salsa_setLibrary',
 		xslt       => config->{XSLT},
+
 		#nativeFormatPrefix => 'mpx',    #not used at the moment
 
 	);
@@ -172,13 +180,14 @@ sub init_provider {
 	$provider->{engine} =
 	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
 
-
 	debug "initialize transformer";
+
 	#step 4: initialize transformer
-	$provider->{engine}->{transformer}=new HTTP::OAI::DataProvider::Transformer (
-		nativePrefix=>config->{native_ns_prefix},
-		locateXSL  => 'Salsa_OAI::salsa_locateXSL',
-	);
+	$provider->{engine}->{transformer} =
+	  new HTTP::OAI::DataProvider::Transformer(
+		nativePrefix => config->{native_ns_prefix},
+		locateXSL    => 'Salsa_OAI::salsa_locateXSL',
+	  );
 
 	#debug "data provider initialized!";
 	return $provider;
@@ -236,8 +245,6 @@ sub salsa_setLibrary {
 	#return empty-handed and fail
 }
 
-
-
 =head2 my xslt_fn=salsa_locateXSL($prefix);
 
 locateXSL callback expects a metadataFormat prefix and will return the full
@@ -247,9 +254,8 @@ returns nothing.
 =cut
 
 sub salsa_locateXSL {
-        my $prefix       = shift;
-        my $nativeFormat = config->{native_ns_prefix};
-        return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
+	my $prefix       = shift;
+	my $nativeFormat = config->{native_ns_prefix};
+	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
-
 
