@@ -9,10 +9,9 @@ use XML::LibXML::XPathContext;
 #use Dancer::CommandLine qw/Debug Warning/;
 use Dancer::CommandLine::Config;
 
-use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use HTTP::OAI::DataProvider::SQLite;
-use lib '/var/www/vhosts/mimo-project.eu/webapps/Salsa_OAI/lib';
-use lib '/home/Mengel/projects/Salsa_OAI2/lib';
 use Salsa_OAI::MPX;
 
 #for dirty debugging
@@ -100,15 +99,12 @@ if ( !-f $ARGV[0] ) {
 # dancer config
 #
 
-#my $config_path= Dancer::CommandLine::Config::Guess;
-#todo: path has to go somewhere else
-my $c =
-  new Dancer::CommandLine::Config(
-	'/home/Mengel/projects/Salsa_OAI2/config.yml');
+#Guesses the correct path
+my $c = new Dancer::CommandLine::Config( $FindBin::Bin. '/../config.yml' );
 
 #croak if vars missing in conf
 $c->test_conf_var(qw/dbfile native_ns_prefix native_ns_uri/);
-my $config=$c->get_config;
+my $config = $c->get_config;
 
 #
 # init
@@ -123,7 +119,6 @@ my $engine = new HTTP::OAI::DataProvider::SQLite(
 #
 # call digest_single
 #
-
 
 my $err = $engine->digest_single(
 	source  => $ARGV[0],

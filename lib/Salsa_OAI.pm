@@ -112,8 +112,7 @@ sub salsa_Identify {
 	config->{oai_baseURL}
 	  ? $baseURL =
 	  config->{oai_baseURL}
-	  : $baseURL => uri_for( request->path );
-
+	  : $baseURL = uri_for( request->path );
 
 	my $identify = {
 		adminEmail     => config->{oai_adminEmail},
@@ -146,6 +145,7 @@ sub init_provider {
 		requestURL => config->{oai_baseURL},
 		setLibrary => 'Salsa_OAI::salsa_setLibrary',
 		xslt       => config->{XSLT},
+
 		#nativeFormatPrefix => 'mpx',    #not used at the moment
 	);
 
