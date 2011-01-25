@@ -3,6 +3,7 @@ package Salsa_OAI::MPX;
 use strict;
 use warnings;
 use Dancer::CommandLine qw/Debug Warning/;
+use Dancer::CommandLine::Config;
 use utf8;    #for verknupftesObjekt
 use XML::LibXML;
 use XML::LibXML::XPathContext;
@@ -229,7 +230,35 @@ sub setRules {
 		}
 	}
 
+	my $sachbegriff = $node->findvalue('mpx:sachbegriff');
+	if ($sachbegriff) {
+
+		#Debug "   objekttyp: $objekttyp\n";
+		if ( $sachbegriff eq 'Schellackplatte' ) {
+			my $setSpec = '78';
+			$header->setSpec($setSpec);
+			Debug "    set setSpec '$setSpec'";
+		}
+	}
 	return $node, $header;
 }
+
+#
+# not sure where this should go. It is not strictly speaking mpx, but it belongs
+# to transformation.
+
+=head2 my xslt_fn=salsa_locateXSL($prefix);
+
+locateXSL callback expects a metadataFormat prefix and will return the full
+path to the xsl which is responsible for this transformation. On failure:
+returns nothing.
+
+=cut
+
+#sub salsa_locateXSL {
+#	my $prefix       = shift;
+#	my $nativeFormat = $config->{native_ns_prefix};
+#	return $config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
+#}
 
 1;    #Salsa_OAI::MPX;
