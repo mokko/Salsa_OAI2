@@ -11,6 +11,7 @@ use Dancer::CommandLine::Config;
 
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 use HTTP::OAI::DataProvider::SQLite;
+use lib '/var/www/vhosts/mimo-project.eu/webapps/Salsa_OAI/lib';
 use lib '/home/Mengel/projects/Salsa_OAI2/lib';
 use Salsa_OAI::MPX;
 
