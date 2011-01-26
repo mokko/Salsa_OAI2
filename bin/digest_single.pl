@@ -10,7 +10,7 @@ use XML::LibXML::XPathContext;
 use Dancer::CommandLine::Config;
 
 use FindBin;
-use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib"; #works only under *nix, of course
 use HTTP::OAI::DataProvider::SQLite;
 use Salsa_OAI::MPX;
 

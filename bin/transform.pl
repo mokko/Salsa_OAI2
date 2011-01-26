@@ -4,7 +4,6 @@ use lib '/home/Mengel/projects/Salsa_OAI2/lib';
 
 #use Salsa_OAI;
 use Dancer::CommandLine::Config;
-use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';    #for development
 use HTTP::OAI;
 use HTTP::OAI::Repository;
 use HTTP::OAI::Metadata;
@@ -12,7 +11,8 @@ use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider::GlobalFormats;
 use HTTP::OAI::DataProvider::Transformer;
-use lib '/home/Mengel/projects/Salsa_OAI2/lib';               #for development
+use FindBin;
+use lib "$FindBin::Bin/../lib"; #works only under *nix, of course
 use Salsa_OAI::MPX;
 use Getopt::Std;
 
