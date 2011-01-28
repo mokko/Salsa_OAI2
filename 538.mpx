@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<museumPlusExport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.mpx.org/mpx" xsi:schemaLocation="http://www.mpx.org/mpx file:/c:/cygwin/home/Mengel/usr/levelup/lib/mpx-lvl2.v2.xsd"><multimediaobjekt mulId="2315288" exportdatum="2010-04-19T16:39:14">
+      <bearbDatum>23.09.2008 15:39:47</bearbDatum>
+      <multimediaAnfertDat>23.09.2008</multimediaAnfertDat>
+      <multimediaDateiname>IV Ca Nls 541</multimediaDateiname>
+      <multimediaErweiterung>JPG</multimediaErweiterung>
+      <multimediaFarbe>farbig</multimediaFarbe>
+      <multimediaFunktion>Repro Digitalisat</multimediaFunktion>
+      <multimediaPersonenKörperschaft>Peter Jacob</multimediaPersonenKörperschaft>
+      <multimediaPfadangabe>M:\MuseumPlus\Produktiv\Multimedia\EM\Amerikanische Archäologie\Fotos</multimediaPfadangabe>
+      <multimediaTyp>Digitale Aufnahme</multimediaTyp>
+      <multimediaUrhebFotograf>Peter Jacob</multimediaUrhebFotograf>
+      <verknüpftesObjekt>538</verknüpftesObjekt>
+   </multimediaobjekt><multimediaobjekt mulId="2315314" exportdatum="2010-04-19T16:39:14">
+      <bearbDatum>23.09.2008 15:39:55</bearbDatum>
+      <multimediaAnfertDat>23.09.2008</multimediaAnfertDat>
+      <multimediaDateiname>IV Ca Nls 541 -KK</multimediaDateiname>
+      <multimediaErweiterung>JPG</multimediaErweiterung>
+      <multimediaFarbe>farbig</multimediaFarbe>
+      <multimediaFunktion>Repro Digitalisat</multimediaFunktion>
+      <multimediaPersonenKörperschaft>Peter Jacob</multimediaPersonenKörperschaft>
+      <multimediaPfadangabe>M:\MuseumPlus\Produktiv\Multimedia\EM\Amerikanische Archäologie\Karteikarten</multimediaPfadangabe>
+      <multimediaTyp>Digitale Aufnahme</multimediaTyp>
+      <multimediaUrhebFotograf>Peter Jacob</multimediaUrhebFotograf>
+      <verknüpftesObjekt>538</verknüpftesObjekt>
+   </multimediaobjekt><sammlungsobjekt objId="538" exportdatum="2010-04-20T11:21:49">
+      <anzahlTeile>3</anzahlTeile>
+      <bearbDatum>31.10.2008</bearbDatum>
+      <credits>Staatliche Museen zu Berlin, Preußischer Kulturbesitz, Ethnologisches Museum</credits>
+      <identNr art="Ident. Nr.">IV Ca Nls 541</identNr>
+      <materialTechnik art="Material">Ton</materialTechnik>
+      <objekttyp>Musikinstrument</objekttyp>
+      <objStatus>vorhanden</objStatus>
+      <personKörperschaftRef id="1">kein Eintrag</personKörperschaftRef>
+      <sachbegriff art="Sachbegriff">Tonpfeife</sachbegriff>
+      <ständigerStandort>Depot/Studiensammlung (Amerikanische Archäologie) / S: 22, F: 1, Kasten: A</ständigerStandort>
+      <verantwortlichkeit>EM-Am Archäologie</verantwortlichkeit>
+      <verwaltendeInstitution>Ethnologisches Museum, Staatliche Museen zu Berlin</verwaltendeInstitution>
+   </sammlungsobjekt></museumPlusExport>

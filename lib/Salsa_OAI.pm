@@ -12,7 +12,6 @@ use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use XML::LibXML;    #for salsa_setLibrary;
-
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
 
 our $provider = init_provider();    #do this when starting the webapp
@@ -66,25 +65,35 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
 
-	#this needs to stay here to check if verb is valid
+	#I have problems with requestURL. With some servers it disappears from
+	#from DataProvider's HTTP::OAI::Response. Therefore, let's hand it over to
+	#the data provider for testing!
+	my $env=request->env;
+	my $request='http://'.$env->{'HTTP_HOST'}.$env->{'REQUEST_URI'};
+	debug "request: ".$request;
+	#I am not sure this is the best way to reconstruct the real request
+	#but it should work for me
+	#TODO: don't know how to pass the request to data provider
 
+	#this needs to stay here to check if verb is valid
 	if ( my $verb = params->{verb} ) {
 		if ( my $error = validate_request(params) ) {
 			return $provider->err2XML($error);
 		}
 
 		no strict "refs";
-		$ret = $provider->$verb( params() );
-		use strict "refs";
-
+		return $provider->$verb( $request, params()  );
 	} else {
-		$ret = welcome();
+		return welcome();
 	}
-	warning "This dance is over. How long did it take?";
-	return $ret;
 };
 dance;
 true;
+
+after sub {
+		warning "This dance is over. How long did it take?";
+        #my $response = shift; do something with request
+    };
 
 sub welcome {
 	content_type 'text/html';
@@ -93,7 +102,7 @@ sub welcome {
 
 sub salsa_Identify {
 	my $self = shift;
-	debug " Enter salsa_Identify ";
+	#debug " Enter salsa_Identify ";
 
 	#take info from config
 	#Who am I complying to? Just a debug?
@@ -137,7 +146,7 @@ sub init_provider {
 	#	croak "I need a path in dancer config, e.g. '/oai'";
 	#}
 
-	debug " data provider needs to be initialized ONCE ";
+	#debug " data provider needs to be initialized ONCE ";
 
 	#step 1 set up callbacks (mostly mapping related)
 	my $provider = HTTP::OAI::DataProvider->new(
@@ -158,7 +167,7 @@ sub init_provider {
 	my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
 
 	foreach my $prefix ( keys %cnf ) {
-		debug " Registering global format $prefix";
+		#debug " Registering global format $prefix";
 		if ( !$cnf{$prefix}{ns_uri} or !$cnf{$prefix}{ns_schema} ) {
 			die "GlobalFormat $prefix in yaml configuration incomplete";
 		}
@@ -175,11 +184,11 @@ sub init_provider {
 	$provider->{globalFormats} = $globalFormats;
 
 	#step 3: intialize engine
-	debug "initialize engine";
+	#debug "initialize engine";
 	$provider->{engine} =
 	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
 
-	debug "initialize transformer";
+	#debug "initialize transformer";
 
 	#step 4: initialize transformer
 	$provider->{engine}->{transformer} =
@@ -206,7 +215,7 @@ setSpecs with setNames and setDescriptions.
 
 sub salsa_setLibrary {
 
-	debug "Enter salsa_setLibrary";
+	#debug "Enter salsa_setLibrary";
 	my $setLibrary = config->{setLibrary};
 
 	if ( %{$setLibrary} ) {
@@ -218,8 +227,8 @@ sub salsa_setLibrary {
 			$s->setSpec($setSpec);
 			$s->setName( $setLibrary->{$setSpec}->{setName} );
 
-			debug "setSpec: $setSpec";
-			debug "setName: " . $setLibrary->{$setSpec}->{setName};
+			#debug "setSpec: $setSpec";
+			#debug "setName: " . $setLibrary->{$setSpec}->{setName};
 
 			if ( $setLibrary->{$setSpec}->{setDescription} ) {
 

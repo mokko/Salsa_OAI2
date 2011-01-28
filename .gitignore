@@ -10,3 +10,5 @@ test-devel
 public/tmp
 pm_to_blib
 config.yml
+xml
+access_log
