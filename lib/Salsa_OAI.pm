@@ -12,6 +12,7 @@ use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use XML::LibXML;    #for salsa_setLibrary;
+
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
 
 our $provider = init_provider();    #do this when starting the webapp
@@ -67,13 +68,13 @@ any [ 'get', 'post' ] => '/oai' => sub {
 
 	#I have problems with requestURL. With some servers it disappears from
 	#from DataProvider's HTTP::OAI::Response. Therefore, let's hand it over to
-	#the data provider for testing!
-	my $env=request->env;
-	my $request='http://'.$env->{'HTTP_HOST'}.$env->{'REQUEST_URI'};
-	debug "request: ".$request;
+	#the data provider explicitly!
+	my $env     = request->env;
+	my $request = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
+	debug "request: " . $request;
+
 	#I am not sure this is the best way to reconstruct the real request
 	#but it should work for me
-	#TODO: don't know how to pass the request to data provider
 
 	#this needs to stay here to check if verb is valid
 	if ( my $verb = params->{verb} ) {
@@ -82,18 +83,22 @@ any [ 'get', 'post' ] => '/oai' => sub {
 		}
 
 		no strict "refs";
-		return $provider->$verb( $request, params()  );
+		return $provider->$verb( $request, params() );
 	} else {
 		return welcome();
 	}
 };
 dance;
-true;
 
 after sub {
-		warning "This dance is over. How long did it take?";
-        #my $response = shift; do something with request
-    };
+	warning "This dance is over. How long did it take?";
+
+	#my $response = shift; do something with request
+};
+
+#
+#
+#
 
 sub welcome {
 	content_type 'text/html';
@@ -102,6 +107,7 @@ sub welcome {
 
 sub salsa_Identify {
 	my $self = shift;
+
 	#debug " Enter salsa_Identify ";
 
 	#take info from config
@@ -142,53 +148,59 @@ if classic configuration information or from callbacks.
 
 sub init_provider {
 
-	#if ( !config->{path} ) {
-	#	croak "I need a path in dancer config, e.g. '/oai'";
-	#}
+	config_check();
 
 	#debug " data provider needs to be initialized ONCE ";
-
-	#step 1 set up callbacks (mostly mapping related)
-	my $provider = HTTP::OAI::DataProvider->new(
-		Identify   => 'Salsa_OAI::salsa_Identify',
+	my %args = (
+		Identify   => config->{identify_cb},
 		requestURL => config->{oai_baseURL},
-		setLibrary => 'Salsa_OAI::salsa_setLibrary',
+		setLibrary => config->{setLibrary_cb},
 		xslt       => config->{XSLT},
 
 		#nativeFormatPrefix => 'mpx',    #not used at the moment
 	);
 
+	#step 1 basic traits which do not change per request
+	my $provider = HTTP::OAI::DataProvider->new(%args);
+
 	#step 2: init global metadata formats from Dancer config
+	#parse formats from config in GlobalFormats object
+	my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
 	my %cnf;
 	if ( config->{GlobalFormats} ) {
 		%cnf = %{ config->{GlobalFormats} };
 	}
-
-	my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
-
 	foreach my $prefix ( keys %cnf ) {
+
 		#debug " Registering global format $prefix";
 		if ( !$cnf{$prefix}{ns_uri} or !$cnf{$prefix}{ns_schema} ) {
 			die "GlobalFormat $prefix in yaml configuration incomplete";
 		}
-
 		$globalFormats->register(
 			ns_prefix => $prefix,
 			ns_uri    => $cnf{$prefix}{ns_uri},
 			ns_schema => $cnf{$prefix}{ns_schema},
 		);
-
 	}
-
-	#Am I cheating here a little?
 	$provider->{globalFormats} = $globalFormats;
 
 	#step 3: intialize engine
-	#debug "initialize engine";
 	$provider->{engine} =
 	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
 
-	#debug "initialize transformer";
+	#optional arguments
+	if ( config->{chunking} ) {
+
+		#two values in Dancer's config become one in DataProvider
+		if ( config->{chunking} eq 'true' ) {
+			my $chunk_size = 100;    #default
+			if ( config->{chunk_size} ) {
+				$chunk_size = config->{chunk_size};
+			}
+			$provider->{engine}->{chunk_dir} = config->{chunk_dir};
+			$provider->{engine}->{resumption} = $chunk_size;
+		}
+	}
 
 	#step 4: initialize transformer
 	$provider->{engine}->{transformer} =
@@ -201,15 +213,42 @@ sub init_provider {
 	return $provider;
 }
 
-=head2 my $library=salsa_setLibrary();
+=head2 config_check ();
 
-Reads the setLibrary from dancer's config file and returns it in form of a
-HTTP::OAI::ListSet object (which can, of course, include one or more
-HTTP::OAI::Set objects).
+Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
+should also have the relevant information (e.g. chunk_dir). This check should
+run during initial start up and throw intelligble errors if it fails, so we can
+fix them right there and then and do not have to test all possibilities to
+discover them.
 
-Background: setNames and setDescriptions are not stored with OAI headers, but
-instead in the setLibrary. HTTP::OAI::DataProvider::SetLibrary associates
-setSpecs with setNames and setDescriptions.
+=cut
+
+sub config_check {
+	if ( config->{chunking} ) {
+		if ( config->{chunk_dir} ) {
+			config->{chunk_dir}=~s|\/$||; #remove trailing slash if any
+		} else {
+			die 'Configuration Error: Need chunk_dir for temporary '
+			  . 'storage of chunks';
+		}
+	}
+}
+
+=head2 my $library = salsa_setLibrary();
+
+Reads the setLibrary from dancer's config file
+  and returns it in form of a HTTP::OAI::ListSet object(
+	     which can, of course, include one
+	  or more HTTP::OAI::Set objects
+  )
+  .
+
+  Background: setNames
+  and setDescriptions are not stored with OAI headers,
+  but instead in the setLibrary
+  . HTTP::OAI::DataProvider::SetLibrary associates setSpecs with setNames
+  and setDescriptions
+  .
 
 =cut
 
@@ -267,3 +306,27 @@ sub salsa_locateXSL {
 	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
 
+=head1 CHUNKING
+
+I wonder how I should implement chunking.
+
+1) Configuration in config.yml. Salsa_OAI parses configuration and saves it in
+$engine. I need chunking true/false, chunk_dir and chunk_size.
+
+2) If chunking is on queryHeader and queryRecord return only the first chunk.
+We need to make resumptionToken for the 2nd chunk though to return the first
+chunk. Return to Salsa_OAI/Dancer as usual
+
+3) in AFTER we need to test for chunking. Maybe we need query db again and save
+   the remaining chunks to disk. The problem
+a) Is AFTER reliable? Is seems to me that it is not really called all the time
+b) How to communicate between queryResult and AFTER. So far I have save info
+   in $result, but result is not accessible from AFTER, right? I can save data
+   in $engine, but then I need to make sure it is deleted before next request.
+   The only way to do so seems to be delete it before the next request.
+c) AFTER has to apply
+
+
+=cut
+
+true;
