@@ -88,13 +88,25 @@ any [ 'get', 'post' ] => '/oai' => sub {
 		return welcome();
 	}
 };
-dance;
+
+before sub {
+	if ( $provider->{engine}->{chunkRequest} ) {
+		delete $provider->{engine}->{chunkRequest};
+		debug "DELETE CHUNK REQUEST";
+	}
+	#warning "I was here" ;
+};
 
 after sub {
-	warning "This dance is over. How long did it take?";
+	warning "Initial request is danced. How long did it take?";
 
-	#my $response = shift; do something with request
+	#write chunks to disk cache if necessary
+	my $engine = $provider->{engine};
+	#not elegant to pass over the provider, isn't it?
+	$engine->completeChunks( $provider );
+	warning "Post-dance chunks done. How long did this take?";
 };
+dance;
 
 #
 #
@@ -148,9 +160,12 @@ if classic configuration information or from callbacks.
 
 sub init_provider {
 
-	config_check();
+	config_check();    #require conditions during start up or die
 
-	#debug " data provider needs to be initialized ONCE ";
+	#
+	# init provider
+	#
+
 	my %args = (
 		Identify   => config->{identify_cb},
 		requestURL => config->{oai_baseURL},
@@ -160,11 +175,12 @@ sub init_provider {
 		#nativeFormatPrefix => 'mpx',    #not used at the moment
 	);
 
-	#step 1 basic traits which do not change per request
 	my $provider = HTTP::OAI::DataProvider->new(%args);
 
-	#step 2: init global metadata formats from Dancer config
-	#parse formats from config in GlobalFormats object
+	#
+	# init global metadata formats
+	#
+
 	my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
 	my %cnf;
 	if ( config->{GlobalFormats} ) {
@@ -184,25 +200,30 @@ sub init_provider {
 	}
 	$provider->{globalFormats} = $globalFormats;
 
-	#step 3: intialize engine
+	#
+	# intit engine
+	#
+
 	$provider->{engine} =
 	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
 
-	#optional arguments
 	if ( config->{chunking} ) {
+		if ( config->{chunking} ne 'false' ) {
 
-		#two values in Dancer's config become one in DataProvider
-		if ( config->{chunking} eq 'true' ) {
-			my $chunk_size = 100;    #default
-			if ( config->{chunk_size} ) {
-				$chunk_size = config->{chunk_size};
-			}
+			#debug "Set chunking params in engine";
+			#two values in Dancer's config become one in DataProvider
+			#chunking and chunk_size
+			$provider->{engine}->{chunking}  = config->{chunk_size};
 			$provider->{engine}->{chunk_dir} = config->{chunk_dir};
-			$provider->{engine}->{resumption} = $chunk_size;
+
+			#debug "test: chunk_size" . $provider->{engine}->{chunking};
 		}
 	}
 
-	#step 4: initialize transformer
+	#
+	# init transformer
+	#
+
 	$provider->{engine}->{transformer} =
 	  new HTTP::OAI::DataProvider::Transformer(
 		nativePrefix => config->{native_ns_prefix},
@@ -224,9 +245,24 @@ discover them.
 =cut
 
 sub config_check {
+	my @required = qw/
+	  oai_adminEmail identify_cb oai_baseURL oai_repositoryName setLibrary_cb
+	  XSLT XSLT_dir/;
+
+	foreach (@required) {
+		if ( !$_ ) {
+			die "Configuration Error: Required config value $_ missing";
+		}
+	}
+
+	#defaults, conditionals, corrections
 	if ( config->{chunking} ) {
+		if ( !config->{chunk_size} ) {
+			debug "Config check: set chunk_size to default (100)";
+			config->{chunk_size} = 100;    #default
+		}
 		if ( config->{chunk_dir} ) {
-			config->{chunk_dir}=~s|\/$||; #remove trailing slash if any
+			config->{chunk_dir} =~ s|\/$||;    #remove trailing slash if any
 		} else {
 			die 'Configuration Error: Need chunk_dir for temporary '
 			  . 'storage of chunks';
@@ -325,6 +361,26 @@ b) How to communicate between queryResult and AFTER. So far I have save info
    in $engine, but then I need to make sure it is deleted before next request.
    The only way to do so seems to be delete it before the next request.
 c) AFTER has to apply
+
+DATS in $provider
+
+provider={
+	#constant over runtime of Salsa_OAI
+	chunking=>'true' #or false
+	chink_dir=>'chunks', # relative or not?
+	chunk_size=>'500',
+	#request specific: in engine
+	chunkRequest=>{
+		request_id=? #is there a way to make sure this is the same request?
+					 #maybe it is enough to delete chunkRequest at the
+					 #beginning of every request. I could use BEFORE
+		total=$total_no_of_items
+		sth=>$sth #maybe I can keep the statement handle. Is that feasable?
+		maxChunkNo=>$maxChunkNo,
+	}
+Can I reuse queryResult or do I have to duplicate that loop?
+
+}
 
 
 =cut
