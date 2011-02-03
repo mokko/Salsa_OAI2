@@ -65,7 +65,7 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 
 any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
-
+	content_type 'text/xml';
 	#I have problems with requestURL. With some servers it disappears from
 	#from DataProvider's HTTP::OAI::Response. Therefore, let's hand it over to
 	#the data provider explicitly!
