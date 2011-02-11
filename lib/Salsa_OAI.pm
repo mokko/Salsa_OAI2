@@ -112,44 +112,43 @@ dance;
 #
 #
 
-sub welcome {
-	content_type 'text/html';
-	send_file 'index.htm';
-}
 
-sub salsa_Identify {
-	my $self = shift;
+=head2 config_check ();
 
-	#debug " Enter salsa_Identify ";
+Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
+should also have the relevant information (e.g. chunk_dir). This check should
+run during initial start up and throw intelligble errors if it fails, so we can
+fix them right there and then and do not have to test all possibilities to
+discover them.
 
-	#take info from config
-	#Who am I complying to? Just a debug?
+=cut
 
-	foreach my $test (qw/repositoryName adminEmail deletedRecord/) {
-		if ( !config->{"oai_$test"} ) {
-			die "oai_$test setting in Dancer's config missing !";
+sub config_check {
+	my @required = qw/
+	  oai_adminEmail identify_cb oai_baseURL oai_repositoryName setLibrary_cb
+	  XSLT XSLT_dir/;
+
+	foreach (@required) {
+		if ( !$_ ) {
+			die "Configuration Error: Required config value $_ missing";
 		}
 	}
 
-   #I can try to identify baseURL automatically, but having the data provider
-   #some kind of reverse proxy can easily confuse the url, so better hardwire it
-   #baseURL        => uri_for( request->path ),
-
-	my $baseURL;
-	config->{oai_baseURL}
-	  ? $baseURL =
-	  config->{oai_baseURL}
-	  : $baseURL = uri_for( request->path );
-
-	my $identify = {
-		adminEmail     => config->{oai_adminEmail},
-		baseURL        => $baseURL,
-		deletedRecord  => config->{oai_deletedRecord},
-		repositoryName => config->{oai_repositoryName},
-	};
-
-	return $identify;
+	#defaults, conditionals, corrections
+	if ( config->{chunking} ) {
+		if ( !config->{chunk_size} ) {
+			debug "Config check: set chunk_size to default (100)";
+			config->{chunk_size} = 100;    #default
+		}
+		if ( config->{chunk_dir} ) {
+			config->{chunk_dir} =~ s|\/$||;    #remove trailing slash if any
+		} else {
+			die 'Configuration Error: Need chunk_dir for temporary '
+			  . 'storage of chunks';
+		}
+	}
 }
+
 
 =head2 $provider=init_provider();
 
@@ -167,9 +166,11 @@ sub init_provider {
 	#
 
 	my %args = (
+		debug	=> 'Salsa_OAI::salsa_debug', #not sure about this
 		Identify   => config->{identify_cb},
 		requestURL => config->{oai_baseURL},
 		setLibrary => config->{setLibrary_cb},
+		warning	   => 'Salsa_OAI::salsa_debug', #not sure about this
 		xslt       => config->{XSLT},
 
 		#nativeFormatPrefix => 'mpx',    #not used at the moment
@@ -234,40 +235,88 @@ sub init_provider {
 	return $provider;
 }
 
-=head2 config_check ();
 
-Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
-should also have the relevant information (e.g. chunk_dir). This check should
-run during initial start up and throw intelligble errors if it fails, so we can
-fix them right there and then and do not have to test all possibilities to
-discover them.
+=head2 welcome()
+
+Gets called from Dancer's routes to display html pages on Salsa_OAI
 
 =cut
 
-sub config_check {
-	my @required = qw/
-	  oai_adminEmail identify_cb oai_baseURL oai_repositoryName setLibrary_cb
-	  XSLT XSLT_dir/;
+sub welcome {
+	content_type 'text/html';
+	send_file 'index.htm';
+}
 
-	foreach (@required) {
-		if ( !$_ ) {
-			die "Configuration Error: Required config value $_ missing";
+true;
+
+#
+# CALLBACKS
+#
+
+=head2 Debug "Message";
+
+Use Dancer's debug function if available or else write to STDOUT. Register this
+callback during init_provider.
+
+=cut
+
+sub salsa_debug {
+	if ( defined(&Dancer::Logger::debug) ) {
+		goto &Dancer::Logger::debug;
+	} else {
+		foreach (@_) {
+			print "$_\n";
+		};
+	}
+}
+
+=head2 Warning "Message";
+
+Use Dancer's warning function if available or pass message to perl's warn.
+
+=cut
+
+sub salsa_warning {
+	if ( defined(&Dancer::Logger::warning) ) {
+		goto &Dancer::Logger::warning;
+	} else {
+		warn @_;
+	}
+}
+
+
+sub salsa_Identify {
+	my $self = shift;
+
+	#debug " Enter salsa_Identify ";
+
+	#take info from config
+	#Who am I complying to? Just a debug?
+
+	foreach my $test (qw/repositoryName adminEmail deletedRecord/) {
+		if ( !config->{"oai_$test"} ) {
+			die "oai_$test setting in Dancer's config missing !";
 		}
 	}
 
-	#defaults, conditionals, corrections
-	if ( config->{chunking} ) {
-		if ( !config->{chunk_size} ) {
-			debug "Config check: set chunk_size to default (100)";
-			config->{chunk_size} = 100;    #default
-		}
-		if ( config->{chunk_dir} ) {
-			config->{chunk_dir} =~ s|\/$||;    #remove trailing slash if any
-		} else {
-			die 'Configuration Error: Need chunk_dir for temporary '
-			  . 'storage of chunks';
-		}
-	}
+   #I can try to identify baseURL automatically, but having the data provider
+   #some kind of reverse proxy can easily confuse the url, so better hardwire it
+   #baseURL        => uri_for( request->path ),
+
+	my $baseURL;
+	config->{oai_baseURL}
+	  ? $baseURL =
+	  config->{oai_baseURL}
+	  : $baseURL = uri_for( request->path );
+
+	my $identify = {
+		adminEmail     => config->{oai_adminEmail},
+		baseURL        => $baseURL,
+		deletedRecord  => config->{oai_deletedRecord},
+		repositoryName => config->{oai_repositoryName},
+	};
+
+	return $identify;
 }
 
 =head2 my $library = salsa_setLibrary();
@@ -344,45 +393,90 @@ sub salsa_locateXSL {
 
 =head1 CHUNKING
 
-I wonder how I should implement chunking.
+=head2 Chunking Implementation History
 
-1) Configuration in config.yml. Salsa_OAI parses configuration and saves it in
-$engine. I need chunking true/false, chunk_dir and chunk_size.
+I wonder how I should implement chunking. My first attempt was a disk cache.
+Disadvantage was that the whole request had to be processed before I could
+start sending out the first chunk. New approach is to cache the "question" and
+not the result. This way, I should be able to distribute the database work
+and everything that comes after it to each chunk request.
 
-2) If chunking is on queryHeader and queryRecord return only the first chunk.
-We need to make resumptionToken for the 2nd chunk though to return the first
-chunk. Return to Salsa_OAI/Dancer as usual
+=head2 New Approach Caching request
 
-3) in AFTER we need to test for chunking. Maybe we need query db again and save
-   the remaining chunks to disk. The problem
-a) Is AFTER reliable? Is seems to me that it is not really called all the time
-b) How to communicate between queryResult and AFTER. So far I have save info
-   in $result, but result is not accessible from AFTER, right? I can save data
-   in $engine, but then I need to make sure it is deleted before next request.
-   The only way to do so seems to be delete it before the next request.
-c) AFTER has to apply
+So if request first comes in, we check for chunking configuration. If chunking
+on, we plan chunking for this request, save the result in the chunkCache and
+return the first chunk. On subsequent requests (using resumptionTokens), we
+perform new db requests and return the result accordingly, i.e. we do not need
+to plan again. (In other words: planning is only part of the first request.)
 
-DATS in $provider
+FIRST REQUEST
+   check chunking config
+a) plan chunking + save plan into chunkCache + return first token
+b) return first chunk
 
-provider={
-	#constant over runtime of Salsa_OAI
-	chunking=>'true' #or false
-	chink_dir=>'chunks', # relative or not?
-	chunk_size=>'500',
-	#request specific: in engine
-	chunkRequest=>{
-		request_id=? #is there a way to make sure this is the same request?
-					 #maybe it is enough to delete chunkRequest at the
-					 #beginning of every request. I could use BEFORE
-		total=$total_no_of_items
-		sth=>$sth #maybe I can keep the statement handle. Is that feasable?
+SUBSEQUENT REQUESTS
+b) return the chunk that is indicated by token (rt)
+
+WHERE DOES CONFIG GO?
+Configuration in config.yml. Salsa_OAI parses configuration and saves it in
+$engine:
+	chunking (true/false): if chunking on or off
+	chunk_size (an integer): no of reslts (records or headers) per chunk
+	maxCacheSize (an integer): max no of chunks stored in chunkCache
+
+These parameters are constant as long as data provider runs. But there are also
+request specific bits. I need to know which chunk and how big the total size
+is. So where do I store that? Gets stored in chunkCache
+
+HOW TO STORE REQUEST INFO
+	chunkCache (an integer): object that stores queries per token
+
+A) PLAN CHUNKING
+config value:ChunkCacheSize. Number of tokens that can be stored simultaneously
+must be greater than max number of chunks.
+
+a) check max size of chunk cache and delete old chunks if maxNoChunksCache is
+reached. How can I make sure that none of the current chunks are deleted?
+current_Chunk_size + maxChunkNo of current request is total after caching
+if this total is greater than ChunkCacheSize delete however many are necessary
+to have the right size.
+
+check that ChunkCacheSize is bigger than maxChunkNo and warn if not. If
+maxChunkNo is bigger than we can have a cache that is bigger than
+chuckCacheSize which is irritating, but not a major problem.
+
+b) get totalResults from current query
+c) calculate maxChunkNo for current query
+c) create a tokens. current token and token to reach the following chunk (next)
+d) save info under token for each chunk:
+e) return first token
+
+my $token=mk_token;
+%chunkCache->{$token}={
+		chunkNo=>$chunkNo,
 		maxChunkNo=>$maxChunkNo,
-	}
-Can I reuse queryResult or do I have to duplicate that loop?
+		next=>$token,
+		sql=>$sql,
+		total=>$total
+};
 
-}
+FromRecordId and ToRecordId: At some point I have to determine which records to
+handle back. For this I need to know either first and last or the ChunkNo. Why
+don't I save the chunkNo. It is only one number. Then I calculate these no.s
+inside of queryChunk.
 
+B) RETURN CHUNK INDICATED BY TOKEN
+
+check if token exists in chunkCache
+if not return error
+if exists return corresponding chunk
+
+$response=queryChunk (sql=>$sql,$maxChunkNo);
+
+make sure we add correct token, xslt and requestURL
+#$response->resumptionToken ($rt);
+#$response->requestURL ($request);
+#etc.
 
 =cut
 
-true;
