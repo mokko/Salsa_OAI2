@@ -5,9 +5,10 @@ use Dancer ':syntax';
 #use Dancer::CommandLine qw/Debug Warning/;
 use Carp qw/carp croak/;
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
-use HTTP::OAI::DataProvider::GlobalFormats;
-use HTTP::OAI::DataProvider::Transformer;
-use HTTP::OAI::DataProvider::SQLite;
+
+#use HTTP::OAI::DataProvider::GlobalFormats;
+#use HTTP::OAI::DataProvider::Transformer;
+#use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
@@ -66,6 +67,7 @@ Use XSLT 1.0 to tranform your native format in whatever you like.
 any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
 	content_type 'text/xml';
+
 	#I have problems with requestURL. With some servers it disappears from
 	#from DataProvider's HTTP::OAI::Response. Therefore, let's hand it over to
 	#the data provider explicitly!
@@ -89,29 +91,14 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	}
 };
 
-before sub {
-	if ( $provider->{engine}->{chunkRequest} ) {
-		delete $provider->{engine}->{chunkRequest};
-		debug "DELETE CHUNK REQUEST";
-	}
-	#warning "I was here" ;
-};
-
 after sub {
 	warning "Initial request is danced. How long did it take?";
-
-	#write chunks to disk cache if necessary
-	my $engine = $provider->{engine};
-	#not elegant to pass over the provider, isn't it?
-	$engine->completeChunks( $provider );
-	warning "Post-dance chunks done. How long did this take?";
 };
 dance;
 
 #
 #
 #
-
 
 =head2 config_check ();
 
@@ -124,9 +111,15 @@ discover them.
 =cut
 
 sub config_check {
+
+	#1) check whether all required config data is available
 	my @required = qw/
-	  oai_adminEmail identify_cb oai_baseURL oai_repositoryName setLibrary_cb
-	  XSLT XSLT_dir/;
+	  adminEmail
+	  baseURL
+	  repositoryName
+	  setLibrary
+	  xslt
+	  XSLT_dir/;
 
 	foreach (@required) {
 		if ( !$_ ) {
@@ -134,21 +127,25 @@ sub config_check {
 		}
 	}
 
-	#defaults, conditionals, corrections
-	if ( config->{chunking} ) {
-		if ( !config->{chunk_size} ) {
-			debug "Config check: set chunk_size to default (100)";
-			config->{chunk_size} = 100;    #default
-		}
-		if ( config->{chunk_dir} ) {
-			config->{chunk_dir} =~ s|\/$||;    #remove trailing slash if any
-		} else {
-			die 'Configuration Error: Need chunk_dir for temporary '
-			  . 'storage of chunks';
-		}
+	#2) apply defaults, check conditionals
+	if ( !config->{chunkSize} ) {
+		debug "Config check: set chunk_size to default (100)";
+		config->{chunkSize} = 100;    #default
 	}
-}
 
+	if ( !config->{maxChunkCache} ) {
+		debug "Config check: set maxChunkCache to default (4000)";
+		config->{maxChunkCache} = 4000;    #default
+	}
+
+	#3) correct config data
+
+	#write oai_baseURL also in explicit requestURL
+	$config->{requestURL} = $config->{baseURL};
+
+	#todo VALIDATE all xslts for conversion to target format during startup.
+
+}
 
 =head2 $provider=init_provider();
 
@@ -159,82 +156,32 @@ if classic configuration information or from callbacks.
 
 sub init_provider {
 
-	config_check();    #require conditions during start up or die
+	#require conditions during start up or die
+	#apply defaults, return as hashref
+	config_check();
 
-	#
-	# init provider
-	#
+	#then change only those which need name tweaking?
+	#my %args = (
+	#	debug        => 'Salsa_OAI::salsa_debug',       #not sure about this
+	#	Identify     => config->{identify_cb},
+	#	locateXSL    => 'Salsa_OAI::salsa_locateXSL',
+	#	nativePrefix => config->{native_ns_prefix},
+	#	requestURL   => config->{oai_baseURL},
+	#	setLibrary   => config->{setLibrary_cb},
+	#	warning      => 'Salsa_OAI::salsa_debug',       #not sure about this
+	#	xslt         => config->{XSLT},
+	#nativeFormatPrefix => 'mpx',    #not used at the moment
+	#);
 
-	my %args = (
-		debug	=> 'Salsa_OAI::salsa_debug', #not sure about this
-		Identify   => config->{identify_cb},
-		requestURL => config->{oai_baseURL},
-		setLibrary => config->{setLibrary_cb},
-		warning	   => 'Salsa_OAI::salsa_debug', #not sure about this
-		xslt       => config->{XSLT},
+	my $provider = HTTP::OAI::DataProvider->new(config);
 
-		#nativeFormatPrefix => 'mpx',    #not used at the moment
-	);
+	#according to Demeter's law I should NOT access internal data
+	#instead I should talk to provider's interface and hand over all
+	#these values to the interface and let the provider deal with it
 
-	my $provider = HTTP::OAI::DataProvider->new(%args);
-
-	#
-	# init global metadata formats
-	#
-
-	my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
-	my %cnf;
-	if ( config->{GlobalFormats} ) {
-		%cnf = %{ config->{GlobalFormats} };
-	}
-	foreach my $prefix ( keys %cnf ) {
-
-		#debug " Registering global format $prefix";
-		if ( !$cnf{$prefix}{ns_uri} or !$cnf{$prefix}{ns_schema} ) {
-			die "GlobalFormat $prefix in yaml configuration incomplete";
-		}
-		$globalFormats->register(
-			ns_prefix => $prefix,
-			ns_uri    => $cnf{$prefix}{ns_uri},
-			ns_schema => $cnf{$prefix}{ns_schema},
-		);
-	}
-	$provider->{globalFormats} = $globalFormats;
-
-	#
-	# intit engine
-	#
-
-	$provider->{engine} =
-	  new HTTP::OAI::DataProvider::SQLite( dbfile => config->{dbfile} );
-
-	if ( config->{chunking} ) {
-		if ( config->{chunking} ne 'false' ) {
-
-			#debug "Set chunking params in engine";
-			#two values in Dancer's config become one in DataProvider
-			#chunking and chunk_size
-			$provider->{engine}->{chunking}  = config->{chunk_size};
-			$provider->{engine}->{chunk_dir} = config->{chunk_dir};
-
-			#debug "test: chunk_size" . $provider->{engine}->{chunking};
-		}
-	}
-
-	#
-	# init transformer
-	#
-
-	$provider->{engine}->{transformer} =
-	  new HTTP::OAI::DataProvider::Transformer(
-		nativePrefix => config->{native_ns_prefix},
-		locateXSL    => 'Salsa_OAI::salsa_locateXSL',
-	  );
-
-	#debug "data provider initialized!";
+	debug "data provider initialized!";
 	return $provider;
 }
-
 
 =head2 welcome()
 
@@ -266,7 +213,7 @@ sub salsa_debug {
 	} else {
 		foreach (@_) {
 			print "$_\n";
-		};
+		}
 	}
 }
 
@@ -282,41 +229,6 @@ sub salsa_warning {
 	} else {
 		warn @_;
 	}
-}
-
-
-sub salsa_Identify {
-	my $self = shift;
-
-	#debug " Enter salsa_Identify ";
-
-	#take info from config
-	#Who am I complying to? Just a debug?
-
-	foreach my $test (qw/repositoryName adminEmail deletedRecord/) {
-		if ( !config->{"oai_$test"} ) {
-			die "oai_$test setting in Dancer's config missing !";
-		}
-	}
-
-   #I can try to identify baseURL automatically, but having the data provider
-   #some kind of reverse proxy can easily confuse the url, so better hardwire it
-   #baseURL        => uri_for( request->path ),
-
-	my $baseURL;
-	config->{oai_baseURL}
-	  ? $baseURL =
-	  config->{oai_baseURL}
-	  : $baseURL = uri_for( request->path );
-
-	my $identify = {
-		adminEmail     => config->{oai_adminEmail},
-		baseURL        => $baseURL,
-		deletedRecord  => config->{oai_deletedRecord},
-		repositoryName => config->{oai_repositoryName},
-	};
-
-	return $identify;
 }
 
 =head2 my $library = salsa_setLibrary();
@@ -410,7 +322,7 @@ perform new db requests and return the result accordingly, i.e. we do not need
 to plan again. (In other words: planning is only part of the first request.)
 
 FIRST REQUEST
-   check chunking config
+check chunking config
 a) plan chunking + save plan into chunkCache + return first token
 b) return first chunk
 
