@@ -116,6 +116,7 @@ sub config_check {
 	my @required = qw/
 	  adminEmail
 	  baseURL
+	  chunkCacheMaxSize
 	  repositoryName
 	  setLibrary
 	  xslt
@@ -133,17 +134,30 @@ sub config_check {
 		config->{chunkSize} = 100;    #default
 	}
 
-	if ( !config->{maxChunkCache} ) {
-		debug "Config check: set maxChunkCache to default (4000)";
-		config->{maxChunkCache} = 4000;    #default
-	}
-
 	#3) correct config data
 
 	#write oai_baseURL also in explicit requestURL
-	$config->{requestURL} = $config->{baseURL};
+	config->{requestURL} = config->{baseURL};
 
-	#todo VALIDATE all xslts for conversion to target format during startup.
+	#4) VALIDATE all xslts for conversion to target format during startup.
+	#my %gf = %{ config->{GlobalFormats} };
+	#foreach my $prefix ( keys %gf ) {
+	#	if ( $prefix ne config->{nativePrefix} ) {
+	#		no strict "refs";
+	#		my $path = config->{locateXSL}($prefix);
+	#		#debug "$prefix-> $path ||" . $gf{$prefix}{ns_schema};
+#
+#			my $xmlschema =
+#			  XML::LibXML::Schema->new( location => $gf{$prefix}{ns_schema} );
+#			my $doc = XML::LibXML->load_xml( location => $path );
+#			eval { $xmlschema->validate($doc); };
+#			if ($@) {
+#				warning "mpx2$prefix.xslt failed validation: $@" if $@;
+#			} else {
+#				debug "mpx2$prefix.xslt validates";
+#			}
+#		}
+#	}
 
 }
 
@@ -299,7 +313,12 @@ returns nothing.
 
 sub salsa_locateXSL {
 	my $prefix       = shift;
-	my $nativeFormat = config->{native_ns_prefix};
+	my $nativeFormat = config->{nativePrefix};
+
+	if ( !$nativeFormat ) {
+		die "Info on nativeFormat missing";
+	}
+
 	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
 
