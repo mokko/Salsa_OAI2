@@ -13,6 +13,7 @@ use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use XML::LibXML;    #for salsa_setLibrary;
+use Salsa_OAI::MPX;
 
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
 
