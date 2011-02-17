@@ -163,20 +163,19 @@
 			<xsl:for-each
 				select="/mpx:museumPlusExport/mpx:multimediaobjekt">
 				<dc:relation>
-					<xsl:value-of select="mpx:multimediaPfadangabe" />
 					<xsl:choose>
-						<!-- match internal MuseumPlus paths -->
+						<!-- match urls -->
 						<xsl:when
-							test="contains (mpx:multimediaPfadangabe, ':\')">
-							<xsl:value-of select="'\'" />
+							test="contains (mpx:multimediaPfadangabe, '://')">
+							<xsl:value-of
+								select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
 						</xsl:when>
+						<!-- match internal MuseumPlus paths -->
 						<xsl:otherwise>
-							<xsl:value-of select="'/'" />
+							<xsl:value-of
+								select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
 						</xsl:otherwise>
 					</xsl:choose>
-					<xsl:value-of select="mpx:multimediaDateiname" />
-					<xsl:value-of select="'.'" />
-					<xsl:value-of select="mpx:multimediaErweiterung" />
 				</dc:relation>
 			</xsl:for-each>
 

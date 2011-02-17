@@ -56,8 +56,7 @@
 			</xsl:message-->
 		<lido:lido>
 			<lido:lidoRecID lido:type="local">
-				spk:obj-
-				<xsl:value-of select="@objId" />
+				<xsl:value-of select="concat ('spk:obj-',@objId)" />
 			</lido:lidoRecID>
 			<lido:descriptiveMetadata xml:lang="de">
 				<lido:objectClassificationWrap>
@@ -207,21 +206,17 @@
 
 							-->
 							<lido:linkResource>
-								<xsl:value-of
-									select="mpx:multimediaPfadangabe" />
-								<xsl:choose>
-									<!-- match internal MuseumPlus paths -->
-									<xsl:when
-										test="contains (mpx:multimediaPfadangabe, ':\')">
-										<xsl:value-of select="'\'" />
-									</xsl:when>
-									<!-- assume forward slash for urls -->
-									<xsl:otherwise>
-										<xsl:value-of select="'/'" />
-									</xsl:otherwise>
-								</xsl:choose>
-								<xsl:value-of
-									select="mpx:concat(mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
+								<!-- match urls -->
+								<xsl:when
+									test="contains (mpx:multimediaPfadangabe, '://')">
+									<xsl:value-of
+										select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
+								</xsl:when>
+								<!-- match internal MuseumPlus paths -->
+								<xsl:otherwise>
+									<xsl:value-of
+										select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
+								</xsl:otherwise>
 							</lido:linkResource>
 							<lido:resourceID lido:pref="preferred"
 								lido:type="local">

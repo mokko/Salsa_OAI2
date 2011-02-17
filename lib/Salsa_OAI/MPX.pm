@@ -2,8 +2,7 @@ package Salsa_OAI::MPX;
 
 use strict;
 use warnings;
-use Dancer::CommandLine qw/Debug Warning/;
-use Dancer::CommandLine::Config;
+use Dancer ':syntax';
 use utf8;    #for verknupftesObjekt
 use XML::LibXML;
 use XML::LibXML::XPathContext;
@@ -44,7 +43,7 @@ sub extractRecords {
 	my $self = shift;
 	my $doc  = shift;    #old document
 
-	Debug "Enter extractRecords ($doc)";
+	debug "Enter extractRecords ($doc)";
 
 	if ( !$doc ) {
 		die "Error: No doc";
@@ -66,7 +65,7 @@ sub extractRecords {
 		#complete header including sets
 		my $header = $self->Salsa_OAI::MPX::extractHeader($node);
 
-		Debug "node:" . $node;
+		debug "node:" . $node;
 		my $record = new HTTP::OAI::Record(
 			header   => $header,
 			metadata => $md,
@@ -100,7 +99,7 @@ sub extractHeader {
 	my @exportdatum = $node->findnodes('@exportdatum');
 	my $exportdatum = $exportdatum[0]->value . 'Z';
 
-	Debug "  $id_oai--$exportdatum";
+	debug "  $id_oai--$exportdatum";
 	my $header = new HTTP::OAI::Header(
 		identifier => $id_oai,
 		datestamp  => $exportdatum,
@@ -138,23 +137,21 @@ sub _mk_md {
 	$new_doc->setDocumentElement($root);
 
 	#get current node
-	my @nodes =
-	  $doc->findnodes(
+	my @nodes = $doc->findnodes(
 		qq(/mpx:museumPlusExport/mpx:sammlungsobjekt[\@objId = '$currentId']));
 	my $node = $nodes[0];
 
 	#related info: verknüpftesObjekt
 	{
-		my $xpath =
-		  qw (/mpx:museumPlusExport/mpx:multimediaobjekt)
+		my $xpath = qw (/mpx:museumPlusExport/mpx:multimediaobjekt)
 		  . qq([mpx:verknüpftesObjekt = '$currentId']);
 
-		#Debug "DEBUG XPATH $xpath\n";
+		#debug "debug XPATH $xpath\n";
 
 		my @mume = $doc->findnodes($xpath);
 		foreach my $mume (@mume) {
 
-			#Debug 'MUME' . $mume->toString . "\n";
+			#debug 'MUME' . $mume->toString . "\n";
 			$root->appendChild($mume);
 		}
 	}
@@ -168,16 +165,15 @@ sub _mk_md {
 
 			my $id = $kueId->value;
 
-			my $xpath =
-			  qw (/mpx:museumPlusExport/mpx:personKörperschaft)
+			my $xpath = qw (/mpx:museumPlusExport/mpx:personKörperschaft)
 			  . qq([\@kueId = '$id']);
 
-			#Debug "DEBUG XPATH $xpath\n";
+			#debug "debug XPATH $xpath\n";
 
 			my @perKors = $doc->findnodes($xpath);
 			foreach my $perKor (@perKors) {
 
-				#Debug 'perKor' . $perKor->toString . "\n";
+				#debug 'perKor' . $perKor->toString . "\n";
 				$root->appendChild($perKor);
 			}
 		}
@@ -188,8 +184,8 @@ sub _mk_md {
 
 	#should I also validate the stuff?
 
-	#MAIN DEBUG
-	#Debug "Debug output\n" . $new_doc->toString;
+	#MAIN debug
+	#debug "debug output\n" . $new_doc->toString;
 
 	#wrap into dom into HTTP::OAI::Metadata
 	my $md = new HTTP::OAI::Metadata( dom => $new_doc );
@@ -212,7 +208,7 @@ sub setRules {
 	my $node   = shift;
 	my $header = shift;
 
-	Debug "Enter setRules";
+	debug "Enter setRules";
 
 	#setRules:mapping set to simple mpx rules
 	$node = XML::LibXML::XPathContext->new($node);
@@ -222,22 +218,22 @@ sub setRules {
 	my $objekttyp = $node->findvalue('mpx:objekttyp');
 	if ($objekttyp) {
 
-		#Debug "   objekttyp: $objekttyp\n";
+		#debug "   objekttyp: $objekttyp\n";
 		if ( $objekttyp eq 'Musikinstrument' ) {
 			my $setSpec = 'MIMO';
 			$header->setSpec($setSpec);
-			Debug "    set setSpec '$setSpec'";
+			debug "    set setSpec '$setSpec'";
 		}
 	}
 
 	my $sachbegriff = $node->findvalue('mpx:sachbegriff');
 	if ($sachbegriff) {
 
-		#Debug "   objekttyp: $objekttyp\n";
+		#debug "   objekttyp: $objekttyp\n";
 		if ( $sachbegriff eq 'Schellackplatte' ) {
 			my $setSpec = '78';
 			$header->setSpec($setSpec);
-			Debug "    set setSpec '$setSpec'";
+			debug "    set setSpec '$setSpec'";
 		}
 	}
 	return $node, $header;
@@ -247,7 +243,7 @@ sub setRules {
 # not sure where this should go. It is not strictly speaking mpx, but it belongs
 # to transformation.
 
-=head2 my xslt_fn=salsa_locateXSL($prefix);
+=head2 my xsl_fn=locateXSL($prefix);
 
 locateXSL callback expects a metadataFormat prefix and will return the full
 path to the xsl which is responsible for this transformation. On failure:
@@ -255,10 +251,15 @@ returns nothing.
 
 =cut
 
-#sub salsa_locateXSL {
-#	my $prefix       = shift;
-#	my $nativeFormat = $config->{native_ns_prefix};
-#	return $config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
-#}
+sub locateXSL {
+	my $prefix       = shift;
+	my $nativeFormat = config->{nativePrefix};
+	$nativeFormat
+	  ? return config->{XSLT_dir} . '/'
+	  . $nativeFormat . '2'
+	  . $prefix
+	  . '.xsl'
+	  : return ();
+}
 
-1;    #Salsa_OAI::MPX;
+1;                #Salsa_OAI::MPX;

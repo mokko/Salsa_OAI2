@@ -1,30 +1,18 @@
 #!/usr/bin/perl
 
-use lib '/home/Mengel/projects/Salsa_OAI2/lib';
-
-#use Salsa_OAI;
-use Dancer::CommandLine::Config;
-use HTTP::OAI;
-use HTTP::OAI::Repository;
-use HTTP::OAI::Metadata;
-
-use HTTP::OAI::DataProvider::SQLite;
-use HTTP::OAI::DataProvider::GlobalFormats;
-use HTTP::OAI::DataProvider::Transformer;
 use FindBin;
-use lib "$FindBin::Bin/../lib"; #works only under *nix, of course
+use Cwd 'realpath';
+use Dancer ':syntax';
+use HTTP::OAI;
+use HTTP::OAI::Repository 'validate_request';
+use HTTP::OAI::Metadata;
+use HTTP::OAI::DataProvider;
+use lib '/home/Mengel/projects/Salsa_OAI2/lib';
+#use Salsa_OAI;
 use Salsa_OAI::MPX;
-use Getopt::Std;
 
-getopts( 'o:h', my $opts = {} );
-
-if ( $opts->{h} ) {
-	print "Usage example: transform.pl -o output.xml 538 lido\n";
-	print "See 'perldoc transform.pl' for more\n";
-	exit 0;
-}
-
-#use Data::Dumper qw/Dumper/;
+sub verbose;    #predeclare
+sub output;
 
 =head1 NAME
 
@@ -38,11 +26,11 @@ transform.pl - apply a transformation to a record from the data store
 
 =head1 VERSION
 
-0.01
+0.02
 
 =cut
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 =head1 PARAMETERS
 
@@ -66,21 +54,40 @@ Prints a little usage tip. For more info use perldoc transform.pl (this text).
 =head1 NOTES / TODO
 =cut
 
+
+use Getopt::Std;
+getopts( 'o:hv', my $opts = {} );
+
+if ( $opts->{h} ) {
+	print "Usage example: transform.pl -o output.xml 538 lido\n";
+	print "See 'perldoc transform.pl' for more\n";
+	exit 0;
+}
+
+#
+# Dancer Config
+#
+
+#correct bug in current dancer
+Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
+Dancer::Config::load();
+config->{environment}='production'; #also makes debug silent
+#print 'appdir'.Dancer::Config::setting('appdir')."\n";
+#print 'conffile'.Dancer::Config::conffile()."\n";
+
+#use Data::Dumper qw/Dumper/;
+#print Dumper config;
+#verbose "here";
+#exit;
+
 #
 # CONFIGURATION
 #
 
 #not ideal to have the path here
-my $c =
-  new Dancer::CommandLine::Config(
-	'/home/Mengel/projects/Salsa_OAI2/config.yml');
-my $config = $c->get_config;
-print "dbfile" . $config->{dbfile} . "\n";
+#print "dbfile" . config->{dbfile} . "\n";
+#print "chunkCacheMaxSize: " . config->{chunkCacheMaxSize} . "\n";
 
-#print Dumper $config;
-#
-# TODO I need to correct this debug
-#
 #from commandline
 
 if ( !$ARGV[0] ) {
@@ -96,134 +103,114 @@ if ( !$ARGV[1] ) {
 	exit 1;
 }
 
-#if (! $opts->{o}) {
-#	print "Error: Need output file";
-#	exit 1;
-#}
-
-print "\nCommand line input:\n";
-my $args = {};
+verbose "\nCommand line input:";
+my $params = {
+	verb => 'GetRecord'
+};
 if ( $ARGV[0] =~ /\d+/ ) {
 	$ARGV[0] = 'spk-berlin.de:EM-objId-' . $ARGV[0];
-	print "   identifier ='$ARGV[0]'\n";
-	$args->{identifier} = $ARGV[0];
+	verbose "   identifier ='$ARGV[0]'";
+	$params->{identifier} = $ARGV[0];
 }
 
 if ( $ARGV[1] ) {
-	print "   metadataPrefix='$ARGV[1]'\n";
-	$args->{metadataPrefix} = $ARGV[1];
+	verbose "   metadataPrefix='$ARGV[1]'";
+	$params->{metadataPrefix} = $ARGV[1];
 }
 
 if ( $ARGV[2] ) {
-	print "   set='$ARGV[2]'\n";
-	$args->{set} = $ARGV[2];
+	verbose "   set='$ARGV[2]'";
+	$params->{Set} = $ARGV[2];
 }
 
-#
-# test if metadataFormat supported
-#
-my $globalFormats = new HTTP::OAI::DataProvider::GlobalFormats;
-registerFromConfig( $config, $globalFormats );
-my $err = $globalFormats->check_format_supported( $args->{metadataPrefix} );
-
-if ($err) {
-
-	#error is HTTP::OAI::Error with code CannotDisseminateFormat
-	print "Error: " . $err->code;
-	$err->message ? print ':' . $err->message . "\n" : print "\n";
-	exit 1;
-}
-
-my $engine = new HTTP::OAI::DataProvider::SQLite( dbfile => $config->{dbfile} );
-
-#
-#initialize transformer
-#
-$engine->{transformer} = new HTTP::OAI::DataProvider::Transformer(
-	nativePrefix => $config->{nativePrefix},
-	locateXSL    => 'main::salsa_locateXSL',
-);
-
-#
-#test if identifier exists
-#
-
-my $header = $engine->findByIdentifier( $args->{identifier} );
-if ( !$header ) {
-	print "Error: id does not exist\n";
-	exit 1;
-}
-print "\ntarget metadataPrefix from command line:"
-  . $args->{metadataPrefix} . "!\n";
-my $result = $engine->queryRecords($args);
-
-#
-#check result
-#
-my @records = $result->_returnRecords;
-if ( @records != 1 ) {
-	warn "One result expected, but got different result (" . @records . ')';
-}
-
-#
-#display/write result
-#
-
-foreach my $record (@records) {
-	my $fh = STDOUT;
-	if ( $opts->{o} ) {
-
-		#'>:encoding(UTF-8)' seems to work without it
-		print "Will use UTF-8 file handle for output ($opts->{o})";
-		open( $fh, '>:encoding(UTF-8)', $opts->{o} ) or die $!;
+if ( $opts->{o} ) {
+	verbose "Will print to file handle using UTF-8 for output ($opts->{o})\n";
+	if (-f $opts->{o}) {
+		verbose '   Overwriting '.$opts->{o};
+		unlink $opts->{o};
 	}
-	print $fh $record->metadata->dom->toString;
 }
 
-=head2 registerFromConfig( $config, $globalFormats );
+verbose '   verb: '.$params->{verb};
 
-TODO Redundant. This code is still in Salsa_OAI.pm
+#
+# MAIN
+#
+
+my $provider = HTTP::OAI::DataProvider->new(config);
+
+if ( validate_request( %{$params} ) ) {
+	output $provider->err2XML( validate_request( %{$params} ) );
+	exit 1;
+}
+
+verbose '   request validates';
+
+{
+	no strict "refs";
+	my $verb = $params->{verb};
+	output $provider->$verb( config->{baseURL}, %{$params} );
+}
+
+exit 0;
+
+=head1 INTERNAL METHODS AND FUNCTIONS
+
+Documented here only for my own good
+
+=head2 verbose "message";
+
+Print message to STDOUT if script is run with -v options.
+
 =cut
 
-sub registerFromConfig {
-	my $config        = shift;
-	my $globalFormats = shift;
-
-	my %cnf;
-	if ( $config->{GlobalFormats} ) {
-		%cnf = %{ $config->{GlobalFormats} };
-	}
-
-	foreach my $prefix ( keys %cnf ) {
-
-		print " Registering global format $prefix\n";
-		if ( !$cnf{$prefix}{ns_uri} or !$cnf{$prefix}{ns_schema} ) {
-			die "GlobalFormat $prefix in yaml configuration incomplete";
+sub verbose {
+	my $msg = shift;
+	if ($msg) {
+		if ( $opts->{v} ) {
+			print $msg."\n";
 		}
-
-		$globalFormats->register(
-			ns_prefix => $prefix,
-			ns_uri    => $cnf{$prefix}{ns_uri},
-			ns_schema => $cnf{$prefix}{ns_schema},
-		);
 	}
 }
 
-#
-# It has to go. But where?
-#
+=head2 output $string;
 
-=head2 my xslt_fn=salsa_locateXSL($prefix);
-
-locateXSL callback expects a metadataFormat prefix and will return the full
-path to the xsl which is responsible for this transformation. On failure:
-returns nothing.
+Print $string either to STDOUT or to filehandle provided by -o commandline
+option.
 
 =cut
 
-sub salsa_locateXSL {
-	my $prefix       = shift;
-	my $nativeFormat = $config->{nativePrefix};
-	return $config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
+sub output {
+	my $output = shift;
+	if ($output) {
+		if ( $opts->{o} ) {
+			#'>:encoding(UTF-8)' seems to work without it
+			open( my $fh, '>>', $opts->{o} ) or die $!;
+			print $fh $output;
+
+			#close file automatically if this script ends
+		} else {
+			print $output;
+		}
+	}
 }
+
+=head2 debug
+
+Overwrite Dancer's debug if you like
+
+=cut
+
+#sub debug {
+#	print "Get Here";
+	#if ( defined(&Dancer::Logger::debug) ) {
+	#	goto &Dancer::Logger::debug;
+	#} else {
+	#	foreach (@_) {
+	#		print "$_\n";
+	#	};
+	#}
+#}
+
+
 

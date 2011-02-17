@@ -80,8 +80,8 @@ any [ 'get', 'post' ] => '/oai' => sub {
 
 	#this needs to stay here to check if verb is valid
 	if ( my $verb = params->{verb} ) {
-		if ( my $error = validate_request(params) ) {
-			return $provider->err2XML($error);
+		if ( validate_request(params) ) {
+			return $provider->err2XML(validate_request(params));
 		}
 
 		no strict "refs";
@@ -173,19 +173,6 @@ sub init_provider {
 	#require conditions during start up or die
 	#apply defaults, return as hashref
 	config_check();
-
-	#then change only those which need name tweaking?
-	#my %args = (
-	#	debug        => 'Salsa_OAI::salsa_debug',       #not sure about this
-	#	Identify     => config->{identify_cb},
-	#	locateXSL    => 'Salsa_OAI::salsa_locateXSL',
-	#	nativePrefix => config->{native_ns_prefix},
-	#	requestURL   => config->{oai_baseURL},
-	#	setLibrary   => config->{setLibrary_cb},
-	#	warning      => 'Salsa_OAI::salsa_debug',       #not sure about this
-	#	xslt         => config->{XSLT},
-	#nativeFormatPrefix => 'mpx',    #not used at the moment
-	#);
 
 	my $provider = HTTP::OAI::DataProvider->new(config);
 
