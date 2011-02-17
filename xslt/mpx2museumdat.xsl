@@ -9,8 +9,8 @@
 	<xsl:strip-space elements="*" />
 
 	<!--
-		v11 2.9.2010 converted back to XSLT 1.0 to use XML::LibXSLT which is quick and handy form perl. 
-			Conversion incomplete and untested! Not ready for use! 
+		v11 2.9.2010 converted back to XSLT 1.0 to use XML::LibXSLT which is quick and handy form perl.
+			Conversion incomplete and untested! Not ready for use!
 
 		v10 7.7.08
 		Wenn Lange Beschreibung den Text "Bis zur Erweiterung des Textfeldes "Lange Beschreibung"" enthält, schneide ich den Rest weg
@@ -132,7 +132,6 @@
 		<museumdat:museumdatWrap
 			xsi:schemaLocation="http://museum.zib.de/museumdat File://C:/Perl/site/lib/xsd/museumdat-v1.0.xsd"
 			museumdat:relatedencoding="MuseumPlusXML-lvl3">
-
 			<xsl:apply-templates select="//mpx:sammlungsobjekt" />
 		</museumdat:museumdatWrap>
 	</xsl:template>

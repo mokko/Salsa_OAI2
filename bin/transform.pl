@@ -32,9 +32,9 @@ transform.pl - apply a transformation to a record from the data store
 
 =head1 SYNOPSIS
 
-transform.pl -o output.xml 538 lido
-transform.pl -h
-	Get usage summary, for more try 'perloc transform.pl'
+   transform.pl -o output.xml 538 lido
+   transform.pl -h
+	Get usage summary, for more try 'perldoc transform.pl'
 
 =head1 VERSION
 
@@ -140,7 +140,7 @@ my $engine = new HTTP::OAI::DataProvider::SQLite( dbfile => $config->{dbfile} );
 #initialize transformer
 #
 $engine->{transformer} = new HTTP::OAI::DataProvider::Transformer(
-	nativePrefix => $config->{native_ns_prefix},
+	nativePrefix => $config->{nativePrefix},
 	locateXSL    => 'main::salsa_locateXSL',
 );
 
@@ -206,9 +206,7 @@ sub registerFromConfig {
 			ns_uri    => $cnf{$prefix}{ns_uri},
 			ns_schema => $cnf{$prefix}{ns_schema},
 		);
-
 	}
-
 }
 
 #
@@ -225,7 +223,7 @@ returns nothing.
 
 sub salsa_locateXSL {
 	my $prefix       = shift;
-	my $nativeFormat = $config->{native_ns_prefix};
+	my $nativeFormat = $config->{nativePrefix};
 	return $config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
 

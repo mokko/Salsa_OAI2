@@ -164,7 +164,16 @@
 				select="/mpx:museumPlusExport/mpx:multimediaobjekt">
 				<dc:relation>
 					<xsl:value-of select="mpx:multimediaPfadangabe" />
-					<xsl:value-of select="'/'" />
+					<xsl:choose>
+						<!-- match internal MuseumPlus paths -->
+						<xsl:when
+							test="contains (mpx:multimediaPfadangabe, ':\')">
+							<xsl:value-of select="'\'" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="'/'" />
+						</xsl:otherwise>
+					</xsl:choose>
 					<xsl:value-of select="mpx:multimediaDateiname" />
 					<xsl:value-of select="'.'" />
 					<xsl:value-of select="mpx:multimediaErweiterung" />
