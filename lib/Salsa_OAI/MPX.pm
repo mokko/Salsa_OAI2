@@ -43,7 +43,7 @@ sub extractRecords {
 	my $self = shift;
 	my $doc  = shift;    #old document
 
-	debug "Enter extractRecords ($doc)";
+	debug "Enter extractRecords!";
 
 	if ( !$doc ) {
 		die "Error: No doc";
@@ -65,7 +65,7 @@ sub extractRecords {
 		#complete header including sets
 		my $header = $self->Salsa_OAI::MPX::extractHeader($node);
 
-		debug "node:" . $node;
+		#debug "node:" . $node;
 		my $record = new HTTP::OAI::Record(
 			header   => $header,
 			metadata => $md,
@@ -208,11 +208,11 @@ sub setRules {
 	my $node   = shift;
 	my $header = shift;
 
-	debug "Enter setRules";
+	#debug "Enter setRules";
 
 	#setRules:mapping set to simple mpx rules
 	$node = XML::LibXML::XPathContext->new($node);
-	$node->registerNs( $self->{ns_prefix}, $self->{ns_uri} );
+	$node->registerNs( $self->{nativePrefix}, $self->{nativeURI} );
 
 	#setSpec: MIMO
 	my $objekttyp = $node->findvalue('mpx:objekttyp');

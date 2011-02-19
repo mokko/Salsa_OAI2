@@ -1,49 +1,51 @@
 #
 ##
-###1. BASIC DANCER CONFIG
+### 1 BASIC DANCER CONFIG
 ##
 #
 
-#layout: "main"
-appname: "Salsa_OAI2"
-content_type: "text/xml"
-#where you can reach the Salsa_OAI:
-path: '/oai'
+#appname: a Dancer config value
+appname: "Salsa_OAI"
+
+#content_type: This is default content type for dancer. Salsa_OAI sets text/xml
+# where appropriate
+content_type: "text/html"
 
 #
 ##
-###2. FILES AND DIRS
+### 2 TRANSFORMATIONS
 ##
 #
 
-xml_undigested: todo
-#dir or file with large xml file containing multiple records
-#is processed by script (todo)
+#XSLT_dir (path):
+# dir where mappings are located (transforming native format to target format)
+XSLT_dir: '/home/Mengel/projects/Salsa_OAI2/xslt'
 
-xml_store: "/home/Mengel/projects/Salsa_OAI/index/fs"
-#xml source directory where xml records lie (1 record per file)
+#xslt (path):
+# beautify stylesheet, path relative to public dir in Dancer
+xslt: '/oai2.xsl'
 
-headercache_YAML: "/home/Mengel/projects/Salsa_OAI2/data/ListIdentifiers.yaml"
-#headercache is a yaml file containing all information for the OAI headers
-#is written by script (which?) and read by Salsa_OAI
-
-#listRecord response can easily be too big for dom, so instead it is cached
-#on disk. Path consists of dancer's public directory (see above)
-tmp_listRecord: 'tmp/lr.xml'
-cache_limit: '30000'
-#up this no of records listRecord response is served via DOM if listRecord has
-#more records, response is written on disk first (to reduce memory use)
+nativePrefix: 'mpx'
+native_ns_uri: 'http://www.mpx.org/mpx'
 
 #
 ##
-### 3 TRANSFORMATIONS
+### 3 MAPPING / CALLBACKS
 ##
 #
 
+#extractRecords (callback): returns HTTP::OAI::Record from source xml
+extractRecords: 'Salsa_OAI::MPX::extractRecords'
 
-XSLT_dir: "/home/Mengel/projects/Salsa_OAI/xslt"
-XSLT: '/oai2.xsl'
+#locateXSL (callback): finds xsl for mapping on disk
+locateXSL: 'Salsa_OAI::MPX::locateXSL'
 
+#setLibrary (callback): dont remember what this does
+setLibraryCB: 'Salsa_OAI::salsa_setLibrary'
+
+#TODO: message callback
+debug: 'Salsa_OAI::salsa_debug'
+warning: 'Salsa_OAI::salsa_debug'
 
 #
 ##
@@ -51,48 +53,83 @@ XSLT: '/oai2.xsl'
 ##
 #
 
-#required: adminEmail, deletedRecord, granularity, repositoryName
+#adminEmail: for Identify (required)
+adminEmail: "mauricemengel@gmail.com"
 
-oai_adminEmail: "mauricemengel@gmail.com"
-oai_deletedRecord: "no"
-oai_granularity: "YYYY-MM-DDThh:mm:ssZ"
-oai_repositoryName: "SPK OAI Data Provider for MIMO"
-oai_earliestDatestamp: '2008-04-15'
+#baseURL (url): for Identify verb (required)
+# also used to overwrite real requestURL
+baseURL: "http://spk.mimo-project.eu:8080/oai"
 
+#deletedRecord: does repository support deletedRecords? (required)
+deletedRecord: "no"
+
+#repositoryName: Repository name for Identify verb (required)
+repositoryName: "SPK OAI Data Provider for MIMO"
 
 #
 ##
-### 5 SUPPORTED METADATA FORMATS
+### 5 RESUMPTION CHUNKING
 ##
 #
+
+#chunkSize (integer): No of results per chunk.
+chunkSize: 100
+
+#chunkCacheMaxSize (integer): Max no of chunk descriptions stored in request cache
+# before old chunk descriptions are deleted. maxChunkCache must be greater than
+# the max number of chunks per request.
+chunkCacheMaxSize: 4000
+
+#
+##
+### 6 SUPPORTED METADATA FORMATS
+##
+#
+
+#example
+# mpx:
+#  ns_uri: "http://www.mpx.org/mpx"
+#  ns_schema: "https://github.com/mokko/MPX/raw/master/latest/mpx.xsd"
 
 GlobalFormats:
   mpx:
    ns_uri: "http://www.mpx.org/mpx"
-   ns_schema: "file:/c:/cygwin/home/Mengel/usr/levelup/lib/mpx-lvl2.v2.xsd"
+   ns_schema: "https://github.com/mokko/MPX/raw/master/latest/mpx.xsd"
   lido:
    ns_uri: "http://www.lido-schema.org"
-   ns_schema: "http://www.lido-schema.org/schema/v0.9/lido-v0.9.xsd"
+   ns_schema: "http://www.lido-schema.org/schema/v1.0/lido-v1.0.xsd"
   oai_dc:
    ns_uri: "http://www.openarchives.org/OAI/2.0/oai_dc/"
    ns_schema: "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+#  museumdat:
+#   ns_uri: "http://museum.zib.de/museumdat/"
+#   ns_schema: "http://museum.zib.de/museumdat/museumdat-v1.0.xsd"
+
+
 #
 ##
-### 6 SET LIBRARY
+### 7 SET LIBRARY
 ##
 #
-#this format allows only for one setDescription, but in fact there can be many
+
+#example
+#setSpec:
+# setName: 'this is a setName'
+# setDescription:
+#  - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
+
 setLibrary:
-  test:
-   setName: "this is a longer name"
-   setDescription:
-    - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
-    - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
-  Maurice:
-   setName: 'mamamama'
-   setDescription:
-    - <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"><dc:description>This set contains metadata describing electronic music recordings made during the 1950ies</dc:description></oai_dc:dc>
-  Sydney:
-   setName: "v"
-  another_test:
-   setName: "b"
+  78:
+   setName: 'Schellackplatten aus dem Phonogramm-Archiv (ursprünglich für DISMARC exportiert)'
+  MIMO:
+   setName: 'Musical Instruments selected for MIMO project'
+
+
+#
+##
+### 8 SPECIFIC TO SQLite ENGINE
+##
+#
+
+#dbfile (path): location of sqlite db
+dbfile: "/home/Mengel/projects/Salsa_OAI2/data/db"

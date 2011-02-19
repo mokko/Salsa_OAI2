@@ -8,11 +8,11 @@
 	<!--
 		This transformation is supposed to convert mpx to valid lido as used by mimo.
 
-		QUESTION: Which version of LIDO to use?
-		Currently MIMO uses lido 0.7 while the athena website names
-		version 0.8 as the current version.
+		KNOWN ISSUES
+		URL in linkResource
 
 		HISTORY
+		v.005 February 17, 2011 - Lido 1.0
 		v.004 October 3, 2010
 		Check where we are:
 		resulting xml validates as LIDO 0.9
@@ -42,7 +42,7 @@
 
 	<xsl:template match="/">
 		<lido:lidoWrap
-			xsi:schemaLocation="http://www.lido-schema.org  http://www.lido-schema.org/schema/v0.9/lido-v0.9.xsd">
+			xsi:schemaLocation="http://www.lido-schema.org  http://www.lido-schema.org/schema/v1.0/lido-v1.0.xsd">
 
 			<xsl:apply-templates
 				select="/mpx:museumPlusExport/mpx:sammlungsobjekt" />
@@ -210,12 +210,12 @@
 								<xsl:when
 									test="contains (mpx:multimediaPfadangabe, '://')">
 									<xsl:value-of
-										select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
+										select="concat(replace(mpx:multimediaPfadangabe, '\s+$', ''),'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
 								</xsl:when>
 								<!-- match internal MuseumPlus paths -->
 								<xsl:otherwise>
 									<xsl:value-of
-										select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
+										select="concat(replace(mpx:multimediaPfadangabe, '\s+$', ''),'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
 								</xsl:otherwise>
 							</lido:linkResource>
 							<lido:resourceID lido:pref="preferred"

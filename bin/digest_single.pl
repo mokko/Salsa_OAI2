@@ -4,16 +4,15 @@ use strict;
 use warnings;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
-
-#I don't even Debug in here
-#use Dancer::CommandLine qw/Debug Warning/;
-use Dancer::CommandLine::Config;
+use Carp qw/croak/;
+use Dancer ':syntax';
 
 use FindBin;
 use lib "$FindBin::Bin/../lib"; #works only under *nix, of course
+use HTTP::OAI::DataProvider;
 use HTTP::OAI::DataProvider::SQLite;
 use Salsa_OAI::MPX;
-
+use Cwd 'realpath';
 #for dirty debugging
 #use Data::Dumper qw/Dumper/;
 
@@ -99,33 +98,42 @@ if ( !-f $ARGV[0] ) {
 # dancer config
 #
 
-#Guesses the correct path
-my $c = new Dancer::CommandLine::Config( $FindBin::Bin. '/../config.yml' );
+Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
+Dancer::Config::load();
+config->{environment}='production'; #also makes debug silent
 
 #croak if vars missing in conf
-$c->test_conf_var(qw/dbfile native_ns_prefix native_ns_uri/);
-my $config = $c->get_config;
+test_conf_var(qw/dbfile nativePrefix native_ns_uri/);
 
 #
 # init
 #
+my $provider = HTTP::OAI::DataProvider->new(config);
 
-my $engine = new HTTP::OAI::DataProvider::SQLite(
-	dbfile    => $config->{dbfile},
-	ns_prefix => $config->{native_ns_prefix},
-	ns_uri    => $config->{native_ns_uri},
-);
 
 #
 # call digest_single
 #
 
-my $err = $engine->digest_single(
+#violates demeter's law
+my $err = $provider->{engine}->digest_single(
 	source  => $ARGV[0],
-	mapping => $config->{extractRecords},
+	mapping => config->{extractRecords},
 );
 
 #report errors if any
 if ($err) {
 	die $err;
+}
+
+#
+#
+#
+
+sub test_conf_var {
+	foreach (@_){
+		if (!config->{$_}) {
+			croak "Error:Config variable $_ missing";
+		}
+	}
 }
