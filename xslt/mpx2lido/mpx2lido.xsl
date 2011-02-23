@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0"
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:lido="http://www.lido-schema.org"
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
 	xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
 
 	<!--
@@ -10,8 +8,11 @@
 
 		KNOWN ISSUES
 		URL in linkResource
-
+		This file should be better organized, split into several documents that are included or imported! Hence it should
+		use <apply-templates> whereever possible.
+		
 		HISTORY
+		v.006 February 22, 2011 - Lido 1.0 still updating
 		v.005 February 17, 2011 - Lido 1.0
 		v.004 October 3, 2010
 		Check where we are:
@@ -35,36 +36,33 @@
 	-->
 
 
-	<xsl:output method="xml" version="1.0" encoding="UTF-8"
-		indent="yes" />
-	<xsl:strip-space elements="*" />
+	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+	<xsl:strip-space elements="*"/>
 
 
 	<xsl:template match="/">
 		<lido:lidoWrap
 			xsi:schemaLocation="http://www.lido-schema.org  http://www.lido-schema.org/schema/v1.0/lido-v1.0.xsd">
 
-			<xsl:apply-templates
-				select="/mpx:museumPlusExport/mpx:sammlungsobjekt" />
+			<xsl:apply-templates select="/mpx:museumPlusExport/mpx:sammlungsobjekt"/>
 		</lido:lidoWrap>
 	</xsl:template>
 
 	<xsl:template match="/mpx:museumPlusExport/mpx:sammlungsobjekt">
-		<xsl:variable name="currentId" select="@objId" />
+		<xsl:variable name="currentId" select="@objId"/>
 		<!--xsl:message>
 			<xsl:value-of select="concat ('objId',$currentId)"/>
 			</xsl:message-->
 		<lido:lido>
 			<lido:lidoRecID lido:type="local">
-				<xsl:value-of select="concat ('spk:obj-',@objId)" />
+				<xsl:value-of select="concat ('spk:obj-',@objId)"/>
 			</lido:lidoRecID>
 			<lido:descriptiveMetadata xml:lang="de">
 				<lido:objectClassificationWrap>
 					<lido:objectWorkTypeWrap>
 						<lido:objectWorkType>
 							<lido:term>
-								<xsl:value-of
-									select="child::mpx:objekttyp" />
+								<xsl:value-of select="child::mpx:objekttyp"/>
 							</lido:term>
 						</lido:objectWorkType>
 					</lido:objectWorkTypeWrap>
@@ -72,25 +70,12 @@
 					<xsl:if
 						test="child::mpx:titel or child::mpx:sachbegriff or child::mpx:systematikArt">
 						<lido:classificationWrap>
-							<xsl:for-each select="child::mpx:titel">
-								<lido:classification>
-									<lido:term xml:lang="de">
-										<xsl:value-of select="." />
-									</lido:term>
-								</lido:classification>
-							</xsl:for-each>
-							<xsl:for-each
-								select="child::mpx:sachbegriff">
-								<lido:classification>
-									<lido:term xml:lang="de">
-										<xsl:value-of select="." />
-									</lido:term>
-								</lido:classification>
-							</xsl:for-each>
+							<xsl:apply-templates select="child::mpx:titel"/>
+							<xsl:apply-templates select="child::mpx:sachbegriff"/>
 							<xsl:if test="child::mpx:systematikArt">
 								<lido:classification>
 									<lido:term xml:lang="de">
-										<xsl:value-of select="." />
+										<xsl:value-of select="."/>
 									</lido:term>
 								</lido:classification>
 							</xsl:if>
@@ -108,21 +93,19 @@
 
 						<xsl:choose>
 							<xsl:when test="child::mpx:titel">
-								<xsl:for-each
-									select="child::mpx:titel">
+								<xsl:for-each select="child::mpx:titel">
 									<lido:titleSet>
 										<lido:appellationValue>
-											<xsl:value-of select="." />
+											<xsl:value-of select="."/>
 										</lido:appellationValue>
 									</lido:titleSet>
 								</xsl:for-each>
 							</xsl:when>
 							<xsl:when test="child::mpx:sachbegriff">
-								<xsl:for-each
-									select="child::mpx:sachbegriff">
+								<xsl:for-each select="child::mpx:sachbegriff">
 									<lido:titleSet>
 										<lido:appellationValue>
-											<xsl:value-of select="." />
+											<xsl:value-of select="."/>
 										</lido:appellationValue>
 									</lido:titleSet>
 								</xsl:for-each>
@@ -130,30 +113,24 @@
 							<xsl:otherwise>
 								<!-- otherwise: If neither mpx:titel or mpx:sachbegriff, write nothing & create a non-validating lido so we can find the error easily-->
 								<lido:titleSet>
-									<lido:appellationValue>
-										kein Titel
-									</lido:appellationValue>
+									<lido:appellationValue> kein Titel </lido:appellationValue>
 								</lido:titleSet>
 							</xsl:otherwise>
 						</xsl:choose>
 					</lido:titleWrap>
 					<lido:repositoryWrap>
-						<lido:repositorySet
-							lido:repositoryType="current">
-							<!-- Kriegsverluste waeren vielleicht nicht current , MIMO-SPK hat aber nur current repositories. Ebenso bei der fehlenden Block-Sammlung -->
+						<lido:repositorySet>
 							<lido:repositoryName>
 								<lido:legalBodyName>
 									<lido:appellationValue>
 										<!-- Soll hier mpx:credit verwendet werden? -->
-										<xsl:value-of
-											select="child::verwaltendeInstitution" />
+										<xsl:value-of select="child::verwaltendeInstitution"/>
 									</lido:appellationValue>
 								</lido:legalBodyName>
 							</lido:repositoryName>
 							<!-- was tun mit mehrfachen identNr und alten Nr?-->
 							<lido:workID lido:type="inventory number">
-								<xsl:value-of
-									select="child::mpx:identNr" />
+								<xsl:value-of select="child::mpx:identNr"/>
 							</lido:workID>
 						</lido:repositorySet>
 					</lido:repositoryWrap>
@@ -162,35 +139,32 @@
 			<lido:administrativeMetadata xml:lang="de">
 				<lido:rightsWorkWrap>
 					<lido:rightsWorkSet>
-						<lido:rightsType xml:lang="en">
-							to be specified
+						<lido:rightsType>
+							<lido:term>copyright</lido:term>
 						</lido:rightsType>
 						<lido:rightsHolder>
 							<lido:legalBodyName>
 								<!-- Sollte hier ein mpx-Feld verwendet werden? -->
-								<lido:appellationValue xml:lang="de">
-									Staatliche Museen zu Berlin,
-									Stiftung Preussischer Kulturbesitz
-								</lido:appellationValue>
+								<lido:appellationValue xml:lang="de"> Staatliche Museen zu Berlin,
+									Stiftung Preussischer Kulturbesitz </lido:appellationValue>
 							</lido:legalBodyName>
 						</lido:rightsHolder>
 					</lido:rightsWorkSet>
 				</lido:rightsWorkWrap>
 				<lido:recordWrap>
 					<lido:recordID lido:type="item">
-						<xsl:value-of select="@objId" />
+						<xsl:value-of select="@objId"/>
 					</lido:recordID>
 
 					<!-- before we had <lido:recordType/> -->
-					<lido:recordType xml:lang="en">
-						item
+					<lido:recordType>
+						<lido:term>item</lido:term>
 					</lido:recordType>
 
 					<lido:recordSource>
 						<lido:legalBodyName>
 							<lido:appellationValue>
-								<xsl:value-of
-									select="child::mpx:verwaltendeInstitution" />
+								<xsl:value-of select="child::mpx:verwaltendeInstitution"/>
 							</lido:appellationValue>
 						</lido:legalBodyName>
 					</lido:recordSource>
@@ -205,54 +179,71 @@
 								in the meantime MIMO has set up an ftp server and we just need to upload stuff
 
 							-->
-							<lido:linkResource>
-								<!-- match urls -->
-								<xsl:when
-									test="contains (mpx:multimediaPfadangabe, '://')">
-									<xsl:value-of
-										select="concat(replace(mpx:multimediaPfadangabe, '\s+$', ''),'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
-								</xsl:when>
-								<!-- match internal MuseumPlus paths -->
-								<xsl:otherwise>
-									<xsl:value-of
-										select="concat(replace(mpx:multimediaPfadangabe, '\s+$', ''),'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)" />
-								</xsl:otherwise>
-							</lido:linkResource>
-							<lido:resourceID lido:pref="preferred"
-								lido:type="local">
-								<xsl:value-of select="@mulId" />
+							<lido:resourceID lido:pref="preferred" lido:type="local">
+								<xsl:value-of select="@mulId"/>
 							</lido:resourceID>
 							<!--
 								at this time I don't know how to differenciate between image resources and others, probably there is a mume field
 								xml:lang="en" not supported in resourceType in LIDO 0.9, but specified in example from Paris
 								http://194.250.19.133/scripts/oaiserver_lido.asp?verb=getrecord&set=MU&metadataprefix=lido&identifier=0156624
 							-->
+							<lido:resourceRepresentation>
+								<lido:linkResource>
+
+									<!-- match urls -->
+									<xsl:choose>
+										<xsl:when test="contains (mpx:multimediaPfadangabe, '://')">
+											<xsl:value-of
+												select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
+											/>
+										</xsl:when>
+
+										<!-- match internal MuseumPlus paths -->
+										<xsl:otherwise>
+											<xsl:value-of
+												select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
+											/>
+										</xsl:otherwise>
+									</xsl:choose>
+								</lido:linkResource>
+							</lido:resourceRepresentation>
+
 							<lido:resourceType>
-								<lido:term xml:lang="en">
-									image
-								</lido:term>
+								<lido:term xml:lang="en"> image </lido:term>
 							</lido:resourceType>
 							<lido:rightsResource>
 								<lido:rightsType>
-									Alle Rechte vorbehalten.
+									<lido:term>copyright</lido:term>
 								</lido:rightsType>
 							</lido:rightsResource>
 							<lido:rightsResource>
 								<lido:creditLine>
-									<xsl:value-of
-										select="mpx:multimediaUrhebFotograf" />
+									<xsl:value-of select="mpx:multimediaUrhebFotograf"/>
 								</lido:creditLine>
 							</lido:rightsResource>
-							<!-- TODO: I am not at all sure we have such a field. Maybe we can make one by adding various fields  -->
-							<lido:resourceViewDescription>
-								Harpe arquée "kundi", anonyme, vers
-								1920, E.999.10.1, vue de face -
-								Jean-Marc Anglès
-							</lido:resourceViewDescription>
 						</lido:resourceSet>
 					</xsl:for-each>
 				</lido:resourceWrap>
 			</lido:administrativeMetadata>
 		</lido:lido>
 	</xsl:template>
+
+	<xsl:template match="child::mpx:titel">
+		<lido:classification>
+			<lido:term xml:lang="de">
+				<xsl:value-of select="."/>
+			</lido:term>
+		</lido:classification>
+	</xsl:template>
+
+	<xsl:template match="child::mpx:sachbegriff">
+		<lido:classification>
+			<lido:term xml:lang="de">
+				<xsl:value-of select="."/>
+			</lido:term>
+		</lido:classification>
+	</xsl:template>
+	
+
+
 </xsl:stylesheet>
