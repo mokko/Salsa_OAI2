@@ -53,11 +53,13 @@
   </xsl:template>
 
   <xsl:template match="/mpx:museumPlusExport/mpx:sammlungsobjekt">
+    <!-- Salsa_OAI doesn't like message 
     <xsl:message>xxxxxxxxxxxxxxxxxxxxxblah</xsl:message>
     <xsl:variable name="currentId" select="@objId"/>
     <xsl:message>
       <xsl:value-of select="concat ('objId',$currentId)"/>
     </xsl:message>
+    -->
     <lido:lido>
       <lido:lidoRecID lido:type="local">
         <xsl:value-of select="concat ('spk:obj-',@objId)"/>
