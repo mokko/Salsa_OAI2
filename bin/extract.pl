@@ -7,7 +7,7 @@ use HTTP::OAI;
 use HTTP::OAI::Repository 'validate_request';
 use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider;
-use lib '/home/Mengel/projects/Salsa_OAI2/lib';
+use lib "$FindBin::Bin/../lib";
 #use Salsa_OAI;
 use Salsa_OAI::MPX;
 
