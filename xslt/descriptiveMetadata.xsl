@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
     xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
     
-    <xsl:template match="child::mpx:titel">
+    <xsl:template match="mpx:titel">
         <lido:classification>
             <lido:term xml:lang="de">
                 <xsl:value-of select="."/>
@@ -11,7 +11,7 @@
         </lido:classification>
     </xsl:template>
     
-    <xsl:template match="child::mpx:sachbegriff">
+    <xsl:template match="mpx:sachbegriff">
         <lido:classification>
             <lido:term xml:lang="de">
                 <xsl:value-of select="."/>

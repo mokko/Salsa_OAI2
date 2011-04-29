@@ -8,7 +8,6 @@ use HTTP::OAI::Repository 'validate_request';
 use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider;
 use lib "$FindBin::Bin/../lib";
-#use Salsa_OAI;
 use Salsa_OAI::MPX;
 
 sub verbose;    #predeclare
