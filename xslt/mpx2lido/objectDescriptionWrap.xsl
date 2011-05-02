@@ -12,7 +12,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="child::mpx:kurzeBeschreibung|child::mpx:langeBeschreibung">
+    <xsl:template match="mpx:kurzeBeschreibung|mpx:langeBeschreibung">
         <lido:objectDescriptionSet>
             <lido:descriptiveNoteValue xml:ang="de">
                 <xsl:value-of select="."/>

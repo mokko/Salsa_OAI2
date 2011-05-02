@@ -11,7 +11,7 @@
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="child::mpx:maßangabe">
+    <xsl:template match="mpx:maßangabe">
         <lido:objectMeasurementsSet>
             <lido:displayObjectMeasurements>
                 <xsl:value-of select="."/>
