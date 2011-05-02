@@ -14,7 +14,7 @@
                     <lido:rightsHolder>
                         <lido:legalBodyName>
                             <lido:appellationValue xml:lang="de">
-                                <xsl:value-of select="child::credits"/>
+                                <xsl:value-of select="child::mpx:credits"/>
                             </lido:appellationValue>
                         </lido:legalBodyName>
                     </lido:rightsHolder>
