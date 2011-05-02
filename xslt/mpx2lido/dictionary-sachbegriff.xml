@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dictionary xmlns="http://www.mpx.org/dictionary"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mpx.org/dictionary">
+
+	<!-- 
+		to replace synonyms with preferred term 
+		File://C:/Perl/site/lib/XSD/mpxvok.xsd
+		like mpxvok, but even simpler
+		SACHBEGRIFFE
+		lang="de" is not required
+	-->
+	<concept id="0">
+		<pref>Trompete</pref>
+		<synonym>Elfenbeinhorn</synonym>
+		<synonym>Horn</synonym>
+	</concept>
+	<concept id="1">
+		<pref lang="de">bal</pref>
+		<synonym>bil</synonym>
+		<synonym>bul</synonym>
+	</concept>
+</dictionary>
