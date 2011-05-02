@@ -46,7 +46,7 @@
     
     <!-- INDIVIDUAL -->
     
-    <xsl:template match="mpx:sachbegriff|mpx:titel|child::mpx:systematikArt">
+    <xsl:template match="mpx:sachbegriff|mpx:titel|mpx:systematikArt">
         <lido:classification>
             <lido:term xml:lang="de">
                 <xsl:value-of select="."/>
