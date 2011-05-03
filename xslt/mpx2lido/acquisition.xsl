@@ -99,6 +99,7 @@
     </xsl:template>
 
 
+    <!-- should this be general for several events?-->
     <xsl:template match="mpx:erwerbDatum">
         <lido:eventDate>
             <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
@@ -110,7 +111,6 @@
                 The dates format should be preferably YYYY[-MM[-DD]]: 
                 at least the year should be specified. Nevertheless, other 
                 formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
-            -->
             <lido:date>
                 <lido:earliestDate>
                     <xsl:value-of select="."/>
@@ -119,6 +119,8 @@
                     <xsl:value-of select="."/>
                 </lido:latestDate>
             </lido:date>
+            -->
+            
         </lido:eventDate>
     </xsl:template>
 

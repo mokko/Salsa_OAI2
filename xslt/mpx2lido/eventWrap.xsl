@@ -36,17 +36,17 @@
             mpx:erwerbungsart">
 
             <lido:eventWrap>
-                <xsl:if test="mpx:geogrBezug or mpx:personKörperschaftRef[@funktion = 'Hersteller']">
+                <xsl:if test="mpx:geogrBezug | mpx:personKörperschaftRef[@funktion = 'Hersteller']">
                     <xsl:call-template name="production"/>
+                </xsl:if>
+
+                <xsl:if test="mpx:personKörperschaftRef[@funktion = 'Sammler']">
+                    <xsl:call-template name="collecting"/>
                 </xsl:if>
 
                 <xsl:if
                     test="mpx:erwerbDatum or mpx:erwerbungVon or mpx:erwerbungsart">
                     <xsl:call-template name="acquisition"/>
-                </xsl:if>
-
-                <xsl:if test="mpx:personKörperschaftRef[@funktion = 'Sammler']">
-                    <xsl:call-template name="collecting"/>
                 </xsl:if>
             </lido:eventWrap>
         </xsl:if>

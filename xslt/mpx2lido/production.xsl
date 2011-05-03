@@ -28,12 +28,13 @@
                 <xsl:apply-templates select="mpx:datierung"/>
 
                 <!-- eventPlace -->
-                <xsl:apply-templates select="mpx:geogr[@funktion ='Herkunft (Allgemein)']"/>
+                <xsl:apply-templates
+                    select="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)'  and  @bezeichnung != 'Ethnie' ]"/>
 
                 <!--lido:eventMethod-->
 
                 <!-- eventMaterialsTech -->
-                <xsl:apply-templates select="mpx:materialTechnik"/>
+                <xsl:call-template name="eventMaterialsTech"/>
             </lido:event>
         </lido:eventSet>
     </xsl:template>
@@ -42,9 +43,14 @@
     <xsl:template name="production-displayEvent">
         <lido:displayEvent xml:lang="de">
             <xsl:text>Herstellung</xsl:text>
-            <!--mpx:geogr[@funktion = 'Herkunft (Allgemein)' and (@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur')]-->
-            <xsl:variable name="productionPlace" select="mpx:geogrBezug[@funktion = 'Herkunft (Allgemein)']"/>
-            
+            <!--
+                mpx:geogr[@funktion = 'Herkunft (Allgemein)' and (@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur')]
+                what happens if there are several places?
+            -->
+
+            <xsl:variable name="productionPlace"
+                select="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)' and  @bezeichnung != 'Ethnie' ]"/>
+
             <xsl:if test="$productionPlace">
                 <xsl:text> am Ort </xsl:text>
                 <xsl:value-of select="$productionPlace"/>
@@ -66,24 +72,27 @@
 
 
     <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Hersteller']">
-            <lido:eventActor>
-                <lido:actorInRole>
-                        <xsl:call-template name="general-actor">
-                        <xsl:with-param name="kueId" select="@kueId"/>
-                    </xsl:call-template>
-                </lido:actorInRole>
-            </lido:eventActor>
+        <lido:eventActor>
+            <lido:actorInRole>
+                <xsl:call-template name="general-actor">
+                    <xsl:with-param name="kueId" select="@kueId"/>
+                </xsl:call-template>
+            </lido:actorInRole>
+        </lido:eventActor>
     </xsl:template>
 
 
-    <xsl:template match="mpx:geogrBezug[@funktion ='Herkunft (Allgemein)']">
+    <!-- Is this general? Might well be -->
+    <xsl:template
+        match="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)'  and  @bezeichnung != 'Ethnie' ]">
         <lido:eventPlace>
             <lido:displayPlace>
                 <xsl:value-of select="."/>
             </lido:displayPlace>
             <lido:place>
                 <lido:namePlaceSet>
-                    <lido:appellationValue>
+                    <!-- I am pretty sure that it should be entered in German always -->
+                    <lido:appellationValue xml:lang="de">
                         <xsl:value-of select="."/>
                     </lido:appellationValue>
                 </lido:namePlaceSet>
@@ -92,21 +101,28 @@
     </xsl:template>
 
 
-    <xsl:template match="mpx:materialTechnik">
-        <lido:eventMaterialsTech>
-            <xsl:if test="mpx:materialTechnik[@art = 'Ausgabe']">
+    <xsl:template name="eventMaterialsTech">
+        <xsl:if test="mpx:materialTechnik">
+            <lido:eventMaterialsTech>
                 <lido:displayMaterialsTech>
-                    <xsl:value-of select="child::mpx:materialTechnik[@art = 'Ausgabe']"/>
+                    <xsl:for-each select="mpx:materialTechnik">
+                        <xsl:value-of select="."/>
+                        <xsl:text> (</xsl:text>
+                        <xsl:value-of select="./@art"/>
+                        <xsl:text>)</xsl:text>
+                    </xsl:for-each>
                 </lido:displayMaterialsTech>
-            </xsl:if>
-            <xsl:if test="mpx:materialTechnik[@art != 'Ausgabe']">
-                <lido:materialsTech>
-                    <lido:termMaterialsTech lido:type="material">
-                        <lido:term><xsl:value-of select="child::mpx:materialTechnik[@art != 'Ausgabe']"/></lido:term>
-                    </lido:termMaterialsTech>
-                </lido:materialsTech>
-            </xsl:if>
-        </lido:eventMaterialsTech>
+
+                <!--lido:materialsTech>
+                    <xsl:for-each select=".">
+                        <lido:termMaterialsTech lido:type="material">
+                            <lido:term xml:lang="de"><xsl:value-of select="parent"/></lido:term>
+                        </lido:termMaterialsTech>
+                    </xsl:for-each>
+                </lido:materialsTech-->
+
+            </lido:eventMaterialsTech>
+        </xsl:if>
     </xsl:template>
 
 
