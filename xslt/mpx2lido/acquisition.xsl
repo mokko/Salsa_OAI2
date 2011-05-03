@@ -5,85 +5,121 @@
 
     <xsl:template name="acquisition">
         <lido:eventSet>
-            <lido:displayEvent>Erwerbung durch <xsl:value-of
-                    select="child::mpx:verwaltendeInstitution"/> (oder dessen Vorgänger) <xsl:if
-                    test="child::mpx:erwerbDatum">
-                    <xsl:value-of select="child::mpx:erwerbDatum"/>
-                </xsl:if>
-                <xsl:if test="child::mpx:erwerbungVon"> von <xsl:value-of
-                        select="child::mpx:erwerbungVon"/></xsl:if>
-                <xsl:if test="child::mpx:erwerbungsart"> mittels <xsl:value-of
-                        select="child::mpx:erwerbungsart"/></xsl:if><xsl:if
-                    test="child::mpx:erwerbungsart"> als <xsl:value-of select="child::mpx:erwerbNr"
-                    /></xsl:if>
-            </lido:displayEvent>
+            <xsl:call-template name="acquisition-displayEvent"/>
             <lido:event>
-                <!-- 
-                    I don't know how to generate a unique ID for this event. It would
-                    be easy to make a unique value for this object, but it would be difficult to
-                    be unique for the whole SPK data. How can I ensure that this value will be
-                    created here again the next time. Maybe something along the lines of
-                    spk:objId:Acquisition 
-                -->
-                <!-- 
-                    TODO: NOT ensured that there is ALWAYS an erwerbNr 
-                -->
-                <lido:eventID lido:type="local">
-                    <xsl:choose>
-                        <xsl:when test="child::mpx:erwerbNr">
-                            <xsl:value-of select="child::mpx:erwerbNr"/>
-                        </xsl:when>
-                        <xsl:otherwise>not known</xsl:otherwise>
-                    </xsl:choose>
-                </lido:eventID>
+                <!-- eventID-->
+                <xsl:apply-templates select="mpx:erwerbNr"/>
+
                 <lido:eventType>
                     <lido:term>Acquisition</lido:term>
                 </lido:eventType>
+
                 <lido:eventName>
                     <lido:appellationValue xml:lang="de">Erwerb</lido:appellationValue>
                 </lido:eventName>
-                <lido:eventActor>
-                    <lido:displayActorInRole>Erwerb von <xsl:value-of
-                            select="child::mpx:erwerbungVon"/> (Veräußerer)</lido:displayActorInRole>
-                    <lido:actorInRole>
-                        <lido:actor lido:type="person">
-                            <lido:nameActorSet>
-                                <lido:appellationValue>
-                                    <xsl:value-of select="child::mpx:erwerbungVon"/>
-                                </lido:appellationValue>
-                                <!-- TODO: ensure that only cultures associated with Erwerb are named 
-                            <xsl:if test="child::geogrBezug[@art='Ethnie' or @art='Kultur']">
-                                <lido:culture>
-                                    <xsl:value-of select="child::mpx:geogrBezug"/>
-                                </lido:culture>
-                                </xsl:if>-->
-                                <!--lido:actorID/-->
-                            </lido:nameActorSet>
-                        </lido:actor>
-                    </lido:actorInRole>
-                </lido:eventActor>
-                <lido:eventDate>
-                    <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
-                    <lido:displayDate>
-                        <xsl:value-of select="child::mpx:erwerbDatum"/>
-                    </lido:displayDate>
-                    <!-- 
-                            TODO: Test if date is really a proper date and not freetext
-                            The dates format should be preferably YYYY[-MM[-DD]]: 
-                            at least the year should be specified. Nevertheless, other 
-                            formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
-                        -->
-                    <lido:date>
-                        <lido:earliestDate>
-                            <xsl:value-of select="child::mpx:erwerbDatum"/>
-                        </lido:earliestDate>
-                        <lido:latestDate>
-                            <xsl:value-of select="child::mpx:erwerbDatum"/>
-                        </lido:latestDate>
-                    </lido:date>
-                </lido:eventDate>
 
+                <!-- eventActor-->
+                <xsl:apply-templates select="mpx:erwerbungVon"/>
+                <xsl:apply-templates select="mpx:personKörperschaftRef[@funktion = 'Veräußerer']"/>
+
+                <!-- eventDate -->
+                <xsl:apply-templates select="mpx:erwerbDatum"/>
+                <!-- isn't general-vitalDatesActor missing here? -->
             </lido:event>
         </lido:eventSet>
     </xsl:template>
+
+
+    <xsl:template name="acquisition-displayEvent">
+        <lido:displayEvent xml:lang="de">
+            <xsl:text>Erwerbung durch </xsl:text>
+            <xsl:value-of select="child::mpx:verwaltendeInstitution"/>
+            <xsl:text> (oder dessen Vorgänger)</xsl:text>
+            <xsl:if test="child::mpx:erwerbDatum">
+                <xsl:value-of select="child::mpx:erwerbDatum"/>
+            </xsl:if>
+            <xsl:if
+                test="child::mpx:erwerbungVon|child::mpx:personKörperschaftRef[@funktion = 'Veräußerer']">
+                <xsl:text> vom Veräußerer </xsl:text>
+                <xsl:value-of select="child::mpx:erwerbungVon"/>
+                <xsl:value-of select="child::mpx:personKörperschaftRef[@funktion = 'Veräußerer']"/>
+            </xsl:if>
+            <xsl:if test="child::mpx:erwerbungsart">
+                <xsl:text> mittels </xsl:text>
+                <xsl:value-of select="child::mpx:erwerbungsart"/>
+            </xsl:if>
+            <xsl:if test="child::mpx:erwerbungsart">
+                <xsl:text> als </xsl:text>
+                <xsl:value-of select="child::mpx:erwerbNr"/>
+            </xsl:if>
+        </lido:displayEvent>
+    </xsl:template>
+
+
+    <xsl:template match="mpx:erwerbNr">
+        <lido:eventID lido:type="local" lido:encodinganalog="mpx:erwerbNr">
+            <xsl:value-of select="."/>
+        </lido:eventID>
+    </xsl:template>
+
+
+    <xsl:template match="mpx:erwerbungVon">
+        <lido:eventActor>
+            <lido:displayActorInRole>
+                <xsl:value-of select="."/>
+                <xsl:text>, Veräußerer</xsl:text>
+            </lido:displayActorInRole>
+            <lido:actorInRole>
+                <!-- 
+                    TODO:
+                    MPX Data does not allow me to determine if person or not, while MIMO/LIDO probably doesn't 
+                    allow to leave this undecided 
+                -->
+                <lido:actor lido:type="unspecified">
+                    <lido:nameActorSet>
+                        <lido:appellationValue>
+                            <xsl:value-of select="."/>
+                        </lido:appellationValue>
+                    </lido:nameActorSet>
+                </lido:actor>
+            </lido:actorInRole>
+        </lido:eventActor>
+    </xsl:template>
+
+
+    <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Veräußerer']">
+        <lido:eventActor>
+            <lido:displayActorInRole><xsl:value-of select="."/>, Veräußerer</lido:displayActorInRole>
+            <lido:actorInRole>
+                <xsl:call-template name="general-actor">
+                    <xsl:with-param name="kueId" select="@id"/>
+                </xsl:call-template>
+            </lido:actorInRole>
+        </lido:eventActor>
+    </xsl:template>
+
+
+    <xsl:template match="mpx:erwerbDatum">
+        <lido:eventDate>
+            <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
+            <lido:displayDate>
+                <xsl:value-of select="."/>
+            </lido:displayDate>
+            <!-- 
+                TODO: Test if date is really a proper date and not freetext
+                The dates format should be preferably YYYY[-MM[-DD]]: 
+                at least the year should be specified. Nevertheless, other 
+                formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
+            -->
+            <lido:date>
+                <lido:earliestDate>
+                    <xsl:value-of select="."/>
+                </lido:earliestDate>
+                <lido:latestDate>
+                    <xsl:value-of select="."/>
+                </lido:latestDate>
+            </lido:date>
+        </lido:eventDate>
+    </xsl:template>
+
 </xsl:stylesheet>

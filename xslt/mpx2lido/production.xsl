@@ -5,54 +5,24 @@
 
     <xsl:template name="production">
         <lido:eventSet>
-            <!--  TODO
-                durch <xsl:value-of
-                select="child::mpx:verwaltendeInstitution"/> (oder dessen Vorgänger) <xsl:if
-                test="child::mpx:erwerbDatum">
-                <xsl:value-of select="child::mpx:erwerbDatum"/>
-                </xsl:if>
-                <xsl:if test="child::mpx:erwerbungVon"> von <xsl:value-of
-                select="child::mpx:erwerbungVon"/></xsl:if>
-                <xsl:if test="child::mpx:erwerbungsart"> mittels <xsl:value-of
-                select="child::mpx:erwerbungsart"/></xsl:if><xsl:if
-                test="child::mpx:erwerbungsart"> als <xsl:value-of select="child::mpx:erwerbNr"
-                /></xsl:if> 
-            -->
-            <lido:displayEvent>Herstellung</lido:displayEvent>
+            <xsl:call-template name="production-displayEvent"/>
             <lido:event>
-                <!-- 
-                    I don't know how to generate a unique ID for this event. It would
-                    be easy to make a unique value for this object, but it would be difficult to
-                    be unique for the whole SPK data. How can I ensure that this value will be
-                    created here again the next time. Maybe something along the lines of
-                    spk:objId:Acquisition 
-                -->
-                <!-- 
-                    TODO: NOT ensured that there is ALWAYS an erwerbNr 
-                -->
                 <lido:eventType>
                     <lido:term>Production</lido:term>
                 </lido:eventType>
                 <lido:eventName>
                     <lido:appellationValue xml:lang="de">Herstellung</lido:appellationValue>
                 </lido:eventName>
-                <!-- TODO: ensure that only cultures associated with Herstellung are named -->
 
-                <lido:eventActor>
-                    <lido:actorInRole>
-                        <lido:actor>
-                            <lido:nameActorSet>
-                                <lido:appellationValue xml:lang="de">[TODO:Name des Herstellers]</lido:appellationValue>
-                                <!--lido:actorID/-->
-                            </lido:nameActorSet>
-                        </lido:actor>
-                    </lido:actorInRole>
-                </lido:eventActor>
-                <xsl:if test="child::geogrBezug[@art='Ethnie' or @art='Kultur']">
-                    <lido:culture>
-                        <xsl:value-of select="child::mpx:geogrBezug"/>
-                    </lido:culture>
-                </xsl:if>
+                <!-- 
+                    TODO: 
+                    -ensure that only cultures associated with Herstellung are named 
+                    -to do so I need example data. At this point I am not sure there is any
+                -->
+
+                <!-- eventActor -->
+                <xsl:apply-templates select="mpx:personKörperschaftRef[@funktion = 'Hersteller']"/>
+                <xsl:call-template name="general-culture"/>
 
                 <lido:eventDate>
                     <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
@@ -60,7 +30,8 @@
                         <xsl:value-of select="child::mpx:datierung"/>
                     </lido:displayDate>
                     <!-- 
-                            TODO: Test if date is really a proper date and not freetext
+                            TODO: 
+                            Test if date is really a proper date and not freetext
                             The dates format should be preferably YYYY[-MM[-DD]]: 
                             at least the year should be specified. Nevertheless, other 
                             formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
@@ -72,15 +43,66 @@
                             <xsl:value-of select="child::mpx:erwerbDatum"/>
                             </lido:latestDate>
                             </lido:date>
-                            
                         -->
                 </lido:eventDate>
-                <!--lido:eventPlace/>
-                    <lido:eventMethod/-->
+
+                <!-- eventPlace -->
+                <xsl:apply-templates select="mpx:geogr[@funktion ='Herkunft (Allgemein)']"/>
+
+                <!--lido:eventMethod-->
+
+                <!-- eventMaterialsTech -->
                 <xsl:apply-templates select="mpx:materialTechnik"/>
             </lido:event>
         </lido:eventSet>
     </xsl:template>
+
+
+    <xsl:template name="production-displayEvent">
+        <lido:displayEvent xml:lang="de">
+            <xsl:text>Herstellung</xsl:text>
+            <xsl:if
+                test="mpx:geogr[@funktion = 'Herkunft (Allgemein)' and (@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur')] ">
+                <xsl:text> in </xsl:text>
+                <xsl:value-of
+                    select="mpx:geogr[@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur']"/>
+            </xsl:if>
+            <xsl:if test="mpx:personKörperschaftRef[@funktion ='Hersteller' ]">
+                <xsl:text> durch </xsl:text>
+                <xsl:value-of select="mpx:personKörperschaftRef[@funktion ='Hersteller' ]"/>
+            </xsl:if>
+        </lido:displayEvent>
+    </xsl:template>
+
+
+    <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Hersteller']">
+        <xsl:if test="@kueId">
+            <lido:eventActor>
+                <lido:actorInRole>
+                    <xsl:call-template name="general-actor">
+                        <xsl:with-param name="kueId" select="@kueId"/>
+                    </xsl:call-template>
+                </lido:actorInRole>
+            </lido:eventActor>
+        </xsl:if>
+    </xsl:template>
+
+
+    <xsl:template match="mpx:geogr[@funktion ='Herkunft (Allgemein)']">
+        <lido:eventPlace>
+            <lido:displayPlace>
+                <xsl:value-of select="."/>
+            </lido:displayPlace>
+            <lido:place>
+                <lido:namePlaceSet>
+                    <lido:appellationValue>
+                        <xsl:value-of select="."/>
+                    </lido:appellationValue>
+                </lido:namePlaceSet>
+            </lido:place>
+        </lido:eventPlace>
+    </xsl:template>
+
 
     <xsl:template match="mpx:materialTechnik">
         <lido:eventMaterialsTech>

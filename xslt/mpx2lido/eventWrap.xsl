@@ -4,39 +4,52 @@
     xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
 
     <!-- 
-        for the time being we focus on acquisition and creation
-
         suggested by MIMO D2.2 Guidelines: Acquisition, Creation, Finding, 
-        Modification, Use
-        
-        Collecting, Designing, Destruction, Excavation, Exhibition, Loss, Move,
-        Order, Part addition, Part removal, Performance, Planning, 
-        Production, Provenance, Publication, Restoration, Transformation, 
-        Type assignment, Type creation
+        Modification, Use. Others: Collecting, Designing, Destruction, 
+        Excavation, Exhibition, Loss, Move, Order, Part addition, Part removal,
+        Performance, Planning, Production, Provenance, Publication, 
+        Restoration, Transformation, Type assignment, Type creation
     -->
 
+    <!--  import EVENT TYPES and stuff common to all events -->
     <xsl:import href="acquisition.xsl"/>
+    <xsl:import href="collecting.xsl"/>
     <xsl:import href="production.xsl"/>
+    <xsl:import href="general-event.xsl"/>
 
     <xsl:template name="eventWrap">
-        <!-- TODO: PLAN FOR THE POSSIBILITY THAT I DON'T HAVE ENOUGH DATA FOR ANY EVENT!-->
 
-        <lido:eventWrap>
-            <!-- xsl:if test="s = s"-->
-                <xsl:call-template name="production"/>
-            <!--/xsl:if-->
+        <!-- 
+            TODO
+            it could be that acquisition event is only valid LIDO or MIMO if it has a date, 
+            so I can just check whether date is there or not to trigger creation of 
+            acquisition
+        -->
 
-            <!-- 
-              it could be that acquisition event is only valid LIDO or MIMO if it has a date, 
-              so I can just check whether date is there or not to trigger creation of 
-              acquisition
-            -->
-            <xsl:if
-                test="child::mpx:erwerbDatum|child::mpx:erwerbungVon|child::mpx:erwerbungsart|child::mpx:erwerbungsart">
-                <xsl:call-template name="acquisition"/>
-            </xsl:if>
+        <!-- it is possible that we don't have enough info for any of the events -->
+        <xsl:if
+            test="mpx:geogrBezug or 
+            mpx:personKörperschaftRef[@funktion = 'Hersteller'] or
+            mpx:personKörperschaftRef[@funktion = 'Sammler'] or
+            mpx:erwerbDatum  or 
+            mpx:erwerbungVon or 
+            mpx:erwerbungsart">
 
-        </lido:eventWrap>
+            <lido:eventWrap>
+                <xsl:if test="mpx:geogrBezug or mpx:personKörperschaftRef[@funktion = 'Hersteller']">
+                    <xsl:call-template name="production"/>
+                </xsl:if>
+
+                <xsl:if
+                    test="mpx:erwerbDatum or mpx:erwerbungVon or mpx:erwerbungsart or mpx:erwerbungsart">
+                    <xsl:call-template name="acquisition"/>
+                </xsl:if>
+
+                <xsl:if test="mpx:personKörperschaftRef[@funktion = 'Sammler']">
+                    <xsl:call-template name="collecting"/>
+                </xsl:if>
+            </lido:eventWrap>
+        </xsl:if>
     </xsl:template>
 
 </xsl:stylesheet>
