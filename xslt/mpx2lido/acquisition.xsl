@@ -34,7 +34,7 @@
         <lido:displayEvent xml:lang="de">
             <xsl:text>Erwerbung durch </xsl:text>
             <xsl:value-of select="child::mpx:verwaltendeInstitution"/>
-            <xsl:text> (oder dessen Vorgänger)</xsl:text>
+            <xsl:text> (oder dessen Vorgänger) </xsl:text>
             <xsl:if test="child::mpx:erwerbDatum">
                 <xsl:value-of select="child::mpx:erwerbDatum"/>
             </xsl:if>

@@ -14,7 +14,7 @@
             -->
             <lido:objectWorkTypeWrap>
                 <lido:objectWorkType>
-                    <lido:term><xsl:value-of select="child::mpx:objekttyp"/></lido:term>
+                    <lido:term xml:lang="de"><xsl:value-of select="child::mpx:objekttyp"/></lido:term>
                 </lido:objectWorkType>
             </lido:objectWorkTypeWrap>
             <!--/xsl:if-->

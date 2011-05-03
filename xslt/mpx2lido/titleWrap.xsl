@@ -21,7 +21,7 @@
                 <xsl:when test="child::mpx:titel">
                     <xsl:for-each select="child::mpx:titel">
                         <lido:titleSet>
-                            <lido:appellationValue>
+                            <lido:appellationValue xml:lang="de">
                                 <xsl:value-of select="."/>
                             </lido:appellationValue>
                         </lido:titleSet>
@@ -46,7 +46,7 @@
     
     <!-- INDIVIDUAL -->
     
-    <xsl:template match="mpx:sachbegriff|mpx:titel|mpx:systematikArt">
+    <xsl:template match="mpx:sachbegriff or mpx:titel or mpx:systematikArt">
         <lido:classification>
             <lido:term xml:lang="de">
                 <xsl:value-of select="."/>
@@ -54,9 +54,4 @@
         </lido:classification>
     </xsl:template>
     
-    
-    
-    
-    
-    
-</xsl:stylesheet>
+ </xsl:stylesheet>
