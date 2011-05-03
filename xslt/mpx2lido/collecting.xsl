@@ -34,6 +34,7 @@
 
 
     <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Sammler']">
+         <!-- without kueId this doesn't make sense -->
         <xsl:if test="@kueId">
             <lido:eventActor>
                 <lido:actorInRole>

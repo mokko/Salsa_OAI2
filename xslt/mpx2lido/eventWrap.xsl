@@ -41,7 +41,7 @@
                 </xsl:if>
 
                 <xsl:if
-                    test="mpx:erwerbDatum or mpx:erwerbungVon or mpx:erwerbungsart or mpx:erwerbungsart">
+                    test="mpx:erwerbDatum or mpx:erwerbungVon or mpx:erwerbungsart">
                     <xsl:call-template name="acquisition"/>
                 </xsl:if>
 

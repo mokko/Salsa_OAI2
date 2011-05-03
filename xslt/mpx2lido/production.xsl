@@ -24,27 +24,8 @@
                 <xsl:apply-templates select="mpx:personKörperschaftRef[@funktion = 'Hersteller']"/>
                 <xsl:call-template name="general-culture"/>
 
-                <lido:eventDate>
-                    <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
-                    <lido:displayDate>
-                        <xsl:value-of select="child::mpx:datierung"/>
-                    </lido:displayDate>
-                    <!-- 
-                            TODO: 
-                            Test if date is really a proper date and not freetext
-                            The dates format should be preferably YYYY[-MM[-DD]]: 
-                            at least the year should be specified. Nevertheless, other 
-                            formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
-                            <lido:date>
-                            <lido:earliestDate>
-                            <xsl:value-of select="child::mpx:erwerbDatum"/>
-                            </lido:earliestDate>
-                            <lido:latestDate>
-                            <xsl:value-of select="child::mpx:erwerbDatum"/>
-                            </lido:latestDate>
-                            </lido:date>
-                        -->
-                </lido:eventDate>
+                <!-- eventDate-->
+                <xsl:apply-templates select="mpx:datierung"/>
 
                 <!-- eventPlace -->
                 <xsl:apply-templates select="mpx:geogr[@funktion ='Herkunft (Allgemein)']"/>
@@ -61,34 +42,41 @@
     <xsl:template name="production-displayEvent">
         <lido:displayEvent xml:lang="de">
             <xsl:text>Herstellung</xsl:text>
-            <xsl:if
-                test="mpx:geogr[@funktion = 'Herkunft (Allgemein)' and (@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur')] ">
-                <xsl:text> in </xsl:text>
-                <xsl:value-of
-                    select="mpx:geogr[@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur']"/>
+            <!--mpx:geogr[@funktion = 'Herkunft (Allgemein)' and (@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur')]-->
+            <xsl:variable name="productionPlace" select="mpx:geogrBezug[@funktion = 'Herkunft (Allgemein)']"/>
+            
+            <xsl:if test="$productionPlace">
+                <xsl:text> am Ort </xsl:text>
+                <xsl:value-of select="$productionPlace"/>
             </xsl:if>
+
             <xsl:if test="mpx:personKörperschaftRef[@funktion ='Hersteller' ]">
-                <xsl:text> durch </xsl:text>
+                <xsl:text> durch den/die Hersteller/Herstellerin </xsl:text>
                 <xsl:value-of select="mpx:personKörperschaftRef[@funktion ='Hersteller' ]"/>
+            </xsl:if>
+
+            <xsl:variable name="culture"
+                select="mpx:personKörperschaftRef[@funktion ='Ethnie' or @bezeichnung != 'Kultur' ]"/>
+            <xsl:if test="$culture">
+                <xsl:text> von der Ethnie/Kultur der </xsl:text>
+                <xsl:value-of select="$culture"/>
             </xsl:if>
         </lido:displayEvent>
     </xsl:template>
 
 
     <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Hersteller']">
-        <xsl:if test="@kueId">
             <lido:eventActor>
                 <lido:actorInRole>
-                    <xsl:call-template name="general-actor">
+                        <xsl:call-template name="general-actor">
                         <xsl:with-param name="kueId" select="@kueId"/>
                     </xsl:call-template>
                 </lido:actorInRole>
             </lido:eventActor>
-        </xsl:if>
     </xsl:template>
 
 
-    <xsl:template match="mpx:geogr[@funktion ='Herkunft (Allgemein)']">
+    <xsl:template match="mpx:geogrBezug[@funktion ='Herkunft (Allgemein)']">
         <lido:eventPlace>
             <lido:displayPlace>
                 <xsl:value-of select="."/>
@@ -119,6 +107,36 @@
                 </lido:materialsTech>
             </xsl:if>
         </lido:eventMaterialsTech>
+    </xsl:template>
+
+
+    <!-- 
+    should this become a general? it is not used in acquisition. At the moment 
+    it is not used in collecting either 
+    -->
+
+    <xsl:template match="mpx:datierung">
+        <lido:eventDate>
+            <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
+            <lido:displayDate>
+                <xsl:value-of select="."/>
+            </lido:displayDate>
+            <!-- 
+                TODO: 
+                Test if date is really a proper date and not freetext
+                The dates format should be preferably YYYY[-MM[-DD]]: 
+                at least the year should be specified. Nevertheless, other 
+                formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
+                <lido:date>
+                <lido:earliestDate>
+                <xsl:value-of select="child::mpx:erwerbDatum"/>
+                </lido:earliestDate>
+                <lido:latestDate>
+                <xsl:value-of select="child::mpx:erwerbDatum"/>
+                </lido:latestDate>
+                </lido:date>
+            -->
+        </lido:eventDate>
     </xsl:template>
 
 </xsl:stylesheet>

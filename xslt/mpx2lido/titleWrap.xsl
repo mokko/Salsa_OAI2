@@ -30,7 +30,8 @@
                 <xsl:when test="child::mpx:sachbegriff">
                     <xsl:for-each select="child::mpx:sachbegriff">
                         <lido:titleSet>
-                            <lido:appellationValue xml:lang="de">
+                            <!-- there is no guarantee that all titles are German, some are not (ex. shellac). So I better remove xml:lang="de" -->
+                            <lido:appellationValue>
                                 <xsl:value-of xml:space="preserve" select="."/>
                             </lido:appellationValue>
                         </lido:titleSet>

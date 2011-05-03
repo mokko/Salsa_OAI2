@@ -17,9 +17,11 @@
                 <xsl:with-param name="kueId" select="$kueId"/>
             </xsl:call-template>
 
-            <lido:actorID lido:type="local">
-                <xsl:value-of select="$kueId"/>
-            </lido:actorID>
+            <xsl:if test="$kueId">
+                <lido:actorID lido:type="local">
+                    <xsl:value-of select="$kueId"/>
+                </lido:actorID>
+            </xsl:if>
 
             <lido:nameActorSet>
                 <lido:appellationValue>
@@ -46,25 +48,28 @@
 
     <xsl:template name="general-vitalDatesActor">
         <xsl:param name="kueId"/>
-        <lido:vitalDatesActor>
-            <!-- 
+        <xsl:if test="$kueId">
+
+            <lido:vitalDatesActor>
+                <!-- 
                 TODO 
                 -mpx:datierung can have date ranges which need to be split up reliably
                 -mpx:datierung can have all kinds of crap, I need ISO dates
                 -an example. Where are life dates mentioned?
             -->
-            <lido:earliestDate lido:encodinganalog="mpx:personKörperschaft/mpx:datierung">
-                <xsl:value-of
-                    select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung"
-                />
-            </lido:earliestDate>
+                <lido:earliestDate lido:encodinganalog="mpx:personKörperschaft/mpx:datierung">
+                    <xsl:value-of
+                        select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung"
+                    />
+                </lido:earliestDate>
 
-            <lido:latestDate>
-                <xsl:value-of
-                    select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung"
-                />
-            </lido:latestDate>
-        </lido:vitalDatesActor>
+                <lido:latestDate>
+                    <xsl:value-of
+                        select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung"
+                    />
+                </lido:latestDate>
+            </lido:vitalDatesActor>
+        </xsl:if>
     </xsl:template>
 
 
@@ -102,10 +107,13 @@
                     test="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:typ = 'Körperschaft'">
                     <xsl:text>institution</xsl:text>
                 </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>unspecified</xsl:text>
+                </xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>
     </xsl:template>
-    
+
     <xsl:template name="general-culture">
         <xsl:if test="child::geogrBezug[@art='Ethnie' or @art='Kultur']">
             <lido:culture>
@@ -113,6 +121,6 @@
             </lido:culture>
         </xsl:if>
     </xsl:template>
-    
+
 
 </xsl:stylesheet>

@@ -14,18 +14,29 @@
             -->
             <lido:objectWorkTypeWrap>
                 <lido:objectWorkType>
-                    <lido:term xml:lang="de"><xsl:value-of select="child::mpx:objekttyp"/></lido:term>
+                    <lido:term xml:lang="de"><xsl:value-of select="mpx:objekttyp"/></lido:term>
                 </lido:objectWorkType>
             </lido:objectWorkTypeWrap>
             <!--/xsl:if-->
             
+            <xsl:choose>
+                <xsl:when test="mpx:objekttyp = 'Musikinstrument'">
+            
             <xsl:if test="child::mpx:titel or child::mpx:sachbegriff or child::mpx:systematikArt">
                 <lido:classificationWrap>
-                    <xsl:apply-templates select="child::mpx:sachbegriff"/>
-                    <xsl:apply-templates select="child::mpx:titel"/>
-                    <xsl:apply-templates select="child::mpx:systematikArt"/>
+                    <xsl:apply-templates select="mpx:sachbegriff"/>
+                    <xsl:apply-templates select="mpx:titel"/>
+                    <xsl:apply-templates select="mpx:systematikArt"/>
                 </lido:classificationWrap>
             </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <lido:classificationWrap>
+                        <xsl:apply-templates select="mpx:sachbegriff"/>
+                        <xsl:apply-templates select="mpx:systematikArt"/>
+                    </lido:classificationWrap>
+                </xsl:otherwise>
+            </xsl:choose>            
         </lido:objectClassificationWrap>
     </xsl:template>
  

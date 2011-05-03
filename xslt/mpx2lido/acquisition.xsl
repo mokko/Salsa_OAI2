@@ -33,24 +33,24 @@
     <xsl:template name="acquisition-displayEvent">
         <lido:displayEvent xml:lang="de">
             <xsl:text>Erwerbung durch </xsl:text>
-            <xsl:value-of select="child::mpx:verwaltendeInstitution"/>
+            <xsl:value-of select="mpx:verwaltendeInstitution"/>
             <xsl:text> (oder dessen Vorgänger) </xsl:text>
             <xsl:if test="child::mpx:erwerbDatum">
-                <xsl:value-of select="child::mpx:erwerbDatum"/>
+                <xsl:value-of select="mpx:erwerbDatum"/>
             </xsl:if>
             <xsl:if
-                test="child::mpx:erwerbungVon|child::mpx:personKörperschaftRef[@funktion = 'Veräußerer']">
+                test="mpx:erwerbungVon|mpx:personKörperschaftRef[@funktion = 'Veräußerer']">
                 <xsl:text> vom Veräußerer </xsl:text>
                 <xsl:value-of select="child::mpx:erwerbungVon"/>
                 <xsl:value-of select="child::mpx:personKörperschaftRef[@funktion = 'Veräußerer']"/>
             </xsl:if>
-            <xsl:if test="child::mpx:erwerbungsart">
+            <xsl:if test="mpx:erwerbungsart">
                 <xsl:text> mittels </xsl:text>
-                <xsl:value-of select="child::mpx:erwerbungsart"/>
+                <xsl:value-of select="mpx:erwerbungsart"/>
             </xsl:if>
-            <xsl:if test="child::mpx:erwerbungsart">
+            <xsl:if test="mpx:erwerbNr">
                 <xsl:text> als </xsl:text>
-                <xsl:value-of select="child::mpx:erwerbNr"/>
+                <xsl:value-of select="mpx:erwerbNr"/>
             </xsl:if>
         </lido:displayEvent>
     </xsl:template>
