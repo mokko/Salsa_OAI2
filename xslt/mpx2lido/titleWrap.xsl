@@ -30,22 +30,24 @@
                 <xsl:when test="child::mpx:sachbegriff">
                     <xsl:for-each select="child::mpx:sachbegriff">
                         <lido:titleSet>
-                            <lido:appellationValue><xsl:value-of xml:space="preserve" select="."/></lido:appellationValue>
+                            <lido:appellationValue xml:lang="de">
+                                <xsl:value-of xml:space="preserve" select="."/>
+                            </lido:appellationValue>
                         </lido:titleSet>
                     </xsl:for-each>
                 </xsl:when>
                 <xsl:otherwise>
                     <!-- otherwise: If neither mpx:titel or mpx:sachbegriff, write nothing & create a non-validating lido so we can find the error easily-->
                     <lido:titleSet>
-                        <lido:appellationValue> kein Titel </lido:appellationValue>
+                        <lido:appellationValue  xml:lang="de"> kein Titel </lido:appellationValue>
                     </lido:titleSet>
                 </xsl:otherwise>
             </xsl:choose>
         </lido:titleWrap>
     </xsl:template>
-    
+
     <!-- INDIVIDUAL -->
-    
+
     <xsl:template match="mpx:sachbegriff | mpx:titel | mpx:systematikArt">
         <lido:classification>
             <lido:term xml:lang="de">
@@ -53,5 +55,5 @@
             </lido:term>
         </lido:classification>
     </xsl:template>
-    
- </xsl:stylesheet>
+
+</xsl:stylesheet>
