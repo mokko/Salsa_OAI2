@@ -7,12 +7,14 @@
         <lido:repositoryWrap>
             <lido:repositorySet lido:type="current">
                 <lido:repositoryName>
+                    <lido:legalBodyID lido:type="local">SPK</lido:legalBodyID>
                     <lido:legalBodyName>
                         <lido:appellationValue>
                             <!-- Soll hier mpx:credit verwendet werden? -->
                             <xsl:value-of select="child::mpx:verwaltendeInstitution"/>
                         </lido:appellationValue>
                     </lido:legalBodyName>
+                    <lido:legalBodyWeblink>http://hv.spk-berlin.de/</lido:legalBodyWeblink>
                 </lido:repositoryName>
                 <lido:workID lido:type="inventory number">
                     <xsl:value-of select="child::mpx:identNr"/>

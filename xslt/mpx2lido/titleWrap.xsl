@@ -28,9 +28,9 @@
                     </xsl:for-each>
                 </xsl:when>
                 <xsl:when test="child::mpx:sachbegriff">
-                    <xsl:for-each select="child::mpx:sachbegriff" xml:space="preserve">
+                    <xsl:for-each select="child::mpx:sachbegriff">
                         <lido:titleSet>
-                            <lido:appellationValue><xsl:value-of select="."/></lido:appellationValue>
+                            <lido:appellationValue><xsl:value-of xml:space="preserve" select="."/></lido:appellationValue>
                         </lido:titleSet>
                     </xsl:for-each>
                 </xsl:when>

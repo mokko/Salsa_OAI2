@@ -13,7 +13,7 @@
     </xsl:template>
     
     <xsl:template match="mpx:kurzeBeschreibung|mpx:langeBeschreibung">
-        <lido:objectDescriptionSet>
+        <lido:objectDescriptionSet lido:type="general description">
             <lido:descriptiveNoteValue xml:lang="de">
                 <xsl:value-of select="."/>
             </lido:descriptiveNoteValue>
