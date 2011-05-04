@@ -50,25 +50,49 @@
         <xsl:param name="kueId"/>
         <xsl:if test="$kueId">
 
-            <lido:vitalDatesActor>
-                <!-- 
+            <xsl:variable name="lebensdaten"
+                select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung[@art = 'Lebensdaten'] "/>
+
+            <!--  
                 TODO 
                 -mpx:datierung can have date ranges which need to be split up reliably
                 -mpx:datierung can have all kinds of crap, I need ISO dates
                 -an example. Where are life dates mentioned?
-            -->
-                <lido:earliestDate lido:encodinganalog="mpx:personKörperschaft/mpx:datierung">
-                    <xsl:value-of
-                        select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung"
-                    />
-                </lido:earliestDate>
+                
+                Lebensdaten
+                Lebensdaten if contains exactly one dash split at dash and take
+                left side as earliest and right side as latest, but only of left and
+                right side consists of numbers, dots and slashes. This is still 
+                pretty dirty.
+                
+                TODO: resulting string is not ISO 8601
 
-                <lido:latestDate>
-                    <xsl:value-of
-                        select="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:datierung"
-                    />
-                </lido:latestDate>
-            </lido:vitalDatesActor>
+            -->
+            
+            <xsl:if test="string-length($lebensdaten) - string-length(translate($lebensdaten, '-', '')) = 1">
+                <xsl:variable name="earliest"
+                    select="normalize-space(substring-before($lebensdaten,'-'))"/>
+                <xsl:variable name="latest"
+                    select="normalize-space(substring-after($lebensdaten,'-'))"/>
+                <xsl:if
+                    test="
+                    $earliest != '' and 
+                    $latest !='' and
+                    translate($earliest,'0123456789./','') = '' and                      
+                    translate($earliest,'0123456789./','') = ''
+                ">
+                    <lido:vitalDatesActor>
+                        <lido:earliestDate lido:encodinganalog="mpx:personKörperschaft/mpx:datierung[@art = 'Lebensdaten']">
+                            <xsl:value-of select="$earliest"/>
+                        </lido:earliestDate>
+
+                        <lido:latestDate
+                            lido:encodinganalog="mpx:personKörperschaft/mpx:datierung[@art = 'Lebensdaten']">
+                            <xsl:value-of select="$latest"/>
+                        </lido:latestDate>
+                    </lido:vitalDatesActor>
+                </xsl:if>
+            </xsl:if>
         </xsl:if>
     </xsl:template>
 

@@ -75,7 +75,7 @@
         <lido:eventActor>
             <lido:actorInRole>
                 <xsl:call-template name="general-actor">
-                    <xsl:with-param name="kueId" select="@kueId"/>
+                    <xsl:with-param name="kueId" select="@id"/>
                 </xsl:call-template>
             </lido:actorInRole>
         </lido:eventActor>
