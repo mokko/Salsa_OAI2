@@ -129,10 +129,14 @@
                 </xsl:when>
                 <xsl:when
                     test="/mpx:museumPlusExport/mpx:personKörperschaft[@kueId = $kueId]/mpx:typ = 'Körperschaft'">
-                    <xsl:text>institution</xsl:text>
+                    <xsl:text>corporation</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:text>unspecified</xsl:text>
+                    <!-- 
+                        it seems that LIDO forces me to have a type and that Thierry forces me to chose from his list (person|corporation|family), 
+                        so I prefer to have potentially wrong data than no data at all  
+                    -->
+                    <xsl:text>person</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>
