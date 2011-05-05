@@ -75,7 +75,7 @@
                     MPX Data does not allow me to determine if person or not, while MIMO/LIDO probably doesn't 
                     allow to leave this undecided 
                 -->
-                <lido:actor lido:type="unspecified">
+                <lido:actor lido:type="person">
                     <lido:nameActorSet>
                         <lido:appellationValue>
                             <xsl:value-of select="."/>
