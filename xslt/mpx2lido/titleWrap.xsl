@@ -3,58 +3,48 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
     xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
 
-    <xsl:import href="sachbegriff-thesaurus.xsl"/>
-
-    <!-- FOURTH LEVEL -->
-
+    <!--
+        FOURTH LEVEL
+        xml:space="preserve"
+        there is no guarantee that all titles are German, some are not (ex. shellac). So I better remove xml:lang="de" 
+        If neither mpx:titel or mpx:sachbegriff, write nothing & create a non-validating lido so we can find the error easily
+    -->
+    
     <xsl:template name="titleWrap">
-
-        <!--
-            titleSet/appellationValue
-            Should we involve sachbegriff and titel ? I guess so, but how exactly
-            According to lido-v0.7.xsd titleSet is repeatable, MIMO D2.1 is contradicting itself
-            TODO: Currently, I put all mpx:sachbegriff and mpx:titel. Probably not good.
-        -->
-        <!--xsl:value-of select="'DEBUG:mpx:sachbegriff exists'"/-->
         <lido:titleWrap>
             <xsl:choose>
-                <xsl:when test="child::mpx:titel">
-                    <xsl:for-each select="child::mpx:titel">
-                        <lido:titleSet>
-                            <lido:appellationValue xml:lang="de">
-                                <xsl:value-of select="."/>
-                            </lido:appellationValue>
-                        </lido:titleSet>
-                    </xsl:for-each>
-                </xsl:when>
-                <xsl:when test="child::mpx:sachbegriff">
-                    <xsl:for-each select="child::mpx:sachbegriff">
-                        <lido:titleSet>
-                            <!-- there is no guarantee that all titles are German, some are not (ex. shellac). So I better remove xml:lang="de" -->
-                            <lido:appellationValue>
-                                <xsl:value-of xml:space="preserve" select="."/>
-                            </lido:appellationValue>
-                        </lido:titleSet>
-                    </xsl:for-each>
+                <xsl:when test="mpx:titel">
+                    <xsl:apply-templates select="mpx:titel" mode="title"/>
                 </xsl:when>
                 <xsl:otherwise>
-                    <!-- otherwise: If neither mpx:titel or mpx:sachbegriff, write nothing & create a non-validating lido so we can find the error easily-->
-                    <lido:titleSet>
-                        <lido:appellationValue  xml:lang="de"> kein Titel </lido:appellationValue>
-                    </lido:titleSet>
+                    <xsl:choose>
+                        <xsl:when test="mpx:sachbegriff">
+                            <xsl:apply-templates select="mpx:sachbegriff" mode="title"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <lido:titleSet>
+                                <lido:appellationValue xml:lang="de">kein
+                                Titel</lido:appellationValue>
+                            </lido:titleSet>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:otherwise>
             </xsl:choose>
         </lido:titleWrap>
     </xsl:template>
 
     <!-- INDIVIDUAL -->
-
-    <xsl:template match="mpx:sachbegriff | mpx:titel | mpx:systematikArt">
-        <lido:classification>
-            <lido:term xml:lang="de">
+    <xsl:template match="mpx:titel | mpx:sachbegriff" mode="title">
+        <lido:titleSet>
+            <xsl:element name="lido:appellationValue">
+                <xsl:attribute name="xml:lang">de</xsl:attribute>
+                <xsl:attribute name="lido:encodinganalog">
+                    <xsl:text>mpx:</xsl:text>
+                    <xsl:value-of select="name()"/>
+                </xsl:attribute>
                 <xsl:value-of select="."/>
-            </lido:term>
-        </lido:classification>
+            </xsl:element>
+        </lido:titleSet>
     </xsl:template>
 
 </xsl:stylesheet>
