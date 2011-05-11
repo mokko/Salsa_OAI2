@@ -197,9 +197,9 @@ sub _mk_md {
 
 Gets called during extractRecords for every node (i.e. record) in the xml
 source file to map OAI sets to simple criteria on per-node-based
-rules.
+rules. Returns node and header. Header can have multiple sets
 
-Todo: Should be in Salsa_OAI
+
 
 =cut
 
@@ -213,6 +213,10 @@ sub setRules {
 	#setRules:mapping set to simple mpx rules
 	$node = XML::LibXML::XPathContext->new($node);
 	$node->registerNs( $self->{nativePrefix}, $self->{nativeURI} );
+
+	#for testing the setSpec test and setSpecs in general
+	#$header->setSpec('test');
+	#debug "    set setSpec 'test'";
 
 	#setSpec: MIMO
 	my $objekttyp = $node->findvalue('mpx:objekttyp');

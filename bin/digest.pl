@@ -105,7 +105,7 @@ if ( !-f $ARGV[0] ) {
 
 Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
-config->{environment} = 'production';    #also makes debug silent
+config->{environment} = 'production';    #makes debug silent
 
 #croak if vars missing in conf
 test_conf_var(qw/dbfile nativePrefix native_ns_uri/);

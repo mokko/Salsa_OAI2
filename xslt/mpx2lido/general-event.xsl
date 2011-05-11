@@ -13,7 +13,7 @@
 
         <xsl:element name="lido:actor">
             <!-- lido:actor/@type -->
-            <xsl:call-template name="general-type">
+            <xsl:call-template name="general-actorType">
                 <xsl:with-param name="kueId" select="$kueId"/>
             </xsl:call-template>
 
@@ -110,7 +110,7 @@
     </xsl:template>
 
 
-    <xsl:template name="general-type">
+    <xsl:template name="general-actorType">
         <xsl:param name="kueId"/>
 
         <!--xsl:message>
