@@ -30,6 +30,7 @@
                 </lido:recordType>
 
                 <lido:recordSource>
+                    <lido:legalBodyID lido:type="local">SPK</lido:legalBodyID>
                     <lido:legalBodyName>
                         <lido:appellationValue xml:lang="de">
                             <xsl:value-of select="child::mpx:verwaltendeInstitution"/>
