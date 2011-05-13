@@ -2,9 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
     xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
-
     <xsl:template name="administrativeMetadata">
-
         <lido:administrativeMetadata xml:lang="de">
             <lido:rightsWorkWrap>
                 <lido:rightsWorkSet>
@@ -47,9 +45,22 @@
             </xsl:if>
         </lido:administrativeMetadata>
     </xsl:template>
+    <!-- 
+        resourceSet 
+        - MIMO wants a resourceSet only for resources which have an URL
+        - MIMO generates image URL from resourceID
+        - additional URLs for the same resource can be supplied in linkResource; only publically available URLs
 
-    <!-- resourceWrap -->
-    <xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[mpx:verknüpftesObjekt]">
+        Questions
+        -How do I identify mpx:multimediaobjekt records which have an image?
+        currently: if local path exists
+        future: mpx2lido uses @freigabe="web" and a script determines the freigabe status and writes it in mpx.
+        @freigabe="web" 
+        write a freigabe script that determines if image is available and possibly checks other
+        conditions 
+    -->
+    <xsl:template
+        match="/mpx:museumPlusExport/mpx:multimediaobjekt[mpx:verknüpftesObjekt and mpx:multimediaPfadangabe]">
         <!--  $currentId -->
 
         <lido:resourceSet>
@@ -60,39 +71,33 @@
             -->
             <lido:resourceID lido:pref="preferred" lido:type="local">
                 <xsl:value-of select="@mulId"/>
+                <xsl:text>.jpg</xsl:text>
             </lido:resourceID>
             <!--
-                at this time I don't know how to differenciate between image resources and others, probably there is a mume field
-                xml:lang="en" not supported in resourceType in LIDO 0.9, but specified in example from Paris
-                http://194.250.19.133/scripts/oaiserver_lido.asp?verb=getrecord&set=MU&metadataprefix=lido&identifier=0156624
+                write a resourceRepresentation only if there is a URL (not an internal filepath)
             -->
-            <lido:resourceRepresentation>
-                <lido:linkResource>
-
-                    <!-- match urls -->
-                    <xsl:choose>
-                        <xsl:when test="contains (mpx:multimediaPfadangabe, '://')">
-                            <xsl:value-of
-                                select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
-                            />
-                        </xsl:when>
-
-                        <!-- match internal MuseumPlus paths -->
-                        <xsl:otherwise>
-                            <xsl:value-of
-                                select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
-                            />
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </lido:linkResource>
-            </lido:resourceRepresentation>
+            <xsl:if test="contains (mpx:multimediaPfadangabe, '://')">
+                <lido:resourceRepresentation>
+                    <lido:linkResource>
+                        <xsl:value-of
+                            select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
+                        />
+                    </lido:linkResource>
+                    <!-- 
+                    internal MuseumPlus paths 
+                    <xsl:value-of
+                    select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
+                    />
+                -->
+                </lido:resourceRepresentation>
+            </xsl:if>
 
             <lido:resourceType>
                 <lido:term xml:lang="en">image</lido:term>
             </lido:resourceType>
             <lido:rightsResource>
                 <lido:rightsType>
-                    <lido:term>copyright</lido:term>
+                    <lido:term xml:lang="en">copyright</lido:term>
                 </lido:rightsType>
             </lido:rightsResource>
             <lido:rightsResource>
@@ -102,5 +107,4 @@
             </lido:rightsResource>
         </lido:resourceSet>
     </xsl:template>
-
 </xsl:stylesheet>
