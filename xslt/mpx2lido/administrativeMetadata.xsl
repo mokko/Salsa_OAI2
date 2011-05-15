@@ -7,7 +7,7 @@
             <lido:rightsWorkWrap>
                 <lido:rightsWorkSet>
                     <lido:rightsType>
-                        <lido:term xml:lang="de">copyright</lido:term>
+                        <lido:term xml:lang="en">copyright</lido:term>
                     </lido:rightsType>
                     <lido:rightsHolder>
                         <lido:legalBodyName>
@@ -58,6 +58,7 @@
         @freigabe="web" 
         write a freigabe script that determines if image is available and possibly checks other
         conditions 
+        /mpx:museumPlusExport/mpx:multimediaobjekt[mpx:verknüpftesObjekt and @freigabe='web']
     -->
     <xsl:template
         match="/mpx:museumPlusExport/mpx:multimediaobjekt[mpx:verknüpftesObjekt and mpx:multimediaPfadangabe]">
