@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use DBD::SQLite;
 use Getopt::Std;
+use Date::Manip;
+use SOAP::DateTime;
+
 getopts( 'v', my $opts = {} );
 
 sub debug;
@@ -80,11 +83,16 @@ debug "Trying to delete record $ARGV[0]";
 #UPDATE table_name
 #SET column1=value, column2=value2,...
 #WHERE some_column=some_value
-my $sql = 'UPDATE records SET status=1, native_md=\'\' WHERE identifier=?';
+my $sql = 'UPDATE records SET status=1, native_md=\'\', datestamp=? WHERE identifier=?';
+
+my $time=time;
+my $datestamp=ConvertDate(ParseDateString("epoch $time"));
+$datestamp.='Z';
+debug "datestamp: $datestamp";
 
 #debug "SQL:$sql";
 my $sth = $dbh->prepare($sql);
-my $rows = $sth->execute( $ARGV[0] ) or croak $dbh->errstr();
+my $rows = $sth->execute( $datestamp, $ARGV[0] ) or croak $dbh->errstr();
 
 debug "rows affected: $rows";
 
