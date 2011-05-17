@@ -30,15 +30,11 @@ deleted records must include the headers of these records. Incremental
 harvesting will thus discover deletions from repositories that keep track of
 them.
 
-TODO: We have to change identify deletedRecord to "transient"
-
 If a record is deleted,
 -we have to change status=1,
 -put the datestamp of now.
--delete native_md
-
-I am not sure what I should do with the corresponding sets. Maybe better delete
-a set.
+-delete native_md for that record
+-delete all sets with the same identifier
 
 =cut
 
