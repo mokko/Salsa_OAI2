@@ -20,49 +20,76 @@
     -->
     <xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[ @freigabe = 'web' ]">
         <!--  $currentId -->
-            <lido:resourceSet>
-                <xsl:element name="lido:resourceID">
-                    <xsl:if test="@priorität = 1">
-                        <xsl:attribute name="lido:pref">preferred</xsl:attribute>
-                    </xsl:if>
-                    <xsl:attribute name="lido:type">local</xsl:attribute>
-                    <xsl:value-of select="@mulId"/>
-                    <xsl:text>.jpg</xsl:text>
-                </xsl:element>
-                <!--
+        <lido:resourceSet>
+            <xsl:element name="lido:resourceID">
+                <xsl:if test="@priorität = 1">
+                    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+                </xsl:if>
+                <xsl:attribute name="lido:type">local</xsl:attribute>
+                <xsl:value-of select="@mulId"/>
+                <xsl:text>.jpg</xsl:text>
+            </xsl:element>
+            <!--
                 write a resourceRepresentation only if there is a URL (not an internal filepath)
+                we have internal path in mpx, but in lido we wanna show only external paths
+                so we need to create mume for the dismarc urls
             -->
-                <xsl:if test="contains (mpx:multimediaPfadangabe, '://')">
-                    <lido:resourceRepresentation>
-                        <lido:linkResource>
-                            <xsl:value-of
-                                select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
-                            />
-                        </lido:linkResource>
-                        <!-- 
+            <xsl:if test="contains (mpx:multimediaPfadangabe, '://')">
+                <lido:resourceRepresentation>
+                    <lido:linkResource>
+                        <xsl:value-of
+                            select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
+                        />
+                    </lido:linkResource>
+                    <!-- 
                         internal MuseumPlus paths 
                         <xsl:value-of
                         select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
                         />
                     -->
-                    </lido:resourceRepresentation>
-                </xsl:if>
+                </lido:resourceRepresentation>
+            </xsl:if>
 
-                <lido:resourceType>
-                    <!-- TODO: different media according to which criteria? -->
-                    <lido:term xml:lang="en">image</lido:term>
-                </lido:resourceType>
-                <lido:rightsResource>
-                    <lido:rightsType>
-                        <lido:term xml:lang="en">copyright</lido:term>
-                    </lido:rightsType>
-                </lido:rightsResource>
-                <lido:rightsResource>
-                    <lido:creditLine>
-                        <xsl:value-of select="mpx:multimediaUrhebFotograf"/>
-                    </lido:creditLine>
-                </lido:rightsResource>
-            </lido:resourceSet>
+            <xsl:apply-templates select="mpx:multimediaTyp"/>
+
+            <lido:rightsResource>
+                <lido:rightsType>
+                    <lido:term xml:lang="en">copyright</lido:term>
+                </lido:rightsType>
+            </lido:rightsResource>
+            <xsl:apply-templates select="mpx:multimediaUrhebFotograf"/>
+        </lido:resourceSet>
+    </xsl:template>
+
+    <xsl:template match="mpx:multimediaUrhebFotograf">
+        <!-- 
+            I believe the Staatliche Museen zu Berlin want to be named here
+            Ich könnte die mulId nehmen und dann Credits aus Sammlungsobjekt nachschlagen.
+        -->
+
+        <lido:rightsResource>
+            <lido:creditLine xml:lang="de" lido:encodinganalog="mpx:multimediaUrhebFotograf">
+                <xsl:value-of select="/mpx:museumPlusExport/mpx:sammlungsobjekt/mpx:credits"/> -
+                Foto: <xsl:value-of select="."/>
+            </lido:creditLine>
+        </lido:rightsResource>
+    </xsl:template>
+
+    <xsl:template match="mpx:multimediaTyp">
+        <lido:resourceType>
+            <!-- TODO: different media according to which criteria? -->
+            <lido:term xml:lang="en">
+        <xsl:choose>
+            <xsl:when test=". = 'Audio Sample' ">
+                <xsl:text>audio</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>image</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+        </lido:term>
+        </lido:resourceType>
+
     </xsl:template>
 
 </xsl:stylesheet>
