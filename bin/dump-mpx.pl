@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+
 #encoding problem when dealing with data from sqlite
 use Encode qw(decode encode);
 
@@ -10,6 +11,8 @@ use XML::LibXML::XPathContext;
 use Carp qw/croak/;
 use DBD::SQLite;
 use XML::LibXSLT;
+use Getopt::Std;
+getopts( 'd', my $opts = {} );
 
 sub debug;
 
@@ -27,9 +30,13 @@ dump-mpx.pl output.mpx
 
 my $config = {
 	dbfile => '/home/Mengel/projects/Salsa_OAI2/data/db',
-	debug  => 1,                                            #1 = on; 2 = off
+	debug  => 0,                                            #1 = on; 2 = off
 	sortXSL => '/home/Mengel/projects/Salsa_OAI2/xslt/mpx-sort.x1.xsl',
 };
+
+if ( $opts->{d} ) {
+	$config->{debug} = 1;
+}
 
 #
 # CONFIG SANITY
@@ -71,32 +78,36 @@ while ( my $aref = $sth->fetch ) {
 	#load xml from every db row to doc
 	my $doc = init_mpx( decode( "utf-8", $aref->[0] ) );
 
-	#only the first time
-	if ( !$first ) {
-		$first = 1;
+	#deleted records have no md!
+	if ($doc) {
+		#only the first time
+		if ( !$first ) {
+			$first = 1;
 
-		#root document
-		my @list = $doc->findnodes('/mpx:museumPlusExport');
-		if ( !$list[0] ) {
-			die "Cannot find root element";
-		}
-		$new = XML::LibXML::Document->createDocument( "1.0", "UTF-8" );
+			#root document
+			my @list = $doc->findnodes('/mpx:museumPlusExport');
+			if ( !$list[0] ) {
+				die "Cannot find root element";
+			}
+			$new = XML::LibXML::Document->createDocument( "1.0", "UTF-8" );
 
-		#add root
-		$root = $list[0]->cloneNode(0);    #0 not deep copy. It works!
-		$new->setDocumentElement($root);
-	} else {
-		debug "$doc";
-		my @nodes = $doc->findnodes('/mpx:museumPlusExport/mpx:*');
-		foreach (@nodes) {
-			#debug "\t$_";
-			$root->appendChild($_);
+			#add root
+			$root = $list[0]->cloneNode(0);    #0 not deep copy. It works!
+			$new->setDocumentElement($root);
+		} else {
+			debug "$doc";
+			my @nodes = $doc->findnodes('/mpx:museumPlusExport/mpx:*');
+			foreach (@nodes) {
+
+				#debug "\t$_";
+				$root->appendChild($_);
+			}
 		}
 	}
 }
 
 #sort in right order
-debug "sort elements in alphabetical order\n";
+debug "sort elements in alphabetical order";
 my $xslt      = XML::LibXSLT->new();
 my $style_doc = XML::LibXML->load_xml(
 	location => $config->{sortXSL},
@@ -106,7 +117,7 @@ my $style_doc = XML::LibXML->load_xml(
 my $stylesheet = $xslt->parse_stylesheet($style_doc);
 $new = $stylesheet->transform($new);
 
-debug "About to write to disk: $ARGV[0]\n";
+debug "About to write to disk: $ARGV[0]";
 
 $new->toFile( $ARGV[0] );
 
@@ -117,8 +128,10 @@ $new->toFile( $ARGV[0] );
 sub init_mpx {
 	my $doc = shift;
 	if ( !$doc ) {
-		print "init_mpx called without document\n";
-		exit 1;
+		print "Warning: init_mpx called without document\n";
+		return;
+
+		#exit 1;
 	}
 
 	my $parser = XML::LibXML->new();
