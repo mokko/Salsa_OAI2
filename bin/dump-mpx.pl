@@ -24,7 +24,11 @@ Quick and dirty!
 
 =head1 SYNOPSIS
 
-dump-mpx.pl output.mpx
+dump-mpx.pl [-d] output.mpx
+
+=head COMMAND LINE OPTIONS
+
+-d  	print debug info to STDOUT
 
 =cut
 
@@ -118,7 +122,6 @@ my $stylesheet = $xslt->parse_stylesheet($style_doc);
 $new = $stylesheet->transform($new);
 
 debug "About to write to disk: $ARGV[0]";
-
 $new->toFile( $ARGV[0] );
 
 #
