@@ -27,7 +27,8 @@
                 </xsl:if>
                 <xsl:attribute name="lido:type">local</xsl:attribute>
                 <xsl:value-of select="@mulId"/>
-                <xsl:text>.jpg</xsl:text>
+                <xsl:text>.</xsl:text>
+                <xsl:value-of select="mpx:multimediaErweiterung"/>
             </xsl:element>
             <!--
                 write a resourceRepresentation only if there is a URL (not an internal filepath)

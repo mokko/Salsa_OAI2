@@ -1,6 +1,5 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mpx.org/mpx File://C:/Documents and Settings/Mengel/My Documents/workspace/filesystem/mpx-lvl2.v2.xsd"
 	xmlns:mpx="http://www.mpx.org/mpx" xmlns="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
 
 	<!--
