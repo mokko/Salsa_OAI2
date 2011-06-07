@@ -27,7 +27,8 @@
         <!--
           xpath 1 is somewhat limited: split at space; take 1st, 3rd & 5th as
           values; 6th as unit. There may be strings following which should be
-          ignored.
+          ignored. This works only for units abbreviated with 2 or less
+          letters!
         -->
         <xsl:variable name="value1" select="substring-before(.,' ')"/>
         <xsl:variable name="rest" select="substring-after(.,' ')"/>
