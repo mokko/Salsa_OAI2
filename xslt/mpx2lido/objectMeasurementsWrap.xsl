@@ -25,7 +25,9 @@
 
       <xsl:if test="@typ = 'Objektmaß'">
         <!--
-          split bei Space. Nehme 1., 3. und 5. Wert als Values und 6. als unit
+          xpath 1 is somewhat limited: split at space; take 1st, 3rd & 5th as
+          values; 6th as unit. There may be strings following which should be
+          ignored.
         -->
         <xsl:variable name="value1" select="substring-before(.,' ')"/>
         <xsl:variable name="rest" select="substring-after(.,' ')"/>
@@ -35,10 +37,9 @@
         <xsl:variable name="rest3" select="substring-after($rest2,' ')"/>
         <xsl:variable name="value3" select="substring-before($rest3,' ')"/>
         <xsl:variable name="rest4" select="substring-after($rest3,' ')"/>
-        <xsl:variable name="unit" select="substring-before($rest4,' ')"/>
+        <xsl:variable name="unit" select="substring ($rest4, 1,2)"/>
 
         <lido:objectMeasurements>
-          <!-- todo: extract unit programmatically -->
           <xsl:element name="lido:measurementsSet">
             <xsl:attribute name="lido:type">Höhe</xsl:attribute>
             <xsl:attribute name="lido:unit">
