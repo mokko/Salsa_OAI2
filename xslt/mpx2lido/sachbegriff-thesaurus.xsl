@@ -14,7 +14,7 @@
 
     <xsl:template match="mpx:sachbegriff" mode="classification">
         <lido:classification>
-            <lido:term xml:lang="de" encodinganalog="mpx:sachbegriff">
+            <lido:term xml:lang="de">
                 <xsl:value-of select="."/>
             </lido:term>
         </lido:classification>
