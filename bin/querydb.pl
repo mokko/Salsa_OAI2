@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use DBD::SQLite;
 #encoding problem when dealing with data from sqlite
-use Encode qw(from_to);
+use Encode qw(from_to decode);
 
 use Getopt::Std;
 getopts( 'td', my $opts = {} );
