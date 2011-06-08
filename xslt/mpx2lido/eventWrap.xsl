@@ -41,7 +41,11 @@
             mpx:erwerbungsart">
 
             <lido:eventWrap>
-                <xsl:if test="mpx:materialTechnik|mpx:geogrBezug | mpx:personKörperschaftRef[@funktion = 'Hersteller']">
+                <!-- conditions under which we have a production event -->
+                <xsl:if test="
+                    mpx:materialTechnik|
+                    mpx:geogrBezug | 
+                    mpx:personKörperschaftRef[@funktion = 'Hersteller']">
                     <xsl:call-template name="production"/>
                 </xsl:if>
 

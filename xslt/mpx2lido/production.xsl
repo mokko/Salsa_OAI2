@@ -24,7 +24,7 @@
                 <xsl:apply-templates select="mpx:personKörperschaftRef[@funktion = 'Hersteller']"/>
                 <xsl:call-template name="general-culture"/>
 
-                <!-- eventDate-->
+                <!-- eventDate: both display and data-->
                 <xsl:apply-templates select="mpx:datierung"/>
 
                 <!-- eventPlace -->
@@ -74,6 +74,10 @@
                 <xsl:value-of select="mpx:materialTechnik"/>
             </xsl:if>
             
+            <!-- TODO
+                can I deal with multiple datierung?
+                do I show the datierung and only those or do I need to filter specific datierung?
+            -->
             <xsl:if test="mpx:datierung">
                 <xsl:text> zum Zeitpunkt bzw. im Zeitraum </xsl:text>
                 <xsl:value-of select="mpx:datierung"/>
@@ -160,11 +164,13 @@
     <!-- 
     eventDate: should this become a general? it is not used in acquisition. At the moment 
     it is not used in collecting either. 
+    TODO: Probably only applies if Herkunft Allgemein
+    TODO: datierung is repeatable
     -->
 
     <xsl:template match="mpx:datierung">
         <lido:eventDate>
-            <!-- If an event date is described by a free text, it has to be mapped to a lido:displayDate element. -->
+            <!-- displayDate geht immer, auch unstructuredText -->
             <lido:displayDate>
                 <xsl:value-of select="."/>
             </lido:displayDate>
@@ -174,14 +180,19 @@
                 The dates format should be preferably YYYY[-MM[-DD]]: 
                 at least the year should be specified. Nevertheless, other 
                 formats are accepted (e.g 17??, 1850 ?, ca 1600, etc…).
-                <lido:date>
-                <lido:earliestDate>
-                <xsl:value-of select="child::mpx:erwerbDatum"/>
-                </lido:earliestDate>
-                <lido:latestDate>
-                <xsl:value-of select="child::mpx:erwerbDatum"/>
-                </lido:latestDate>
-                </lido:date>
+            
+                can I deal with multiple datierung?
+                do I show the datierung and only those or do I need to filter specific datierung?
+               @vonJahr und @bisJahr
+               How to recognize earliest and latestDate?
+               Maybe work only only with 4-digit years:
+                 <xsl:if test=". = format-number(.,'####')">
+                 
+               <lido:date>
+               <lido:earliestDate><xsl:value-of select="."/></lido:earliestDate>
+               <lido:latestDate><xsl:value-of select="."/></lido:latestDate>
+               </lido:date>
+               </xsl:if>
             -->
         </lido:eventDate>
     </xsl:template>
