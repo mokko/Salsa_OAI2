@@ -24,11 +24,13 @@
 
       <xsl:if
         test="
+        @typ = 'Durchmesser' or 
         @typ = 'Höhe' or 
         @typ = 'Länge' or
         @typ = 'Objektmaß' 
         ">
         <lido:objectMeasurements>
+          <xsl:apply-templates select="@typ ='Durchmesser' "/>
           <xsl:apply-templates select="@typ ='Höhe' "/>
           <xsl:apply-templates select="@typ ='Länge' "/>
           <xsl:apply-templates select="@typ ='Objektmaß' "/>
@@ -40,7 +42,10 @@
 
 
   <xsl:template
-    match="/mpx:museumPlusExport/mpx:sammlungsobjekt/mpx:maßangabe[@typ = 'Höhe' or @typ = 'Länge']">
+    match="/mpx:museumPlusExport/mpx:sammlungsobjekt/mpx:maßangabe[
+      @typ = 'Durchmesser' or 
+      @typ = 'Höhe' or 
+      @typ = 'Länge']">
     <xsl:variable name="value" select="substring-before(.,' ')"/>
     <xsl:variable name="rest" select="substring-after(.,' ')"/>
     <xsl:variable name="unit" select="substring ($rest, 1,2)"/>
@@ -48,12 +53,15 @@
     <xsl:element name="lido:measurementsSet">
       <xsl:element name="lido:measurementType" xml:lang="en">
         <xsl:choose>
+          <xsl:when test="@typ = 'Durchmesser'">
+            <xsl:text>diameter</xsl:text>
+          </xsl:when>
           <xsl:when test="@typ = 'Höhe'">
             <xsl:text>height</xsl:text>
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="@typ = 'Länge'">
             <xsl:text>length</xsl:text>
-          </xsl:otherwise>
+          </xsl:when>
         </xsl:choose>
       </xsl:element>
       <xsl:element name="lido:measurementUnit">
