@@ -73,6 +73,12 @@
                 <xsl:text> unter Einsatz von </xsl:text>
                 <xsl:value-of select="mpx:materialTechnik"/>
             </xsl:if>
+            
+            <xsl:if test="mpx:datierung">
+                <xsl:text> zum Zeitpunkt bzw. im Zeitraum </xsl:text>
+                <xsl:value-of select="mpx:datierung"/>
+            </xsl:if>
+            
         </lido:displayEvent>
     </xsl:template>
 
