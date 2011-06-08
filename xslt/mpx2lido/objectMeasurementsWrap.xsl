@@ -22,6 +22,7 @@
         <xsl:value-of xml:space="preserve" select="."/>
       </lido:displayObjectMeasurements>
 
+
       <xsl:if
         test="
         @typ = 'Durchmesser' or 
@@ -30,10 +31,12 @@
         @typ = 'Objektmaß' 
         ">
         <lido:objectMeasurements>
-          <xsl:apply-templates select="@typ ='Durchmesser' "/>
-          <xsl:apply-templates select="@typ ='Höhe' "/>
-          <xsl:apply-templates select="@typ ='Länge' "/>
-          <xsl:apply-templates select="@typ ='Objektmaß' "/>
+          <xsl:if test="@typ = 'Durchmesser' or @typ = 'Höhe' or @typ = 'Länge' ">
+            <xsl:call-template name="DurchmesserHöheLänge"/>
+          </xsl:if>
+          <xsl:if test="@typ = 'Objektmaß' ">
+            <xsl:call-template name="Objektmaß"/>
+          </xsl:if>
         </lido:objectMeasurements>
       </xsl:if>
     </lido:objectMeasurementsSet>
@@ -41,11 +44,8 @@
 
 
 
-  <xsl:template
-    match="/mpx:museumPlusExport/mpx:sammlungsobjekt/mpx:maßangabe[
-      @typ = 'Durchmesser' or 
-      @typ = 'Höhe' or 
-      @typ = 'Länge']">
+  <!-- unit is limited to 2 or less characters! -->
+  <xsl:template name="DurchmesserHöheLänge">
     <xsl:variable name="value" select="substring-before(.,' ')"/>
     <xsl:variable name="rest" select="substring-after(.,' ')"/>
     <xsl:variable name="unit" select="substring ($rest, 1,2)"/>
@@ -74,7 +74,7 @@
   </xsl:template>
 
 
-  <xsl:template match="/mpx:museumPlusExport/mpx:sammlungsobjekt/mpx:maßangabe[@typ = 'Objektmaß']">
+  <xsl:template name="Objektmaß">
     <!--
     xpath 1 is somewhat limited: split at space; take 1st, 3rd & 5th as
     values; 6th as unit. There may be strings following which should be
@@ -97,7 +97,7 @@
         <xsl:value-of select="$unit"/>
       </xsl:element>
       <xsl:element name="lido:measurementValue">
-        <xsl:value-of select="$value1"/>
+        <xsl:value-of select="translate($value1,',','.')"/>
       </xsl:element>
     </xsl:element>
 
@@ -107,7 +107,7 @@
         <xsl:value-of select="$unit"/>
       </xsl:element>
       <xsl:element name="lido:measurementValue">
-        <xsl:value-of select="$value2"/>
+        <xsl:value-of select="translate($value2,',','.')"/>
       </xsl:element>
     </xsl:element>
 
@@ -117,7 +117,7 @@
         <xsl:value-of select="$unit"/>
       </xsl:element>
       <xsl:element name="lido:measurementValue">
-        <xsl:value-of select="$value3"/>
+        <xsl:value-of select="translate($value3,',','.')"/>
       </xsl:element>
     </xsl:element>
   </xsl:template>
