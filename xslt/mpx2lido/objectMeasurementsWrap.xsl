@@ -60,7 +60,7 @@
         <xsl:value-of select="$unit"/>
       </xsl:element>
       <xsl:element name="lido:measurementValue">
-        <xsl:value-of select="$value"/>
+        <xsl:value-of select="translate($value,',','.')"/>
       </xsl:element>
     </xsl:element>
   </xsl:template>
