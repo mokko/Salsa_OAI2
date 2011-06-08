@@ -67,10 +67,17 @@
                 <xsl:text> von der Ethnie/Kultur der </xsl:text>
                 <xsl:value-of select="$culture"/>
             </xsl:if>
+
+            <xsl:variable name="matTech" select="mpx:materialTechnik"/>
+            <xsl:if test="mpx:materialTechnik">
+                <xsl:text> unter Einsatz von </xsl:text>
+                <xsl:value-of select="mpx:materialTechnik"/>
+            </xsl:if>
         </lido:displayEvent>
     </xsl:template>
 
 
+    <!-- EventActor -->
     <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Hersteller']">
         <lido:eventActor>
             <lido:actorInRole>
@@ -82,7 +89,7 @@
     </xsl:template>
 
 
-    <!-- Is this general? Might well be -->
+    <!--  EventPlace: Is this general? Might well be... -->
     <xsl:template
         match="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)'  and  @bezeichnung != 'Ethnie' ]">
         <lido:eventPlace>
@@ -91,7 +98,11 @@
             </lido:displayPlace>
             <lido:place>
                 <lido:namePlaceSet>
-                    <!-- I am pretty sure that it should be entered in German always -->
+                    <!-- 
+                        I am pretty sure that geogrBezug should always be entered in German, 
+                        I am less sure that it actually always is German, but that is a potential 
+                        error on data entry level
+                    -->
                     <lido:appellationValue xml:lang="de">
                         <xsl:value-of select="."/>
                     </lido:appellationValue>
@@ -103,32 +114,46 @@
 
     <xsl:template name="eventMaterialsTech">
         <xsl:if test="mpx:materialTechnik">
+            <!-- TODO: add a comma between different lines, but the last one -->
             <lido:eventMaterialsTech>
                 <lido:displayMaterialsTech>
-                    <xsl:for-each select="mpx:materialTechnik">
-                        <xsl:value-of select="."/>
-                        <xsl:text> (</xsl:text>
-                        <xsl:value-of select="./@art"/>
-                        <xsl:text>)</xsl:text>
-                    </xsl:for-each>
+                    <xsl:apply-templates select="mpx:materialTechnik" mode="display"/>
                 </lido:displayMaterialsTech>
-
-                <!--lido:materialsTech>
-                    <xsl:for-each select=".">
-                        <lido:termMaterialsTech lido:type="material">
-                            <lido:term xml:lang="de"><xsl:value-of select="parent"/></lido:term>
-                        </lido:termMaterialsTech>
-                    </xsl:for-each>
-                </lido:materialsTech-->
-
+                <xsl:if test="mpx:materialTechnik/@art='Material' or mpx:materialTechnik/@art='Technik' ">
+                    <lido:materialsTech>
+                        <xsl:apply-templates select="mpx:materialTechnik" mode="data"/>
+                    </lido:materialsTech>
+                </xsl:if>
             </lido:eventMaterialsTech>
         </xsl:if>
     </xsl:template>
 
+    <xsl:template match="mpx:materialTechnik" mode="display">
+        <xsl:value-of select="."/>
+        <xsl:text> (</xsl:text>
+        <xsl:value-of select="./@art"/>
+        <xsl:text>)</xsl:text>
+    </xsl:template>
+
+    <!-- N.B. @art can also be 'Ausgabe -->
+    <xsl:template match="mpx:materialTechnik" mode="data">
+        <xsl:element name="lido:termMaterialsTech">
+            <xsl:choose>
+                <xsl:when test="@art = 'Material' ">
+                    <xsl:attribute name="lido:type">material</xsl:attribute>
+                </xsl:when>
+                <xsl:when test="@art = 'Technik' ">
+                    <xsl:attribute name="lido:type">technique</xsl:attribute>
+                </xsl:when>
+            </xsl:choose>
+            <lido:term xml:lang="de"><xsl:value-of select="."/></lido:term>
+        </xsl:element>
+    </xsl:template>
+
 
     <!-- 
-    should this become a general? it is not used in acquisition. At the moment 
-    it is not used in collecting either 
+    eventDate: should this become a general? it is not used in acquisition. At the moment 
+    it is not used in collecting either. 
     -->
 
     <xsl:template match="mpx:datierung">

@@ -26,9 +26,14 @@
             acquisition
         -->
 
-        <!-- it is possible that we don't have enough info for any of the events -->
+        <!-- 
+            CONDITIONS under which we have one or more events
+            it is possible that we don't have enough info for any of the events 
+        -->
         <xsl:if
-            test="mpx:geogrBezug or 
+            test="
+            mpx:materialTechnik or
+            mpx:geogrBezug or 
             mpx:personKörperschaftRef[@funktion = 'Hersteller'] or
             mpx:personKörperschaftRef[@funktion = 'Sammler'] or
             mpx:erwerbDatum  or 
@@ -36,7 +41,7 @@
             mpx:erwerbungsart">
 
             <lido:eventWrap>
-                <xsl:if test="mpx:geogrBezug | mpx:personKörperschaftRef[@funktion = 'Hersteller']">
+                <xsl:if test="mpx:materialTechnik|mpx:geogrBezug | mpx:personKörperschaftRef[@funktion = 'Hersteller']">
                     <xsl:call-template name="production"/>
                 </xsl:if>
 

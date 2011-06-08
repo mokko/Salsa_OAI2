@@ -22,9 +22,7 @@
         <xsl:value-of xml:space="preserve" select="."/>
       </lido:displayObjectMeasurements>
 
-
-      <xsl:if
-        test="
+      <xsl:if test="
         @typ = 'Durchmesser' or 
         @typ = 'Höhe' or 
         @typ = 'Länge' or
@@ -41,7 +39,6 @@
       </xsl:if>
     </lido:objectMeasurementsSet>
   </xsl:template>
-
 
 
   <!-- unit is limited to 2 or less characters! -->
@@ -79,7 +76,7 @@
     xpath 1 is somewhat limited: split at space; take 1st, 3rd & 5th as
     values; 6th as unit. There may be strings following which should be
     ignored. This works only for units abbreviated with 2 or less
-    letters!
+    letters! Period instead of comma in English numbers
   -->
     <xsl:variable name="value1" select="substring-before(.,' ')"/>
     <xsl:variable name="rest" select="substring-after(.,' ')"/>
