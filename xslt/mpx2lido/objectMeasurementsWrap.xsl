@@ -14,7 +14,7 @@
 
   <xsl:template match="mpx:maßangabe">
     <lido:objectMeasurementsSet>
-      <lido:displayObjectMeasurements>
+      <lido:displayObjectMeasurements xml:lang="de" lido:encodinganalog="mpx:maßangabe">
         <xsl:if test="@typ">
           <xsl:value-of xml:space="preserve" select="@typ"/>
           <xsl:text>: </xsl:text>
