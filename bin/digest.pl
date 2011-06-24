@@ -13,7 +13,7 @@ use HTTP::OAI::DataProvider::SQLite;
 use Salsa_OAI::MPX;
 use Cwd 'realpath';
 use Getopt::Std;
-getopts( 'v', my $opts = {} );
+getopts( 'nv', my $opts = {} );
 
 sub verbose;
 
@@ -112,24 +112,27 @@ test_conf_var(qw/dbfile nativePrefix native_ns_uri/);
 #
 # validate source file
 #
+if ( !$opts->{n} ) {
+	if ( config->{nativeSchema} ) {
+		verbose "About to validate source file before import";
+		if ( !config->{nativeSchema} ) {
+			die 'Schema not found (' . config->{nativeSchema} . ')';
+		}
 
-if ( config->{nativeSchema} ) {
-	verbose "About to validate source file before import";
-	if ( !config->{nativeSchema} ) {
-		die 'Schema not found (' . config->{nativeSchema} . ')';
+		my $doc = XML::LibXML->new->parse_file( $ARGV[0] );
+		my $xmlschema =
+		  XML::LibXML::Schema->new( location => config->{nativeSchema} );
+		eval { $xmlschema->validate($doc); };
+
+		if ($@) {
+			die "$ARGV[0] failed validation: $@" if $@;
+		} else {
+			print "$ARGV[0] validates\n";
+		}
 	}
-
-	my $doc = XML::LibXML->new->parse_file( $ARGV[0] );
-	my $xmlschema = XML::LibXML::Schema->new( location => config->{nativeSchema});
-	eval { $xmlschema->validate($doc); };
-
-	if ($@) {
-		die "$ARGV[0] failed validation: $@" if $@;
-	} else {
-		print "$ARGV[0] validates\n";
-	}
+} else {
+	debug "no validate option";
 }
-
 
 #
 # init
