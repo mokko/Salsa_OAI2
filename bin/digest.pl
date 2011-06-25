@@ -154,6 +154,8 @@ if ($err) {
 	die $err;
 }
 
+debug "done";
+
 #
 # SUBS
 #

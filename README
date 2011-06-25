@@ -1,7 +1,0 @@
-This is work in progress and not yet completed, but I am working on it. A
-working version should be ready around Christmas. This Christmas, not perl6
-Christmas.
-
-Anyway, this is an implementation of HTTP::OAI::DataProvider (also on github)
-and I am still in the middle of refacturing. Just thought it would be good to
-have a copy on github kind of as a backup.
