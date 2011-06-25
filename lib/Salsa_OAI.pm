@@ -1,14 +1,13 @@
 package Salsa_OAI;
 use Dancer ':syntax';
 
-#Frontend does not need to be called outside of it, right?
-#use Dancer::CommandLine qw/Debug Warning/;
+# ABSTRACT: Simple OAI data provider based on Dancer
+
 use Carp qw/carp croak/;
+
+#still useful?
 use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 
-#use HTTP::OAI::DataProvider::GlobalFormats;
-#use HTTP::OAI::DataProvider::Transformer;
-#use HTTP::OAI::DataProvider::SQLite;
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
@@ -18,11 +17,6 @@ use Salsa_OAI::MPX;
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
 
 our $provider = init_provider();    #do this when starting the webapp
-our $VERSION  = '0.2';              #sqlite
-
-=head1 NAME
-
-Salsa_OAI - Simple OAI data provider based on Dancer
 
 =head1 SYNOPSIS
 
@@ -101,7 +95,7 @@ dance;
 #
 #
 
-=head2 config_check ();
+=func config_check ();
 
 Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
 should also have the relevant information (e.g. chunk_dir). This check should
@@ -162,7 +156,7 @@ sub config_check {
 
 }
 
-=head2 $provider=init_provider();
+=func $provider=init_provider();
 
 Initialize the data provider with settings either from Dancer's config
 if classic configuration information or from callbacks.
@@ -185,7 +179,7 @@ sub init_provider {
 	return $provider;
 }
 
-=head2 welcome()
+=func welcome()
 
 Gets called from Dancer's routes to display html pages on Salsa_OAI
 
@@ -202,7 +196,7 @@ true;
 # CALLBACKS
 #
 
-=head2 Debug "Message";
+=func Debug "Message";
 
 Use Dancer's debug function if available or else write to STDOUT. Register this
 callback during init_provider.
@@ -219,7 +213,7 @@ sub salsa_debug {
 	}
 }
 
-=head2 Warning "Message";
+=func Warning "Message";
 
 Use Dancer's warning function if available or pass message to perl's warn.
 
@@ -233,7 +227,7 @@ sub salsa_warning {
 	}
 }
 
-=head2 my $library = salsa_setLibrary();
+=func my $library = salsa_setLibrary();
 
 Reads the setLibrary from dancer's config file
   and returns it in form of a HTTP::OAI::ListSet object(
@@ -291,7 +285,7 @@ sub salsa_setLibrary {
 	#return empty-handed and fail
 }
 
-=head2 my xslt_fn=salsa_locateXSL($prefix);
+=func my xslt_fn=salsa_locateXSL($prefix);
 
 locateXSL callback expects a metadataFormat prefix and will return the full
 path to the xsl which is responsible for this transformation. On failure:
@@ -309,4 +303,3 @@ sub salsa_locateXSL {
 
 	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
-

@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: deleteRecord.pl
+# ABSTRACT: Delete one record from Salsa_OAI's sqlite db
 
 use strict;
 use warnings;
@@ -10,10 +12,6 @@ use SOAP::DateTime;
 getopts( 'v', my $opts = {} );
 
 sub debug;
-
-=head1 NAME
-
-deleteRecord.pl - Delete one record from sqlite db
 
 =head1 SYNOPSIS
 
@@ -114,6 +112,8 @@ exit 1;
 #
 # SUBS
 #
+=func debug "msg";
+=cut
 sub debug {
 	my $msg = shift;
 	if ( $config->{debug} > 0 ) {

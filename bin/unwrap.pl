@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: unwrap.pl
+# ABSTRACT: Unwraps the metadata inside of a OAI response (ListRecord, GetRecord)
 
 use strict;
 use warnings;
@@ -11,20 +13,9 @@ getopts( 'hv', my $opts = {} );
 
 sub verbose;
 
-=head1 NAME
-
-unwrap.pl - Little script that "unwraps" the metadata inside of a OAI response
- (ListRecord, GetRecord)
-
 =head1 SYNOPSIS
 
 unwrap.pl -v input.oai.xml output.xml
-
-=cut
-
-=head2 verbose "message";
-
-Print message to STDOUT if script is run with -v options.
 
 =cut
 
@@ -73,7 +64,8 @@ exit;
 #
 # SUBS
 #
-
+=func output ($result);
+=cut
 sub output {
 	my $result=shift;
 	if ($ARGV[1]) {
@@ -84,6 +76,12 @@ sub output {
 		print $result->toString;
 	}
 }
+
+=func verbose "message";
+
+Print message to STDOUT if script is run with -v options.
+
+=cut
 
 sub verbose {
 	my $msg = shift;

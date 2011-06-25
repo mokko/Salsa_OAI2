@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: digest_single.pl
+# ABSTRACT: store relevant from a single big mpx file into SQLite db
 
 use strict;
 use warnings;
@@ -20,13 +22,15 @@ sub verbose;
 #for dirty debugging
 #use Data::Dumper qw/Dumper/;
 
-=head1 NAME
-
-digest_single.pl - store relevant from a single big mpx file into SQLite db
-
 =head1 SYNOPSIS
 
 digest_single.pl file.mpx
+
+=head2 Command Line Options
+
+=for :list
+*-n:   no validation
+*-v:   verbose
 
 =head1 DESCRIPTION
 
@@ -66,20 +70,6 @@ different loop with access to more or less the whole document.
 
 Currently, this script is part of HTTP::OAI::DataProvider, but its mpx specific
 parts should later go to Dancer front end. When it exists.
-
-=head1 AUTHOR
-
-Maurice Mengel, 2011
-
-=head1 LICENSE
-
-This module is free software and is published under the same
-terms as Perl itself.
-
-=head1 SEE ALSO
-
-todo
-
 
 =cut
 
@@ -160,6 +150,11 @@ debug "done";
 # SUBS
 #
 
+=func test_conf_var ($var1, $var2);
+
+Croaks if specified vars do not exist in config.
+
+=cut
 sub test_conf_var {
 	foreach (@_) {
 		if ( !config->{$_} ) {
@@ -167,6 +162,9 @@ sub test_conf_var {
 		}
 	}
 }
+
+=func verbose 'message';
+=cut
 
 sub verbose {
 	my $msg = shift;

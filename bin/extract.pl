@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: transform.pl
+# ABSTRACT: apply a transformation to a record from the data store
 
 use FindBin;
 use Cwd 'realpath';
@@ -13,23 +15,11 @@ use Salsa_OAI::MPX;
 sub verbose;    #predeclare
 sub output;
 
-=head1 NAME
-
-transform.pl - apply a transformation to a record from the data store
-
 =head1 SYNOPSIS
 
    transform.pl -o output.xml 538 lido
    transform.pl -h
 	Get usage summary, for more try 'perldoc transform.pl'
-
-=head1 VERSION
-
-0.02
-
-=cut
-
-our $VERSION = 0.02;
 
 =head1 PARAMETERS
 

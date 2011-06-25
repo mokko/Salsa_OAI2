@@ -1,16 +1,30 @@
 #!/usr/bin/perl
 
-#a little tool that converts a two column csv into a dictionary file
-#csv should
-#-be in cp1252 (normal out put from excel)
-#-have 2 columns (left one with M+Sachbegriff, right one with MIMO keyword)
+# PODNAME: csv2dict.pl
+# ABSTRACT: convert a two column csv into a dictionary file
 
-#this test checks for uniqueness of terms Sachbegriff
-#it outputs a simple xml dictionary
+=head1 USAGE
 
-#-v verbose mode
-#-h help gives you usage
-# csv2dict.pl [-v] input.csv output.xml
+csv2dict.pl [-v] input.csv output.xml
+
+=head2 COMMAND LINE OPTIONS
+
+=for :list
+
+*-v: verbose mode
+*-h: help gives you usage
+
+=head1 CSV FILE REQUIREMENTS
+
+=for :list
+
+* be in cp1252 (normal out put from excel)
+* have 2 columns (left one with M+Sachbegriff, right one with MIMO keyword)
+
+This script checks for uniqueness of terms (Sachbegriff). It outputs a simple
+xml dictionary.
+
+=cut
 
 use strict;
 use warnings;
@@ -22,8 +36,6 @@ use XML::Writer;
 use IO::File;
 
 sub verbose;
-
-my $VERSION = '0.01';
 
 my $opts = {};
 getopts( 'hv', $opts );
@@ -138,7 +150,6 @@ sub init_writer {
 	return $writer;
 
 }
-
 
 sub read_csv {
 	my $csv_file = shift;    #location

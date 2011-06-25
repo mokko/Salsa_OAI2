@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: querydb.pl
+# ABSTRACT: Query OAI data provider db directly using xpath1
 
 use strict;
 use warnings;
@@ -10,10 +12,6 @@ use Getopt::Std;
 getopts( 'td', my $opts = {} );
 
 sub debug;
-
-=head1 NAME
-
-querydb.pl - Query OAI data provider db directly using xpath 1
 
 =head1 SYNOPSIS
 

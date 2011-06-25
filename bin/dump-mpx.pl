@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: dump-mpx.pl
+# ABSTRACT: dump all xml from Salsa_OAI's sqlite in one big mpx file
 
 use strict;
 use warnings;
@@ -15,12 +17,6 @@ use Getopt::Std;
 getopts( 'd', my $opts = {} );
 
 sub debug;
-
-=head1 NAME
-
-dump-mpx.pl - dump all xml from sqlite in one big mpx file
-
-Quick and dirty!
 
 =head1 SYNOPSIS
 

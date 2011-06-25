@@ -15,17 +15,7 @@ Salsa_OAI::MPX
 
 This package contains everything that is specific to MPX as native format.
 
-=head1 VERSION
-
-Version 0.01
-
-=cut
-
-our $VERSION = '0.01';
-
-=head1 FUNCTIONS
-
-=head2 my @records=extractRecords ($doc);
+=func my @records=extractRecords ($doc);
 
 Expects an mpx document as dom and returns an array of HTTP::OAI::Records. Gets
 called from digest_single.
@@ -79,7 +69,7 @@ sub extractRecords {
 #expects libxml node (sammlungsobjekt) and returns HTTP::OAI::Header
 #is called by extractRecord
 
-=head2 $header=extractHeader($node)
+=func $header=extractHeader($node)
 
 extractHeader is a function, not a method. It expects a XML::LibXML object.
 (I am not sure which. Maybe XML::LibXML::Node) and returns a complete
@@ -193,13 +183,11 @@ sub _mk_md {
 	return $md;
 }
 
-=head2 $node=setRules ($node);
+=func $node=setRules ($node);
 
 Gets called during extractRecords for every node (i.e. record) in the xml
 source file to map OAI sets to simple criteria on per-node-based
 rules. Returns node and header. Header can have multiple sets
-
-
 
 =cut
 
@@ -247,7 +235,7 @@ sub setRules {
 # not sure where this should go. It is not strictly speaking mpx, but it belongs
 # to transformation.
 
-=head2 my xsl_fn=locateXSL($prefix);
+=func my xsl_fn=locateXSL($prefix);
 
 locateXSL callback expects a metadataFormat prefix and will return the full
 path to the xsl which is responsible for this transformation. On failure:
