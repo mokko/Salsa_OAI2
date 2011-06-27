@@ -161,7 +161,7 @@ version 0.004
 
 dump-mpx.pl [-d] output.mpx
 
-=head COMMAND LINE OPTIONS
+=head1 COMMAND LINE OPTIONS
 
 -d  	print debug info to STDOUT
 

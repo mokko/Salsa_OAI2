@@ -1,17 +1,16 @@
 package Salsa_OAI;
-use Dancer ':syntax';
-
 # ABSTRACT: Simple OAI data provider
 
-use Carp qw/carp croak/;
-
 #still useful?
-use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+#use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 
+use Dancer ':syntax';
+use Carp qw/carp croak/;
+use XML::LibXML;    #for salsa_setLibrary;
+
+use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
-use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
-use XML::LibXML;    #for salsa_setLibrary;
 use Salsa_OAI::MPX;
 
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
@@ -36,7 +35,7 @@ For a list of OAI features, see L<HTTP::OAI::DataProvider|https://github.com/mok
 =head1 SEE ALSO
 
 =for :list
-* L<Dancer|http://perldancer.org> or at cpan 
+* L<Dancer|http://perldancer.org> or at cpan
 * Some ideas concerning inheritance and abstracion derived from OCLC's OAIcat.
 * L<HTTP::OAI>
 * L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>

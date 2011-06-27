@@ -1,4 +1,5 @@
 package Salsa_OAI::MPX;
+# ABSTRACT: MPX-specific extensions
 
 use strict;
 use warnings;
@@ -69,7 +70,7 @@ sub extractRecords {
 #expects libxml node (sammlungsobjekt) and returns HTTP::OAI::Header
 #is called by extractRecord
 
-=func $header=extractHeader($node)
+=func my $header=extractHeader ($node);
 
 extractHeader is a function, not a method. It expects a XML::LibXML object.
 (I am not sure which. Maybe XML::LibXML::Node) and returns a complete
@@ -183,7 +184,7 @@ sub _mk_md {
 	return $md;
 }
 
-=func $node=setRules ($node);
+=func my ($node, $header) = setRules ($node, $header);
 
 Gets called during extractRecords for every node (i.e. record) in the xml
 source file to map OAI sets to simple criteria on per-node-based

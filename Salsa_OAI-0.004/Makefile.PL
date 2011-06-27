@@ -28,10 +28,8 @@ my %WriteMakefileArgs = (
     'bin/digest.pl',
     'bin/dump-mpx.pl',
     'bin/extract.pl',
-    'bin/joinmpx.pl',
     'bin/querydb.pl',
-    'bin/unwrap.pl',
-    'bin/validateDb.pl'
+    'bin/unwrap.pl'
   ],
   'LICENSE' => 'perl',
   'NAME' => 'Salsa_OAI',

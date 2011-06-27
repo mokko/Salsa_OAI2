@@ -2,19 +2,18 @@ package Salsa_OAI;
 BEGIN {
   $Salsa_OAI::VERSION = '0.004';
 }
-use Dancer ':syntax';
-
 # ABSTRACT: Simple OAI data provider
 
-use Carp qw/carp croak/;
-
 #still useful?
-use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
+#use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
 
+use Dancer ':syntax';
+use Carp qw/carp croak/;
+use XML::LibXML;    #for salsa_setLibrary;
+
+use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
-use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
-use XML::LibXML;    #for salsa_setLibrary;
 use Salsa_OAI::MPX;
 
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
@@ -302,7 +301,7 @@ returns nothing.
 
 =item *
 
-L<Dancer|http://perldancer.org> or at cpan 
+L<Dancer|http://perldancer.org> or at cpan
 
 =item *
 

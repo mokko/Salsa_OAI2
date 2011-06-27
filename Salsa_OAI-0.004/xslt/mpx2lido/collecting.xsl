@@ -14,9 +14,9 @@
                     <lido:appellationValue xml:lang="de">Sammeln</lido:appellationValue>
                 </lido:eventName>
 
-                <!-- eventActor -->                
+                <!-- eventActor -->
                 <xsl:apply-templates select="mpx:personKörperschaftRef[@funktion = 'Sammler']"/>
-                
+
                 <!-- culture, eventDate, eventPlace ... -->
             </lido:event>
         </lido:eventSet>
@@ -27,21 +27,23 @@
         <lido:displayEvent xml:lang="de">
             <xsl:text>Gesammelt von </xsl:text>
             <xsl:value-of select="mpx:personKörperschaftRef[@funktion = 'Sammler']"/>
-            <xsl:text> </xsl:text>
-            <xsl:value-of select="mpx:datierung"/>
+            <xsl:if test="mpx:datierung">
+                <xsl:text> </xsl:text>
+                <xsl:value-of select="mpx:datierung"/>
+            </xsl:if>
         </lido:displayEvent>
     </xsl:template>
 
 
     <xsl:template match="mpx:personKörperschaftRef[@funktion = 'Sammler']">
-         <!-- without kueId this doesn't make sense -->
-            <lido:eventActor>
-                <lido:actorInRole>
-                    <xsl:call-template name="general-actor">
-                        <xsl:with-param name="kueId" select="@id"/>
-                    </xsl:call-template>
-                </lido:actorInRole>
-            </lido:eventActor>
+        <!-- without kueId this doesn't make sense -->
+        <lido:eventActor>
+            <lido:actorInRole>
+                <xsl:call-template name="general-actor">
+                    <xsl:with-param name="kueId" select="@id"/>
+                </xsl:call-template>
+            </lido:actorInRole>
+        </lido:eventActor>
     </xsl:template>
-    
+
 </xsl:stylesheet>

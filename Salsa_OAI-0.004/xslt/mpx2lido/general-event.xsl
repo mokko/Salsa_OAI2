@@ -145,7 +145,6 @@
     </xsl:template>
 
     <xsl:template name="general-culture">
-        <xsl:message>get here</xsl:message>
         <xsl:for-each select="mpx:geogrBezug[@bezeichnung='Ethnie' or @bezeichnung='Kultur']">
             <lido:culture>
                 <lido:term>
