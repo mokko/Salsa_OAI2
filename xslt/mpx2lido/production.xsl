@@ -31,7 +31,7 @@
 
                 <!-- eventPlace -->
                 <xsl:apply-templates
-                    select="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)'  and  @bezeichnung != 'Ethnie' ]"/>
+                    select="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)' ] [not (@bezeichnung) or @bezeichnung != 'Ethnie' ][not (@bezeichnung) or @bezeichnung != 'Kultur' ]"/>
 
                 <!--lido:eventMethod-->
 
@@ -48,10 +48,27 @@
             <!--
                 mpx:geogr[@funktion = 'Herkunft (Allgemein)' and (@bezeichnung !='Ethnie' or @bezeichnung != 'Kultur')]
                 what happens if there are several places?
+                I puts there only the first place. Is there a XSLT-1-way to put all values in one variable?
+                eg: 
+                http://spk.mimo-project.eu:8080/oai?verb=GetRecord&metadataPrefix=lido&identifier=spk-berlin.de:EM-objId-255082
+
+                The problem is that I cannot safely distinguish between one or several places. Hence the displayPlace will
+                always have some errors. So why don't we keep only the first place.
+            
             -->
 
-            <xsl:variable name="productionPlace"
-                select="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)' and  @bezeichnung != 'Ethnie' ]"/>
+            <xsl:variable name="productionPlace">
+                <xsl:value-of
+                    select="mpx:geogrBezug [
+                    @funktion = 'Herkunft (Allgemein)' and  
+                    @bezeichnung != 'Ethnie' and  
+                    @bezeichnung != 'Kultur']"/>
+                <xsl:if test="mpx:geogrBezug/@bezeichnung">
+                    <xsl:text> (</xsl:text>
+                    <xsl:value-of select="mpx:geogrBezug/@bezeichnung"/>
+                    <xsl:text>)</xsl:text>
+                </xsl:if>
+            </xsl:variable>
 
             <xsl:if test="$productionPlace">
                 <xsl:text> am Ort </xsl:text>
@@ -75,7 +92,7 @@
                 <xsl:text> unter Einsatz von </xsl:text>
                 <xsl:value-of select="mpx:materialTechnik"/>
             </xsl:if>
-            
+
             <!-- TODO
                 can I deal with multiple datierung?
                 do I show the datierung and only those or do I need to filter specific datierung?
@@ -84,7 +101,7 @@
                 <xsl:text> zum Zeitpunkt bzw. im Zeitraum </xsl:text>
                 <xsl:value-of select="mpx:datierung"/>
             </xsl:if>
-            
+
         </lido:displayEvent>
     </xsl:template>
 
@@ -102,11 +119,15 @@
 
 
     <!--  EventPlace: Is this general? Might well be... -->
-    <xsl:template
-        match="mpx:geogrBezug [@funktion = 'Herkunft (Allgemein)'  and  @bezeichnung != 'Ethnie' ]">
+    <xsl:template match="mpx:geogrBezug">
         <lido:eventPlace>
             <lido:displayPlace>
                 <xsl:value-of select="."/>
+                <xsl:if test="@bezeichnung">
+                    <xsl:text> (</xsl:text>
+                    <xsl:value-of select="@bezeichnung"/>
+                    <xsl:text>)</xsl:text>
+                </xsl:if>
             </lido:displayPlace>
             <lido:place>
                 <lido:namePlaceSet>
@@ -131,7 +152,8 @@
                 <lido:displayMaterialsTech>
                     <xsl:apply-templates select="mpx:materialTechnik" mode="display"/>
                 </lido:displayMaterialsTech>
-                <xsl:if test="mpx:materialTechnik/@art='Material' or mpx:materialTechnik/@art='Technik' ">
+                <xsl:if
+                    test="mpx:materialTechnik/@art='Material' or mpx:materialTechnik/@art='Technik' ">
                     <lido:materialsTech>
                         <xsl:apply-templates select="mpx:materialTechnik" mode="data"/>
                     </lido:materialsTech>
