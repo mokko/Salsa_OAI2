@@ -21,6 +21,8 @@ environments/production.yml
 lib/Salsa_OAI.pm
 lib/Salsa_OAI.pm~
 lib/Salsa_OAI/MPX.pm
+o.xml
+orga/besprechung_Andreas.txt
 public/404.html
 public/500.html
 public/about.htm
@@ -67,6 +69,8 @@ xml/254613.mpx.oai
 xml/255081.lido.xml
 xml/255081.mpx
 xml/255081.mpx.oai
+xml/255082-a.mpx
+xml/255082.mpx
 xml/525.lido.oai.xml
 xml/525.lido.xml
 xml/539.lido

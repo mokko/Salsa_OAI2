@@ -1,0 +1,107 @@
+TODO - TREFFEN MIT ANDREAS AM 25. Mai 2011
+
+1. Besprechung
+- Thema: Wir sollten besprechen, was alles noch zu tun ist.
+
+- Weitere Datenexporte
+  Klären, wann und wie oft wir noch Daten exportieren wollen
+  (Sammlungsdaten, PersonKörperschaftsdaten, Multimediadaten etc.)
+
+- Mointoring Tool
+
+- Zustand des MPX2LIDO Mappings.
+  Klarmachen, dass ich mich nicht inhaltlich um das Mapping MPX2LIDO kümmere;
+  ich mache nur noch etwas daran, wenn jemand sagt, dass etwas nicht in
+  Ordnung ist. Wenn keiner nichts kritisiert, heiß das nicht, dass das Mapping
+  inhaltlich gut ist.
+
+  Geobezüge. Open Source Geonames
+
+2. INSTALLATION
+  cygwin
+  perl
+  git
+  perl module für mpx-rif, resourceMover
+  cpan
+  cpanminus
+  meine software
+  -mpx-rif
+
+  -freigabe -> kann auch bei mir laufen
+
+  Installation von Stick auf CD und von CD auf Andreas PC
+
+3. GENERIEREN FEHLENDER DATEN
+- PersonenKörperschaften?
+
+- MPX-RIF. Script, dass aus multimedia Files multimedia Daten in mpx erzeugt
+
+  Welche Metadaten soll ich genau erzeugen? (Mapping)
+
+  mulId: $objId-$pref.jpg
+  exportdatum: datum an dem script ausgefuehrt wird
+       im OAI Format nach ISO: 2011-10-02T12:12:01Z
+  bearbDatum: 03.03.2011 (mit Datum von heute)
+  verknüpftesObjekt: objId des Sammlungsdatensatzes
+
+  multimediaDateiname: aus Pfad
+  multimediaErweiterung: aus Pfad
+  multimediaPfadangabe: aus Pfad
+
+  multimediaUrhebFotograf: Fotograph aus Pfad
+
+  multimediaFarbe: 'farbig'
+  multimediaFunktion: 'Repro Digitalisat'?
+    (ich weiss nicht, welchen Begriff Boris hier haben will)
+  multimediaTyp: 'Digitale Aufnahme'
+
+  wie geht das Mapping für anderen Filetypen:
+  (Video und Audio)
+
+- Multimediadaten und Dateien
+  Ggf. sortieren der Dateien nach einem leicht zu parsenden Muster
+  z.B. irgendein/pfad/Fotograph/dateiname.jpg
+
+- Ich lasse Teil 1 von mpx-rif laufen und speichere das Ergebnis des Dateiscans
+  als yml.
+
+- Hier können wir aufhören, wenn wir wollen
+
+- vielleicht kann ich vor Ort einen Parser schreiben, aber besser nicht.
+
+4. ZUKUNFT
+
+a) mpx-rif
+- jemand muss das Ergebnis des mpx-rif Parsers Korrektur lesen: Werden die
+  Signaturen korrekt erkannt?
+
+- für mpx-rif evtl. müssen wir noch Signaturen abgleichen, umbenennen oder mappen, insb. wenn
+  Untersignaturen nicht mit denen in M+ übereinstimmen
+
+- mpx-rif für Audio und Video
+
+b) freigabe script (new fix): ´
+  * markiere alle und nur solche mume-DS, die in MIMO und anderen Projekten
+  angezeigt werden sollen mit @freigabe='Web'. Ich exportiere derzeit auch
+  Karteikarten-DSe nach mpx, aber dann nicht nach LIDO.
+
+  * Ferner schreibe @priorität=1 in MPX Mapping wenn Vorzugsbild
+
+c) MIMO-resourceMover
+
+  kopiert File in TEMP Verzeichnis und nennt es um in $mulId.jpg
+  $objId-$preferenz.jpg
+  von da aus mit normalem FTP Tool hochladen
+
+d) MPX2LIDO: es könnte immer noch ein Detail auftauchen -> Enrichment
+
+e) Vokabularmapping.
+  Mapping der Museumssachbegriffe auf MIMO keywords. Dieses Mapping ist Teil
+  von MPX2LIDO. Wird zur Laufzeit des Data providers ausgeführt.
+
+  TODO:
+  Ich kann aber trotzdem ein Skript schreiben, dass alle Begriffe, die in db
+  oder dump-File sind prüft und solche meldet, die nicht identifiziert werden
+  können.
+
+5. GELD

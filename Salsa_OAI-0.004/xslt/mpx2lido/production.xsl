@@ -22,6 +22,8 @@
 
                 <!-- eventActor -->
                 <xsl:apply-templates select="mpx:personKörperschaftRef[@funktion = 'Hersteller']"/>
+
+                <!--culture-->
                 <xsl:call-template name="general-culture"/>
 
                 <!-- eventDate: both display and data-->
