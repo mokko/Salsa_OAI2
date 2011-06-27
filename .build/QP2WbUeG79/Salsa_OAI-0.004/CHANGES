@@ -1,4 +1,0 @@
-0.004 - 2011-06-25
-   - migration to Dist::Zilla package manager: cleaning up pod, version
- 	 numbers; TODO: pod coverage
-   - digest.pl now says done when done
