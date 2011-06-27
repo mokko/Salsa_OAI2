@@ -18,6 +18,6 @@ o.*
 xslt/bak
 xslt/mpx2lido/bak
 *.html
-Salsa_OAI-*.tar.gz
+Salsa_OAI-*
 orga/*
 .build/*
