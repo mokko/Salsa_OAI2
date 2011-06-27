@@ -1,12 +1,18 @@
 NAME
-    Salsa_OAI - Simple OAI data provider based on Dancer
+    Salsa_OAI - Simple OAI data provider
 
 VERSION
     version 0.004
 
 SYNOPSIS
     This is a small webapp which acts as a OAI data provider based on
-    HTTP::OAI::DataProvider::Simple and Tim Brody's HTTP::OAI.
+    <HTTP::OAI::DataProvider> and Tim Brody's HTTP::OAI. It is simply since
+    it
+
+    * does not support all OAI features (see below) * it should be easy to
+    maintain * easy to configure * easy to install
+
+    For a list of OAI features, see <HTTP::OAI::DataProvider>
 
 FUNCTIONS
   config_check ();
@@ -48,29 +54,15 @@ FUNCTIONS
     full path to the xsl which is responsible for this transformation. On
     failure: returns nothing.
 
-FEATURES
-    TODO Write new text
-
-    This data provider is just one notch up from a static repository: - no
-    database, instead header information is parsed to memory - metadata
-    format freedom: on the fly conversations from native format to whatever
-    external format you supply an XSLT transformation for, see below. - easy
-    to maintain since simple - deployment freedom with dancer, see
-    Dancer::Deployment - OAI-PMH Protocol version 2.0 - Sets: basically
-    work, but not set hierarchies - compression. If deployed right, e.g.
-    with PLACK::Middleware::Deflate should take care of that.
-
-NOT SUPPORTED
-- streaming. Currently request has to be finished to start transmit.
-- Resumption tokens
-- Deleted Headers
-    Metadata Freedom: Salsa_OAI is agnostic concerning its metadata formats.
-    Use XSLT 1.0 to tranform your native format in whatever you like.
-
 SEE ALSO
-    - Dancer at cpan or perldancer.org. - Some ideas concerning inheritance
-    and abstracion derived from OCLC's OAIcat. - HTTP::OAI -
-    HTTP::OAI::DataProvider
+    *   <Dancer> or at cpan
+
+    *   Some ideas concerning inheritance and abstracion derived from OCLC's
+        OAIcat.
+
+    *   HTTP::OAI
+
+    *   <HTTP::OAI::DataProvider>
 
 AUTHOR
     Maurice Mengel <mauricemengel@gmail.com>

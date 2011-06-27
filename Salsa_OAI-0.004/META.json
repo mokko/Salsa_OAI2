@@ -1,5 +1,5 @@
 {
-   "abstract" : "Simple OAI data provider based on Dancer",
+   "abstract" : "Simple OAI data provider",
    "author" : [
       "Maurice Mengel <mauricemengel@gmail.com>"
    ],

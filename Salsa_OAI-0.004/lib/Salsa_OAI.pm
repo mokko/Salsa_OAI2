@@ -4,7 +4,7 @@ BEGIN {
 }
 use Dancer ':syntax';
 
-# ABSTRACT: Simple OAI data provider based on Dancer
+# ABSTRACT: Simple OAI data provider
 
 use Carp qw/carp croak/;
 
@@ -221,7 +221,7 @@ __END__
 
 =head1 NAME
 
-Salsa_OAI - Simple OAI data provider based on Dancer
+Salsa_OAI - Simple OAI data provider
 
 =head1 VERSION
 
@@ -230,7 +230,21 @@ version 0.004
 =head1 SYNOPSIS
 
 This is a small webapp which acts as a OAI data provider based on
-HTTP::OAI::DataProvider::Simple and Tim Brody's HTTP::OAI.
+L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider> and Tim Brody's L<HTTP::OAI>. It is simply since
+it
+
+=over 4
+
+
+
+=back
+
+* does not support all OAI features (see below)
+* it should be easy to maintain
+* easy to configure
+* easy to install
+
+For a list of OAI features, see L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
 
 =head1 FUNCTIONS
 
@@ -282,35 +296,27 @@ locateXSL callback expects a metadataFormat prefix and will return the full
 path to the xsl which is responsible for this transformation. On failure:
 returns nothing.
 
-=head1 FEATURES
-
-TODO Write new text
-
-This data provider is just one notch up from a static repository:
-- no database, instead header information is parsed to memory
-- metadata format freedom: on the fly conversations from native format to
-  whatever external format you supply an XSLT transformation for, see below.
-- easy to maintain since simple
-- deployment freedom with dancer, see Dancer::Deployment
-- OAI-PMH Protocol version 2.0
-- Sets: basically work, but not set hierarchies
-- compression. If deployed right, e.g. with PLACK::Middleware::Deflate should
-  take care of that.
-
-=head1 NOT SUPPORTED
-- streaming. Currently request has to be finished to start transmit.
-- Resumption tokens
-- Deleted Headers
-
-Metadata Freedom: Salsa_OAI is agnostic concerning its metadata formats.
-Use XSLT 1.0 to tranform your native format in whatever you like.
-
 =head1 SEE ALSO
 
-- Dancer at cpan or perldancer.org.
-- Some ideas concerning inheritance and abstracion derived from OCLC's OAIcat.
-- HTTP::OAI
-- HTTP::OAI::DataProvider
+=over 4
+
+=item *
+
+L<Dancer|http://perldancer.org> or at cpan 
+
+=item *
+
+Some ideas concerning inheritance and abstracion derived from OCLC's OAIcat.
+
+=item *
+
+L<HTTP::OAI>
+
+=item *
+
+L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
+
+=back
 
 =head1 AUTHOR
 

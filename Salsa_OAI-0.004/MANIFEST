@@ -19,6 +19,7 @@ config.sqlite.example.yml
 environments/development.yml
 environments/production.yml
 lib/Salsa_OAI.pm
+lib/Salsa_OAI.pm~
 lib/Salsa_OAI/MPX.pm
 public/404.html
 public/500.html

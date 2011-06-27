@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Simple OAI data provider based on Dancer',
+  'ABSTRACT' => 'Simple OAI data provider',
   'AUTHOR' => 'Maurice Mengel <mauricemengel@gmail.com>',
   'BUILD_REQUIRES' => {
     'Dancer::Test' => '0',
