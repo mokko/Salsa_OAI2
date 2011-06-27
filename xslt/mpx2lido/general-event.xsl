@@ -68,8 +68,9 @@
                 TODO: resulting string is not ISO 8601
 
             -->
-            
-            <xsl:if test="string-length($lebensdaten) - string-length(translate($lebensdaten, '-', '')) = 1">
+
+            <xsl:if
+                test="string-length($lebensdaten) - string-length(translate($lebensdaten, '-', '')) = 1">
                 <xsl:variable name="earliest"
                     select="normalize-space(substring-before($lebensdaten,'-'))"/>
                 <xsl:variable name="latest"
@@ -82,7 +83,8 @@
                     translate($earliest,'0123456789./','') = ''
                 ">
                     <lido:vitalDatesActor>
-                        <lido:earliestDate lido:encodinganalog="mpx:personKörperschaft/mpx:datierung[@art = 'Lebensdaten']">
+                        <lido:earliestDate
+                            lido:encodinganalog="mpx:personKörperschaft/mpx:datierung[@art = 'Lebensdaten']">
                             <xsl:value-of select="$earliest"/>
                         </lido:earliestDate>
 
@@ -143,11 +145,13 @@
     </xsl:template>
 
     <xsl:template name="general-culture">
-        <xsl:if test="child::geogrBezug[@art='Ethnie' or @art='Kultur']">
+        <xsl:for-each select="mpx:geogrBezug[@bezeichnung='Ethnie' or @bezeichnung='Kultur']">
             <lido:culture>
-                <xsl:value-of select="child::mpx:geogrBezug[@art='Ethnie' or @art='Kultur']"/>
+                <lido:term>
+                    <xsl:value-of select="."/>
+                </lido:term>
             </lido:culture>
-        </xsl:if>
+        </xsl:for-each>
     </xsl:template>
 
 

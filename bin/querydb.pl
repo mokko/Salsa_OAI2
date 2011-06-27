@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# PODNAME: querydb.pl
+# ABSTRACT: Query OAI data provider db directly using xpath1
 
 use strict;
 use warnings;
@@ -11,23 +13,6 @@ getopts( 'td', my $opts = {} );
 
 sub debug;
 
-=head1 NAME
-
-querydb.pl - Query OAI data provider db directly using xpath 1
-
-=head1 SYNOPSIS
-
-querydb.pl -t '//xpath'
-
-//xpath is executed for every record for which has xml
-
-=head1 OPTIONS
-
--t	truncated response, provide only identifier with matching xml
-
--d  debug
-
-=cut
 
 #
 # config (todo)
@@ -148,4 +133,41 @@ sub debug {
 		print $msg. "\n";
 	}
 }
+
+
+__END__
+=pod
+
+=head1 NAME
+
+querydb.pl - Query OAI data provider db directly using xpath1
+
+=head1 VERSION
+
+version 0.004
+
+=head1 SYNOPSIS
+
+querydb.pl -t '//xpath'
+
+//xpath is executed for every record for which has xml
+
+=head1 OPTIONS
+
+-t	truncated response, provide only identifier with matching xml
+
+-d  debug
+
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
 

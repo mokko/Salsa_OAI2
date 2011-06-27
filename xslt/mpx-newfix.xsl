@@ -1,1 +1,0 @@
-../mpx-newfix/xsl/mpx-fix.xsl
