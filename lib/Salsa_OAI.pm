@@ -121,25 +121,8 @@ sub config_check {
 	#write oai_baseURL also in explicit requestURL
 	config->{requestURL} = config->{baseURL};
 
-	#4) VALIDATE all xslts for conversion to target format during startup.
-	#my %gf = %{ config->{GlobalFormats} };
-	#foreach my $prefix ( keys %gf ) {
-	#	if ( $prefix ne config->{nativePrefix} ) {
-	#		no strict "refs";
-	#		my $path = config->{locateXSL}($prefix);
-	#		#debug "$prefix-> $path ||" . $gf{$prefix}{ns_schema};
-#
-#			my $xmlschema =
-#			  XML::LibXML::Schema->new( location => $gf{$prefix}{ns_schema} );
-#			my $doc = XML::LibXML->load_xml( location => $path );
-#			eval { $xmlschema->validate($doc); };
-#			if ($@) {
-#				warning "mpx2$prefix.xslt failed validation: $@" if $@;
-#			} else {
-#				debug "mpx2$prefix.xslt validates";
-#			}
-#		}
-#	}
+	#VALIDATE all xslts for conversion to target format during startup.
+	#lasts too long
 
 }
 
@@ -216,19 +199,13 @@ sub salsa_warning {
 
 =func my $library = salsa_setLibrary();
 
-Reads the setLibrary from dancer's config file
-  and returns it in form of a HTTP::OAI::ListSet object(
-	     which can, of course, include one
-	  or more HTTP::OAI::Set objects
-  )
+Reads the setLibrary from dancer's config file and returns it in form of a
+HTTP::OAI::ListSet object (which can, of course, include one or more
+HTTP::OAI::Set objects)
   .
-
-  Background: setNames
-  and setDescriptions are not stored with OAI headers,
-  but instead in the setLibrary
-  . HTTP::OAI::DataProvider::SetLibrary associates setSpecs with setNames
-  and setDescriptions
-  .
+Background: setNames and setDescriptions are not stored with OAI headers,
+but instead in the setLibrary. HTTP::OAI::DataProvider::SetLibrary associates
+setSpecs with setNames and setDescriptions.
 
 =cut
 

@@ -6,6 +6,7 @@ META.json
 META.yml
 Makefile.PL
 README
+README.pod
 bin/app.pl
 bin/csv2dict.pl
 bin/deleteRecord.pl

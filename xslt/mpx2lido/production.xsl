@@ -58,19 +58,21 @@
             -->
 
             <xsl:variable name="productionPlace">
-                <xsl:value-of
-                    select="mpx:geogrBezug [
+                <xsl:if
+                    test="mpx:geogrBezug [
                     @funktion = 'Herkunft (Allgemein)' and  
                     @bezeichnung != 'Ethnie' and  
-                    @bezeichnung != 'Kultur']"/>
-                <xsl:if test="mpx:geogrBezug/@bezeichnung">
-                    <xsl:text> (</xsl:text>
-                    <xsl:value-of select="mpx:geogrBezug/@bezeichnung"/>
-                    <xsl:text>)</xsl:text>
+                    @bezeichnung != 'Kultur']">
+                    <xsl:value-of select="mpx:geogrBezug"/>
+                    <xsl:if test="mpx:geogrBezug/@bezeichnung">
+                        <xsl:text> (</xsl:text>
+                        <xsl:value-of select="mpx:geogrBezug/@bezeichnung"/>
+                        <xsl:text>)</xsl:text>
+                    </xsl:if>
                 </xsl:if>
             </xsl:variable>
 
-            <xsl:if test="$productionPlace">
+            <xsl:if test="$productionPlace ">
                 <xsl:text> am Ort </xsl:text>
                 <xsl:value-of select="$productionPlace"/>
             </xsl:if>

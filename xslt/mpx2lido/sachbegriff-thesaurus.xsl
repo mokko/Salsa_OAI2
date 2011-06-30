@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-    it is possible to use XML::LibXSLT's register_function, but that would 
-    extend the mapping into perl code and blur important boundaries.
-    
-    xmlns:func="http://www.mpx.org/mpxfunc"
-    xsl:value-of select="func:normalize(.)"
--->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
