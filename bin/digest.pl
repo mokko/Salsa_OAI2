@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# PODNAME: digest_single.pl
-# ABSTRACT: store relevant from a single big mpx file into SQLite db
+# PODNAME: digest.pl
+# ABSTRACT: store mpx info (onebig file) in SQLite db
 
 use strict;
 use warnings;
@@ -15,7 +15,10 @@ use HTTP::OAI::DataProvider::SQLite;
 use Salsa_OAI::MPX;
 use Cwd 'realpath';
 use Getopt::Std;
-getopts( 'nv', my $opts = {} );
+use Pod::Usage;
+getopts( 'nvh', my $opts = {} );
+pod2usage() if ($opts->{h});
+
 
 sub verbose;
 
@@ -36,12 +39,6 @@ digest_single.pl file.mpx
 
 This helper script reads in a big mpx lvl2 file, processes it and stores
 relevant information into an SQLite database for use in OAI data provider.
-At this point, I am not quite sure how I will call the data provider. See
-Salsa_OAI anyways.
-
-For development purposes, this file should have everything that is mpx
-specific, so that HTTP::OAI::DataProvider doesn't have any of it. Later,
-the mpx specific stuff should go into the Dancer front-end.
 
 =head2 Database Structure
 
@@ -56,20 +53,6 @@ table 2 sets
 -recordID
 
 =head1 KNOWN ISSUES / TODO
-
-=head2 Missing related info
-
-Currently, this incarnation deals only with the mpx's sammlungobjekt, but the
-later xslt will have to access related info from personKörperschaft and multi-
-mediaobjekt as well. Hence, we need those two. I should store them in the same
-xml blob as the main sammlungsobjekt. This requires rewriting extractRecords.
-It no longer can parse sammlungsobjekt by sammlungsobjekt, but needs a
-different loop with access to more or less the whole document.
-
-=head2 Wrong package?
-
-Currently, this script is part of HTTP::OAI::DataProvider, but its mpx specific
-parts should later go to Dancer front end. When it exists.
 
 =cut
 
