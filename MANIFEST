@@ -6,6 +6,7 @@ META.json
 META.yml
 Makefile.PL
 README
+README.pod
 bin/app.pl
 bin/csv2dict.pl
 bin/deleteRecord.pl
@@ -77,6 +78,7 @@ xslt/mpx2lido/sachbegriff-thesaurus.xsl
 xslt/mpx2lido/titleWrap.xsl
 xslt/mpx2museumdat.xsl
 xslt/mpx2oai_dc.xsl
+xslt/reports/notInDictionary.xsl
 xslt/statistik.xsl
 xslt/unwrap.xsl
 xslt/var/Identity.xsl

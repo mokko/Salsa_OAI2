@@ -1,6 +1,6 @@
 package Salsa_OAI;
 BEGIN {
-  $Salsa_OAI::VERSION = '0.004';
+  $Salsa_OAI::VERSION = '0.05';
 }
 # ABSTRACT: Simple OAI data provider
 
@@ -91,25 +91,8 @@ sub config_check {
 	#write oai_baseURL also in explicit requestURL
 	config->{requestURL} = config->{baseURL};
 
-	#4) VALIDATE all xslts for conversion to target format during startup.
-	#my %gf = %{ config->{GlobalFormats} };
-	#foreach my $prefix ( keys %gf ) {
-	#	if ( $prefix ne config->{nativePrefix} ) {
-	#		no strict "refs";
-	#		my $path = config->{locateXSL}($prefix);
-	#		#debug "$prefix-> $path ||" . $gf{$prefix}{ns_schema};
-#
-#			my $xmlschema =
-#			  XML::LibXML::Schema->new( location => $gf{$prefix}{ns_schema} );
-#			my $doc = XML::LibXML->load_xml( location => $path );
-#			eval { $xmlschema->validate($doc); };
-#			if ($@) {
-#				warning "mpx2$prefix.xslt failed validation: $@" if $@;
-#			} else {
-#				debug "mpx2$prefix.xslt validates";
-#			}
-#		}
-#	}
+	#VALIDATE all xslts for conversion to target format during startup.
+	#lasts too long
 
 }
 
@@ -224,7 +207,7 @@ Salsa_OAI - Simple OAI data provider
 
 =head1 VERSION
 
-version 0.004
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -275,19 +258,13 @@ Use Dancer's warning function if available or pass message to perl's warn.
 
 =head2 my $library = salsa_setLibrary();
 
-Reads the setLibrary from dancer's config file
-  and returns it in form of a HTTP::OAI::ListSet object(
-	     which can, of course, include one
-	  or more HTTP::OAI::Set objects
-  )
+Reads the setLibrary from dancer's config file and returns it in form of a
+HTTP::OAI::ListSet object (which can, of course, include one or more
+HTTP::OAI::Set objects)
   .
-
-  Background: setNames
-  and setDescriptions are not stored with OAI headers,
-  but instead in the setLibrary
-  . HTTP::OAI::DataProvider::SetLibrary associates setSpecs with setNames
-  and setDescriptions
-  .
+Background: setNames and setDescriptions are not stored with OAI headers,
+but instead in the setLibrary. HTTP::OAI::DataProvider::SetLibrary associates
+setSpecs with setNames and setDescriptions.
 
 =head2 my xslt_fn=salsa_locateXSL($prefix);
 

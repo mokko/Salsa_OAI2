@@ -10,7 +10,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200007, CPAN::Meta::Converter version 2.110930'
+generated_by: 'Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -31,6 +31,7 @@ requires:
   HTTP::OAI::Metadata: 0
   HTTP::OAI::Repository: 0
   IO::File: 0
+  Pod::Usage: 0
   SOAP::DateTime: 0
   Text::CSV: 0
   XML::LibXML: 0
@@ -42,4 +43,4 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Salsa_OAI
   homepage: https://github.com/mokko/Salsa_OAI2/wiki
   repository: git://github.com/mokko/Salsa_OAI2.git
-version: 0.004
+version: 0.05

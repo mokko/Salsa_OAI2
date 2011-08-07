@@ -9,6 +9,18 @@
         Excavation, Exhibition, Loss, Move, Order, Part addition, Part removal,
         Performance, Planning, Production, Provenance, Publication, 
         Restoration, Transformation, Type assignment, Type creation
+        
+        Export: geogrBezug@bezeichnung beim Fix scheint nicht zu stimmen.
+        BSP: EM-objId-256981, VII c 318 n
+
+        Hierarchische
+        Gebiet|Stadt|Provinz|Ort|Dorf ist Teil von "Land/Region" or "Region" or "Land"
+        Insel|Bundesstaat ist Teil von Land
+        alles ist Teil von Kontinent
+
+        Insel/Region, REgion, Republik, Sultanat,
+        Ort/Gebiet
+
     -->
 
     <!--  import EVENT TYPES and stuff common to all events -->

@@ -1,4 +1,4 @@
-	<xsl:stylesheet version="2.0" xmlns="http://www.mpx.org/mpx"
+<xsl:stylesheet version="2.0" xmlns="http://www.mpx.org/mpx"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">

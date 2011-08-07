@@ -48,6 +48,7 @@ my %WriteMakefileArgs = (
     'HTTP::OAI::Metadata' => '0',
     'HTTP::OAI::Repository' => '0',
     'IO::File' => '0',
+    'Pod::Usage' => '0',
     'SOAP::DateTime' => '0',
     'Text::CSV' => '0',
     'XML::LibXML' => '0',
@@ -56,7 +57,7 @@ my %WriteMakefileArgs = (
     'XML::Writer' => '0',
     'utf8' => '0'
   },
-  'VERSION' => '0.004',
+  'VERSION' => '0.05',
   'test' => {
     'TESTS' => 't/*.t'
   }
