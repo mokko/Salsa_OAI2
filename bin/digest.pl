@@ -27,7 +27,7 @@ sub verbose;
 
 =head1 SYNOPSIS
 
-digest_single.pl file.mpx
+digest.pl file.mpx
 
 =head2 Command Line Options
 
@@ -127,7 +127,7 @@ if ($err) {
 	die $err;
 }
 
-debug "done";
+print "done\n";
 
 #
 # SUBS
