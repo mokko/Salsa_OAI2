@@ -9,6 +9,7 @@ use XML::LibXML::XPathContext;
 use DBI;
 use Encode qw (from_to);
 use Encode::Guess;
+use utf8;
 
 our $verbose = 0;    #default value
 sub verbose;
@@ -55,13 +56,6 @@ Attention:
  resource points to related object:
  multimediaobjekt/verknüpftesObjekt = objId
 
-Update resources
- 1. parse a mume.mpx and extract verknüpftesObjekt
- 2. walk thru objects referred to in verknüpftesObjekt
- 3. add resource to that object in store
-
-	update only if exportdatum is newer
-
 Update agent
  1. parse mpx file containing new agents and keep all new kueId in mind
  2. walk thru all objects in store and examine personKörperschaftRef
@@ -99,7 +93,15 @@ sub new {
 
 =method $updater->rmres ($mume_mpx);
 
-Remove outdated mume. Removes those which are mentioned in mume_mpx.
+Remove outdated mume. Removes multimediaobject mentioned in mume_mpx from
+store. rmres does not check the content of multimediaobjekt. It simply
+extracts mulId from mume_mpx and removes all occurences of multimedia with
+this mulId.
+
+TODO: there might still be a unicode problem that prevents the deletion of
+some of them. Unclear at the moment!
+
+Alogorithm.
 
  1. parse a mume.mpx and extract all mulIds
  2. walk thru store and delete resources with these mulIds
@@ -142,20 +144,90 @@ sub rmres {
 		#xml action
 		my $md = $self->_rmres_single( @{$aref}[1], \%delete );
 		if ($md) {
+
 			#verbose @{$aref}[1];
 			#verbose "---------------";
 			#verbose $ret;
 			verbose "update store - record: @{$aref}[0]";
-			$sql = qq/UPDATE records SET native_md=? WHERE /
-			  . qq/identifier=?/;
+			$sql = qq/UPDATE records SET native_md=? WHERE / . qq/identifier=?/;
 			my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
-			$sth->execute($md,@{$aref}[0]) or croak $dbh->errstr();
+			$sth->execute( $md, @{$aref}[0] ) or croak $dbh->errstr();
 		}
 	}
 }
 
+=method $updater->upres ($mume_mpx);
+
+Update resources
+ 1. parse a mume.mpx and extract verknüpftesObjekt
+ 2. open objects referred to in verknüpftesObjekt
+ 3. add resource to that object in store
+
+ Update only if exportdatum is newer
+
+ Report which objects were NOT found!
+
+=cut
+
 sub upres {
-	print "todo\n";
+	my $self = shift;
+	my $mpx = shift or die "Need mpx!";
+
+	verbose "update resources: read mume.mpx file and import it into store";
+
+	#verbose "mpx:$mpx";
+	my $doc = XML::LibXML->new->parse_file($mpx);
+
+	$doc = _registerNS($doc);
+
+	#all vObj from file
+	my @vObjs = $doc->findnodes( '/mpx:museumPlusExport/mpx:multimediaobjekt/'
+		  . 'mpx:verknüpftesObjekt' );
+
+	#distinct vObjs so I open each database rec only once
+	my %vObjs;
+	foreach my $vObj (@vObjs) {
+
+		#verbose "VVVVVVVVVV".$vObj->to_literal;
+		$vObjs{ $vObj->to_literal }++;
+	}
+
+	foreach my $vObj ( keys %vObjs ) {
+
+		verbose "vObj:$vObj";
+		my $sql = q/SELECT native_md FROM records WHERE identifier=?/;
+		my $dbh = $self->{dbh};
+
+		#quick and very dirty production of oai-identifiers TODO
+		my $oaiId = "spk-berlin.de:EM-objId-$vObj";
+		verbose "oaiId: $oaiId";
+
+		my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
+		$sth->execute($oaiId) or croak $dbh->errstr();
+
+		#expect one or zero responses
+		while ( my $aref = $sth->fetch ) {
+			verbose "About to update " . $vObj;
+
+			#dirty xml work in extra sub
+			#current objId, mpx file and md from db
+			#returns rewritten md only if it has changed, should change always
+			my $md = _upres_single( $vObj, $doc, @{$aref}[0] );
+
+			if ($md) {
+
+				#verbose @{$aref}[0];
+				#verbose "------------------";
+				#verbose $md;
+				#update_store
+				#verbose " update store";
+				$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
+				my $sth = $dbh->prepare($sql)
+				  or croak $dbh->errstr();
+				$sth->execute( $md, $oaiId ) or croak $dbh->errstr();
+			}
+		}
+	}
 }
 
 sub upagt {
@@ -178,6 +250,22 @@ Return native_md only if it has changed. This is called on each metadata.
 
 =cut
 
+sub _connectDB {
+	my $self = shift;
+	my $dbfile = shift or die "Need dbfile!";
+
+	$self->{dbh} = DBI->connect(
+		"dbi:SQLite:dbname=$dbfile",
+		"", "",
+		{
+			RaiseError     => 1,
+			sqlite_unicode => 1,
+		}
+	) or die "Cant connect to sqlite";
+
+	#verbose "DB connect successful: $self->{dbh}";
+}
+
 sub _rmres_single {
 	my $self     = shift or die "Really wrong!";
 	my $md       = shift or die "No md!";
@@ -197,6 +285,7 @@ sub _rmres_single {
 
 		#verbose " store-mulIds: $store";
 		foreach my $del (@deletes) {
+
 			#TODO: i can't use == indicating that there might still be
 			#a serious unicode problem. Grh!
 			if ( $del eq $store ) {
@@ -216,20 +305,84 @@ sub _rmres_single {
 	}
 }
 
-sub _connectDB {
-	my $self = shift;
-	my $dbfile = shift or die "Need dbfile!";
+=func my $md=_upres_single ($objId, $doc, $md);
 
-	$self->{dbh} = DBI->connect(
-		"dbi:SQLite:dbname=$dbfile",
-		"", "",
-		{
-			RaiseError     => 1,
-			sqlite_unicode => 1,
+Gets called for each database record which needs change. Hands over the current
+objId, the complete document which needs importing with multimedia objects, and
+the current metadata from the respective record from the db.
+
+This func rewrites the metadata, i.e. adds multimediaobjekt from file referring
+to this record and returns it as string.
+
+TODO: Currently, we add metadata no matter what. That means we can add multiple
+multimedia records with the same mulId and we can add outdated info. We ddon't
+want either of that.
+
+What to do to avoid this?
+
+Also we wanted to overwrite resources with respect to exportdatum
+
+=cut
+
+sub _upres_single {
+	my $objId  = shift or die "Need objId!";
+	my $impxpc = shift or die "Need doc!";
+	my $md     = shift or die "Need md!";
+
+	#verbose "Enter _upres_single";
+
+	from_to( $md, "utf8", "UTF-8" );    # extrem schwere Geburt!
+	my $mddoc  = XML::LibXML->load_xml( string => $md );
+	my $mdxpc  = _registerNS($mddoc);
+	my @mdroot = $mdxpc->findnodes('/mpx:museumPlusExport');
+	my @mdsam  = $mdxpc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
+
+	warn "no root" if !$mdroot[0];      #if no md (record is deleted)
+
+	#select multimediarecords linked with $objId
+	my @new_mume =
+	  $impxpc->findnodes( '/mpx:museumPlusExport/mpx:multimediaobjekt'
+		  . "[mpx:verknüpftesObjekt = '$objId']" );
+
+	if ( scalar @new_mume == 0 ) {
+		die "Strange result!";          #should never happen
+	}
+
+	verbose ' about to insert ' . scalar @new_mume;
+
+	#insert resources from file into md
+	foreach my $new_node (@new_mume) {
+
+   #drop to overwrite (delete resources with same mulId)
+   #check if exportdatum equal or newer
+
+   #_updateResource ($new_node,$mdxpc)
+   #sub _updateResource {
+   #my $new_node =shift or die "Error!";
+   #my $mdxpc=shift or die "Error!";
+   #my @mdroot = $mdxpc->findnodes('/mpx:museumPlusExport');
+   #my @mdsam  = $mdxpc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
+
+		my @mulIds = $new_node->findnodes('@mulId');
+		if (@mulIds) {
+
+			foreach my $mulId (@mulIds) {
+				$mulId = $mulId->value;
+
+				my @overwrites = $mdxpc->findnodes(
+					    '/mpx:museumPlusExport/mpx:multimediaobjekt'
+					  . "[\@mulId = '$mulId']" );
+				foreach (@overwrites) {
+					verbose " drop to overwrite $mulId";
+					$_->unbindNode();
+				}
+			}
 		}
-	) or die "Cant connect to sqlite";
 
-	#verbose "DB connect successful: $self->{dbh}";
+		#add new one
+		$mdroot[0]->insertBefore( $new_node, $mdsam[0] );
+	}
+	return $mddoc->toString;
 }
 
 =func $doc=_registerNS ($doc);
