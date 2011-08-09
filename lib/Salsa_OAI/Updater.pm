@@ -197,6 +197,8 @@ sub _rmres_single {
 
 		#verbose " store-mulIds: $store";
 		foreach my $del (@deletes) {
+			#TODO: i can't use == indicating that there might still be
+			#a serious unicode problem. Grh!
 			if ( $del eq $store ) {
 				$i++;
 				verbose "-->delete ";
