@@ -24,6 +24,7 @@
             "Carp" : 0,
             "Cwd" : 0,
             "DBD::SQLite" : 0,
+            "DBI" : 0,
             "Dancer" : 0,
             "Date::Manip" : 0,
             "Encode" : 0,
@@ -66,6 +67,6 @@
          "web" : "https://github.com/mokko/Salsa_OAI2"
       }
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }
 

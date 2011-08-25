@@ -29,7 +29,8 @@ my %WriteMakefileArgs = (
     'bin/dump-mpx.pl',
     'bin/extract.pl',
     'bin/querydb.pl',
-    'bin/unwrap.pl'
+    'bin/unwrap.pl',
+    'bin/updateStore.pl'
   ],
   'LICENSE' => 'perl',
   'NAME' => 'Salsa_OAI',
@@ -37,6 +38,7 @@ my %WriteMakefileArgs = (
     'Carp' => '0',
     'Cwd' => '0',
     'DBD::SQLite' => '0',
+    'DBI' => '0',
     'Dancer' => '0',
     'Date::Manip' => '0',
     'Encode' => '0',
@@ -57,7 +59,7 @@ my %WriteMakefileArgs = (
     'XML::Writer' => '0',
     'utf8' => '0'
   },
-  'VERSION' => '0.05',
+  'VERSION' => '0.06',
   'test' => {
     'TESTS' => 't/*.t'
   }

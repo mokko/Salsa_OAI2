@@ -1,3 +1,6 @@
+0.06 - 2011-08-24
+- updateStore.pl for partial upates. Can update perKor now. Should be able to
+  update mume also, but not tested well.
 0.05 - 2011-08-07
 - digest.pl: Pod2Usage
 0.004 - 2011-06-25

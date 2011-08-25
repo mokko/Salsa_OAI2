@@ -97,7 +97,7 @@ if ($err) {
 	die $err;
 }
 
-debug "done";
+print "done\n";
 
 #
 # SUBS
@@ -130,11 +130,11 @@ digest.pl - store mpx info (onebig file) in SQLite db
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 
-digest_single.pl file.mpx
+digest.pl file.mpx
 
 =head2 Command Line Options
 

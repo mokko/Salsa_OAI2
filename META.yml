@@ -20,6 +20,7 @@ requires:
   Carp: 0
   Cwd: 0
   DBD::SQLite: 0
+  DBI: 0
   Dancer: 0
   Date::Manip: 0
   Encode: 0
@@ -43,4 +44,4 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Salsa_OAI
   homepage: https://github.com/mokko/Salsa_OAI2/wiki
   repository: git://github.com/mokko/Salsa_OAI2.git
-version: 0.05
+version: 0.06
