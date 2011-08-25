@@ -8,7 +8,6 @@ use XML::LibXML;
 use XML::LibXML::XPathContext;
 use DBI;
 use Encode qw (from_to);
-use Encode::Guess;
 use utf8;
 
 our $verbose = 0;    #default value
@@ -230,8 +229,163 @@ sub upres {
 	}
 }
 
+=method $self->upagt ($mpxFN)
+
+	Update agent information in the store with perKör from a mpx file. Update
+	only if perKör has newer exportDatum.
+
+	Note: This requires the sammmlungsobjekt/personKörperschaftRef to have the
+	correct id!
+
+	Algorithm:
+	-walk thru every sammlungsobjekt in store
+	-look for personKörperschaftRef/@id
+	-if file has a this perKör and the exportdatum is newer or same age
+	 update this item
+
+=cut
+
 sub upagt {
-	print "todo\n";
+	my $self = shift;
+	my $file = shift or die "Need mpx!";
+
+	verbose 'update agent: Read mume.mpx file and import new '
+	  . 'personKörperschaft records where they are newer';
+
+	#verbose "mpx:$mpx";
+	my $doc = XML::LibXML->new->parse_file($file);
+
+	#sql part
+	my $sql = q/SELECT identifier, native_md FROM records/;
+	my $dbh = $self->{dbh};
+	my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
+	$sth->execute() or croak $dbh->errstr();
+
+	#expect one or zero responses
+	while ( my $aref = $sth->fetch ) {
+
+		verbose "oai-id:" . @{$aref}[0];
+		my $md = _upagt_single( @{$aref}[1], $doc );
+
+		if ($md) {
+			verbose " ->UPDATE ";    # . @{$aref}[0];
+
+			$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
+			my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
+			$sth->execute( $md, @{$aref}[0] ) or croak $dbh->errstr();
+		}
+	}
+}
+
+=func $md=_upagt_single ($storeMd, $fileXpc);
+
+	Expect the md from store and file xpc to compare.
+	Compare the current store document with agent info in file.
+	Update and add if necessary.
+
+	Towards an Algorithm
+	1. Read $sid=store/mpx/sammlungsobjekt/personKörperschaftRef/@id
+		The people we are looking for are ONLY the ones mentioned in
+		sammlungsobjekt.
+	2. Read file/mpx/personKörperschaft/@kueId=$sid
+		We need to see if we have any of those in the file. We can forget
+		about those people who are wanted (1.), but not part of 2., so let's
+		call the common elements of both sets the Wanted.
+	3. In the Wanted group (or set), compare file with store
+		store/mpx/personKörperschaft
+		file/mpx/personKörperschaft
+	   Update if
+	   a) there is no person in store, but there is one in file
+	   b) there is a person in store and one in file, and file exportdatum
+	      is newer or the same
+
+	STEPS
+	upagt
+	1 Make an Hash with kueIds in the file
+		$perKorFile{$kueId}=1
+
+	_upagt_single
+	2 Walk thru store
+	  for each perKorRef check if
+
+	3
+
+=cut
+
+sub _upagt_single {
+	my $storeMd = shift or die "No md!";
+	my $fileDom = shift or die "No file!";
+	my $fileXpc = _registerNS($fileDom);
+	my $update  = 0;
+	from_to( $storeMd, "utf8", "UTF-8" );    # extrem schwere Geburt!
+
+	my $storeDoc = XML::LibXML->load_xml( string => $storeMd )
+	  or die "Have a problem loading xml from store";
+	my $storeXpc  = _registerNS($storeDoc);
+	my @storeRoot = $storeXpc->findnodes('/mpx:museumPlusExport');
+	my @storeSam =
+	  $storeXpc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
+
+	my @perKorRef =
+	  $storeXpc->findnodes( '/mpx:museumPlusExport/mpx:sammlungsobjekt/'
+		  . 'mpx:personKörperschaftRef/@id' );
+
+	#perKorId from store's md
+	foreach my $storeId (@perKorRef) {
+		if ($storeId) {
+
+			$storeId = $storeId->textContent;
+			verbose ' perkorRef/@id: "' . $storeId . '"';
+
+			#check if storeXpc exists for this person
+			#read exportdatum for both
+			my $xpath = '/mpx:museumPlusExport/mpx:personKörperschaft'
+			  . "[\@kueId = '$storeId']";
+			verbose '   ' . $xpath;
+			my @storeAgt = $storeXpc->findnodes($xpath);
+			my @fileAgt  = $fileXpc->findnodes($xpath);
+			if ( scalar @storeAgt > 1 ) {
+				warn "more than one Agent with kueId in store";
+			}
+			if ( scalar @fileAgt > 1 ) {
+				warn "more than one Agent with kueId in file";
+			}
+
+			#if this agent is not in the file we do not need to continue
+			if ( $fileAgt[0] ) {
+
+				my $clone = $fileAgt[0]->cloneNode(1);
+				if ( $storeAgt[0] ) {
+
+					#import (replace) if storeDate older/equal
+					verbose "   perKor exists in file and store. check datum";
+					my $fileDate  = $fileAgt[0]->findvalue('@exportdatum');
+					my $storeDate = $storeAgt[0]->findvalue('@exportdatum');
+					verbose "   fileDate $fileDate";
+					verbose "   storeDate $storeDate";
+					if ( $storeDate le $fileDate ) {
+						verbose "   storeDate older or equal";
+						$storeRoot[0]->replaceChild( $clone, $storeAgt[0] );
+						$update++;
+					}
+				} else {
+
+					#import from file to store if perKor doesn't exist in store
+					$storeRoot[0]->insertBefore( $clone, $storeSam[0] );
+					verbose "   store:no AND file:yes -> Insert from file!";
+					$update++;
+				}
+
+			} else {
+				verbose " this perKor does not exist in file (kueId:$storeId)";
+			}
+		}
+	}
+	if ( $update > 0 ) {
+
+		#verbose "RETURN";
+		return $storeDoc->toString;
+	}
 }
 
 sub verbose {
@@ -293,7 +447,7 @@ sub _rmres_single {
 				verbose "-->delete ";
 				my @nodes =
 				  $xpc->findnodes( "/mpx:museumPlusExport/mpx:multimediaobjekt"
-					  . "[\@mulId = $store]" );
+					  . "[\@mulId = '$store']" );
 				foreach my $node (@nodes) {
 					$node->unbindNode();
 				}
@@ -353,8 +507,8 @@ sub _upres_single {
 	#insert resources from file into md
 	foreach my $new_node (@new_mume) {
 
-   #drop to overwrite (delete resources with same mulId)
-   #check if exportdatum equal or newer
+		#drop to overwrite (delete resources with same mulId)
+		#check if exportdatum equal or newer
 
    #_updateResource ($new_node,$mdxpc)
    #sub _updateResource {
