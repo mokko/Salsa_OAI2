@@ -89,7 +89,7 @@ unwrap.pl - Unwraps the metadata inside of a OAI response (ListRecord, GetRecord
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

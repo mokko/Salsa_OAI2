@@ -1,6 +1,6 @@
 package Salsa_OAI;
 BEGIN {
-  $Salsa_OAI::VERSION = '0.06';
+  $Salsa_OAI::VERSION = '0.07';
 }
 # ABSTRACT: Simple OAI data provider
 
@@ -10,7 +10,6 @@ BEGIN {
 use Dancer ':syntax';
 use Carp qw/carp croak/;
 use XML::LibXML;    #for salsa_setLibrary;
-
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
@@ -207,7 +206,7 @@ Salsa_OAI - Simple OAI data provider
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

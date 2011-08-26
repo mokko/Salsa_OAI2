@@ -29,6 +29,7 @@ my %WriteMakefileArgs = (
     'bin/dump-mpx.pl',
     'bin/extract.pl',
     'bin/querydb.pl',
+    'bin/transformStore.pl',
     'bin/unwrap.pl',
     'bin/updateStore.pl'
   ],
@@ -59,7 +60,7 @@ my %WriteMakefileArgs = (
     'XML::Writer' => '0',
     'utf8' => '0'
   },
-  'VERSION' => '0.06',
+  'VERSION' => '0.07',
   'test' => {
     'TESTS' => 't/*.t'
   }

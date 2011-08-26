@@ -2,9 +2,9 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
     xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
-    
+
     <xsl:import href="resourceSet.xsl"/>
-    
+
     <xsl:template name="administrativeMetadata">
         <lido:administrativeMetadata xml:lang="de">
             <lido:rightsWorkWrap>
@@ -40,10 +40,10 @@
                 </lido:recordSource>
             </lido:recordWrap>
             <!-- resourceWrap -->
-            <xsl:if test="/mpx:museumPlusExport/mpx:multimediaobjekt[ @freigabe = 'web' ]">
+            <xsl:if test="/mpx:museumPlusExport/mpx:multimediaobjekt[ translate (@freigabe, 'W', 'w') = 'web' ]">
                 <lido:resourceWrap>
                     <xsl:apply-templates
-                        select="/mpx:museumPlusExport/mpx:multimediaobjekt[ @freigabe = 'web' ]"/>
+                        select="/mpx:museumPlusExport/mpx:multimediaobjekt"/>
                 </lido:resourceWrap>
             </xsl:if>
         </lido:administrativeMetadata>

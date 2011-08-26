@@ -14,6 +14,7 @@ bin/digest.pl
 bin/dump-mpx.pl
 bin/extract.pl
 bin/querydb.pl
+bin/transformStore.pl
 bin/unwrap.pl
 bin/updateStore.pl
 config.sqlite.example.yml
@@ -21,6 +22,7 @@ environments/development.yml
 environments/production.yml
 lib/Salsa_OAI.pm
 lib/Salsa_OAI/MPX.pm
+lib/Salsa_OAI/Transformer.pm
 lib/Salsa_OAI/Updater.pm
 public/404.html
 public/500.html
@@ -52,6 +54,7 @@ views/index.tt
 views/layouts/main.tt
 xslt/distinct-Sachbegriff-xslt2.xsl
 xslt/distinct-Sachbegriff.xsl
+xslt/freigabe.xsl
 xslt/mpx-sort.x1.xsl
 xslt/mpx-sort.xsl
 xslt/mpx2lido.xsl

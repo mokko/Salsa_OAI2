@@ -3,22 +3,22 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
     xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx">
 
-    <!-- 
-        resourceSet 
+    <!--
+        resourceSet
         - MIMO wants a resourceSet only for resources which have an URL
         - MIMO generates image URL from resourceID
         - additional URLs for the same resource can be supplied in linkResource; only publically available URLs
-        
+
         Questions
         -How do I identify mpx:multimediaobjekt records which have an image?
         currently: if local path exists
         future: mpx2lido uses @freigabe="web" and a script determines the freigabe status and writes it in mpx.
-        @freigabe="web" 
+        @freigabe="web"
         write a freigabe script that determines if image is available and possibly checks other
-        conditions 
+        conditions
         /mpx:museumPlusExport/mpx:multimediaobjekt[mpx:verknüpftesObjekt and @freigabe='web']
     -->
-    <xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[ @freigabe = 'web' ]">
+    <xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt">
         <!--  $currentId -->
         <lido:resourceSet>
             <xsl:element name="lido:resourceID">
@@ -42,8 +42,8 @@
                             select="concat(mpx:multimediaPfadangabe,'/',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
                         />
                     </lido:linkResource>
-                    <!-- 
-                        internal MuseumPlus paths 
+                    <!--
+                        internal MuseumPlus paths
                         <xsl:value-of
                         select="concat(mpx:multimediaPfadangabe,'\',mpx:multimediaDateiname,'.',mpx:multimediaErweiterung)"
                         />
@@ -63,7 +63,7 @@
     </xsl:template>
 
     <xsl:template match="mpx:multimediaUrhebFotograf">
-        <!-- 
+        <!--
             I believe the Staatliche Museen zu Berlin want to be named here
             Ich könnte die mulId nehmen und dann Credits aus Sammlungsobjekt nachschlagen.
         -->

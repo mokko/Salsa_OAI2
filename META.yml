@@ -44,4 +44,4 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Salsa_OAI
   homepage: https://github.com/mokko/Salsa_OAI2/wiki
   repository: git://github.com/mokko/Salsa_OAI2.git
-version: 0.06
+version: 0.07

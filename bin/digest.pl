@@ -16,10 +16,9 @@ use Salsa_OAI::MPX;
 use Cwd 'realpath';
 use Getopt::Std;
 use Pod::Usage;
+
 getopts( 'nvh', my $opts = {} );
 pod2usage() if ($opts->{h});
-
-
 sub verbose;
 
 #for dirty debugging
@@ -130,7 +129,7 @@ digest.pl - store mpx info (onebig file) in SQLite db
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

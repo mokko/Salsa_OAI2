@@ -10,15 +10,17 @@ use HTTP::OAI::Repository 'validate_request';
 use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider;
 use lib "$FindBin::Bin/../lib";
+use Pod::Usage;
 use Salsa_OAI::MPX;
+use Getopt::Std;
+
+getopts( 'o:hv', my $opts = {} );
+pod2usage() if ($opts->{h});
 
 sub verbose;    #predeclare
 sub output;
 
 
-
-use Getopt::Std;
-getopts( 'o:hv', my $opts = {} );
 
 if ( $opts->{h} ) {
 	print "Usage example: transform.pl -o output.xml 538 lido\n";
@@ -167,7 +169,7 @@ transform.pl - apply a transformation to a record from the data store
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
