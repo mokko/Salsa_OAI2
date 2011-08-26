@@ -59,7 +59,7 @@ freigabe.pl - freigabe that acts on SalsaOAI's data store
 
 =head1 VERSION
 
-version 0.07
+version 0.09
 
 =head1 SYNOPSIS
 

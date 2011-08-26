@@ -2,7 +2,7 @@ NAME
     Salsa_OAI - Simple OAI data provider
 
 VERSION
-    version 0.07
+    version 0.09
 
 SYNOPSIS
     This is a small webapp which acts as a OAI data provider based on

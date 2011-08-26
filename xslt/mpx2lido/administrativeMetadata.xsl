@@ -42,8 +42,9 @@
             <!-- resourceWrap -->
             <xsl:if test="/mpx:museumPlusExport/mpx:multimediaobjekt[ translate (@freigabe, 'W', 'w') = 'web' ]">
                 <lido:resourceWrap>
+                    <!-- i don't understand why, but I DO NEED both of them -->
                     <xsl:apply-templates
-                        select="/mpx:museumPlusExport/mpx:multimediaobjekt"/>
+                        select="/mpx:museumPlusExport/mpx:multimediaobjekt[ translate (@freigabe, 'W', 'w') = 'web' ]"/>
                 </lido:resourceWrap>
             </xsl:if>
         </lido:administrativeMetadata>

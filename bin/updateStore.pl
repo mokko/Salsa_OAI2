@@ -62,7 +62,7 @@ updateStore.pl - update mpx store
 
 =head1 VERSION
 
-version 0.07
+version 0.09
 
 =head1 SYNOPSIS
 
