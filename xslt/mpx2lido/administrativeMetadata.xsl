@@ -40,10 +40,10 @@
                 </lido:recordSource>
             </lido:recordWrap>
             <!-- resourceWrap -->
-            <xsl:if test="/mpx:museumPlusExport/mpx:multimediaobjekt[ @freigabe = 'Web' ]">
+            <xsl:if test="/mpx:museumPlusExport/mpx:multimediaobjekt[ translate (@freigabe, 'W', 'w') = 'web' ]">
                 <lido:resourceWrap>
                     <xsl:apply-templates
-                        select="/mpx:museumPlusExport/mpx:multimediaobjekt[ @freigabe = 'Web' ]"/>
+                        select="/mpx:museumPlusExport/mpx:multimediaobjekt"/>
                 </lido:resourceWrap>
             </xsl:if>
         </lido:administrativeMetadata>
