@@ -1,5 +1,4 @@
 package Salsa_OAI::Updater;
-
 # ABSTRACT: Update store partially
 
 use strict;

@@ -10,7 +10,12 @@ use HTTP::OAI::Repository 'validate_request';
 use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider;
 use lib "$FindBin::Bin/../lib";
+use Pod::Usage;
 use Salsa_OAI::MPX;
+use Getopt::Std;
+
+getopts( 'o:hv', my $opts = {} );
+pod2usage() if ($opts->{h});
 
 sub verbose;    #predeclare
 sub output;
@@ -43,9 +48,6 @@ Prints a little usage tip. For more info use perldoc transform.pl (this text).
 =head1 NOTES / TODO
 =cut
 
-
-use Getopt::Std;
-getopts( 'o:hv', my $opts = {} );
 
 if ( $opts->{h} ) {
 	print "Usage example: transform.pl -o output.xml 538 lido\n";
