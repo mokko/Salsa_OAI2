@@ -7,7 +7,6 @@ package Salsa_OAI;
 use Dancer ':syntax';
 use Carp qw/carp croak/;
 use XML::LibXML;    #for salsa_setLibrary;
-
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;

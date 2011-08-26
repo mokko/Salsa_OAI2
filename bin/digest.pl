@@ -16,10 +16,9 @@ use Salsa_OAI::MPX;
 use Cwd 'realpath';
 use Getopt::Std;
 use Pod::Usage;
+
 getopts( 'nvh', my $opts = {} );
 pod2usage() if ($opts->{h});
-
-
 sub verbose;
 
 #for dirty debugging

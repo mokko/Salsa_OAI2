@@ -1,5 +1,6 @@
+- transformStore.pl to an apply a xslt on each item in the store
 0.06 - 2011-08-24
-- updateStore.pl for partial upates. Can update perKor now. Should be able to
+- updateStore.pl for partial updates. Can update perKor now. Should be able to
   update mume also, but not tested well.
 0.05 - 2011-08-07
 - digest.pl: Pod2Usage
