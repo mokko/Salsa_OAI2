@@ -155,7 +155,7 @@ dump-mpx.pl - dump all xml from Salsa_OAI's sqlite in one big mpx file
 
 =head1 VERSION
 
-version 0.09
+version 0.010
 
 =head1 SYNOPSIS
 

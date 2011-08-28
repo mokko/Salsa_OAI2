@@ -1,6 +1,6 @@
 package Salsa_OAI::MPX;
 BEGIN {
-  $Salsa_OAI::MPX::VERSION = '0.09';
+  $Salsa_OAI::MPX::VERSION = '0.010';
 }
 # ABSTRACT: MPX-specific extensions
 
@@ -225,7 +225,7 @@ Salsa_OAI::MPX - MPX-specific extensions
 
 =head1 VERSION
 
-version 0.09
+version 0.010
 
 =head1 DESCRIPTION
 

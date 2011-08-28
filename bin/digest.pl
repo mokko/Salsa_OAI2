@@ -129,7 +129,7 @@ digest.pl - store mpx info (onebig file) in SQLite db
 
 =head1 VERSION
 
-version 0.09
+version 0.010
 
 =head1 SYNOPSIS
 
