@@ -19,12 +19,24 @@
         /mpx:museumPlusExport/mpx:multimediaobjekt[mpx:verknüpftesObjekt and @freigabe='web']
     -->
     <xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt">
-        <!--  $currentId -->
         <lido:resourceSet>
             <xsl:element name="lido:resourceID">
-                <xsl:if test="@priorität = 1">
+                <!-- 
+                    lookup all priorities for this record and write preferred if this one has the lowest priority
+                    Not exactly efficient.
+                -->
+                <xsl:variable name="min">
+                    <xsl:for-each select="../mpx:multimediaobjekt/@priorität">
+                        <xsl:sort select="."/>
+                        <xsl:if test="position() = 1">
+                            <xsl:value-of select="."/>
+                        </xsl:if>
+                    </xsl:for-each>
+                </xsl:variable>
+                <xsl:if test="@priorität = $min">
                     <xsl:attribute name="lido:pref">preferred</xsl:attribute>
                 </xsl:if>
+                <!-- Paris explicitly and expressly wants file name for URL to photo here --> 
                 <xsl:attribute name="lido:type">local</xsl:attribute>
                 <xsl:value-of select="@mulId"/>
                 <xsl:text>.</xsl:text>
