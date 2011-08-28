@@ -1,3 +1,6 @@
+0.010- 2011-08-28
+- MPX2LIDO: lido:resourceSet preferred now depends on lowest mpx:priorität 
+  not on priorität=1 anymore
 0.09 - 2011-08-26
 - MPX2LIDO: strange error with resourceSet
 0.08 - 2011-08-26
