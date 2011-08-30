@@ -144,7 +144,7 @@ querydb.pl - Query OAI data provider db directly using xpath1
 
 =head1 VERSION
 
-version 0.010
+version 0.011
 
 =head1 SYNOPSIS
 

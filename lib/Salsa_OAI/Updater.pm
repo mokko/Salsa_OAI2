@@ -1,7 +1,8 @@
 package Salsa_OAI::Updater;
 BEGIN {
-  $Salsa_OAI::Updater::VERSION = '0.010';
+  $Salsa_OAI::Updater::VERSION = '0.011';
 }
+
 # ABSTRACT: Update store partially
 
 use strict;
@@ -339,8 +340,14 @@ sub _upres_single {
 	my $mddoc  = XML::LibXML->load_xml( string => $md );
 	my $mdxpc  = _registerNS($mddoc);
 	my @mdroot = $mdxpc->findnodes('/mpx:museumPlusExport');
-	my @mdsam  = $mdxpc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
 
+	my @before;
+	@before =
+	  $mdxpc->findnodes('/mpx:museumPlusExport/mpx:personKörperschaft');
+	if ( !$before[0] ) {
+		@before =
+		  $mdxpc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt');
+	}
 	warn "no root" if !$mdroot[0];      #if no md (record is deleted)
 
 	#select multimediarecords linked with $objId
@@ -384,7 +391,7 @@ sub _upres_single {
 		}
 
 		#add new one
-		$mdroot[0]->insertBefore( $new_node, $mdsam[0] );
+		$mdroot[0]->insertBefore( $new_node, $before[0] );
 	}
 	return $mddoc->toString;
 }
@@ -410,7 +417,7 @@ Salsa_OAI::Updater - Update store partially
 
 =head1 VERSION
 
-version 0.010
+version 0.011
 
 =head1 SYNOPSIS
 
