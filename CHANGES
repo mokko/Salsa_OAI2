@@ -1,5 +1,6 @@
 0.011- 2011-08-30
 - updateStore.pl: correct sorting
+- mpx-sort.x1.xsl: remove schemaLocation
 0.010- 2011-08-28
 - MPX2LIDO: lido:resourceSet preferred now depends on lowest mpx:priorität 
   not on priorität=1 anymore
