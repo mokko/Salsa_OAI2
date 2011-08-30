@@ -21,7 +21,7 @@
     <xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt">
         <lido:resourceSet>
             <xsl:element name="lido:resourceID">
-                <!-- 
+                <!--
                     lookup all priorities for this record and write preferred if this one has the lowest priority
                     Not exactly efficient.
                 -->
@@ -36,11 +36,13 @@
                 <xsl:if test="@priorität = $min">
                     <xsl:attribute name="lido:pref">preferred</xsl:attribute>
                 </xsl:if>
-                <!-- Paris explicitly and expressly wants file name for URL to photo here --> 
+                <!-- Paris explicitly and expressly wants file name for URL to photo here -->
                 <xsl:attribute name="lido:type">local</xsl:attribute>
                 <xsl:value-of select="@mulId"/>
                 <xsl:text>.</xsl:text>
-                <xsl:value-of select="mpx:multimediaErweiterung"/>
+                <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'" />
+                <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
+                <xsl:value-of select="translate(mpx:multimediaErweiterung,$uppercase, $smallcase)"/>
             </xsl:element>
             <!--
                 write a resourceRepresentation only if there is a URL (not an internal filepath)
@@ -102,7 +104,6 @@
         </xsl:choose>
         </lido:term>
         </lido:resourceType>
-
     </xsl:template>
 
 </xsl:stylesheet>
