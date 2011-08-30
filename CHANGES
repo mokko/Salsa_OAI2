@@ -1,3 +1,5 @@
+0.012- 2011-08-30
+- mpx2lido: resourceSet convert file extension to lowercase
 0.011- 2011-08-30
 - updateStore.pl: correct sorting
 - mpx-sort.x1.xsl: remove schemaLocation
