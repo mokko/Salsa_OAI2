@@ -11,9 +11,7 @@
 	-->
 
 	<xsl:template match="/">
-		<museumPlusExport
-			xsi:schemaLocation="http://www.mpx.org/mpx file:/c:/cygwin/home/Mengel/usr/levelup/lib/mpx-lvl2.v2.xsd">
-
+		<museumPlusExport>
 			<xsl:for-each select="/mpx:museumPlusExport/mpx:multimediaobjekt">
 				<xsl:sort data-type="number" select="@mulId"/>
 				<xsl:element name="{name()}">
