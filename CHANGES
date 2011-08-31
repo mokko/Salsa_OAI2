@@ -1,3 +1,5 @@
+0.013- 2011-08-31
+- mpx2lido: resourceSet: tif->jpg (resmvr.pl conversions)
 0.012- 2011-08-30
 - mpx2lido: resourceSet convert file extension to lowercase
 0.011- 2011-08-30
