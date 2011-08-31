@@ -40,9 +40,24 @@
                 <xsl:attribute name="lido:type">local</xsl:attribute>
                 <xsl:value-of select="@mulId"/>
                 <xsl:text>.</xsl:text>
-                <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'" />
-                <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
-                <xsl:value-of select="translate(mpx:multimediaErweiterung,$uppercase, $smallcase)"/>
+                <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'"/>
+                <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+                <xsl:variable name="lcExt"
+                    select="translate(mpx:multimediaErweiterung,$uppercase, $smallcase)"/>
+                <!-- 
+                    file conversions done by resmvr.pl 
+                    this is not good programming, this is quick and dirty. If there are more conversions, better move this process
+                    somewhere else.
+                    In mpx-rif, I guess
+                -->
+                <xsl:choose>
+                    <xsl:when test="$lcExt = 'tif' or $lcExt = 'tiff'">
+                        <xsl:text>jpg</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="$lcExt"/>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:element>
             <!--
                 write a resourceRepresentation only if there is a URL (not an internal filepath)
