@@ -141,14 +141,15 @@ sub report_results {
 sub updateDb {
 	my $identifier=shift or die "Need identifier";
 	my $doc=shift or die "Need doc";
-	my $md=$doc->toString;
-	#transform back to stupid encoding error
-	from_to( $md, "utf8", "UTF-8" );    # extrem schwere Geburt!
-
 	if ( $opts->{p} ) {
 		debug "  planning mode, no update";
 		return;
 	}
+
+	my $md=$doc->toString;
+	#transform back to stupid encoding error
+	from_to( $md, "UTF-8", "utf8" );
+	#i should write a variant that can open both wrong and correct encoding
 	debug "  updateDb";
 
 	$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
@@ -258,7 +259,7 @@ linklintMIMO.pl - remove freigabe if file is not online
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 SYNOPSIS
 

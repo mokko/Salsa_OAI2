@@ -1,6 +1,6 @@
 package Salsa_OAI::Updater;
 BEGIN {
-  $Salsa_OAI::Updater::VERSION = '0.018';
+  $Salsa_OAI::Updater::VERSION = '0.019';
 }
 
 # ABSTRACT: Update store partially
@@ -417,7 +417,7 @@ Salsa_OAI::Updater - Update store partially
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 SYNOPSIS
 

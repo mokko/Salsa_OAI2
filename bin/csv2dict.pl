@@ -183,7 +183,7 @@ csv2dict.pl - convert a two column csv into a dictionary file
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 USAGE
 
