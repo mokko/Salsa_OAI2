@@ -32,9 +32,12 @@ if (!$opts->{v}) {
 	$opts->{v}=0;
 }
 
+#command line overwrites config.yml
 if ($opts->{v}) {
 	config->{debug}=1;
 	debug "debug mode on";
+} else {
+	config->{debug}=0;
 }
 
 if ( $opts->{p} ) {
@@ -59,9 +62,7 @@ my $sth = $dbh->prepare($sql);
 $sth->execute() or croak $dbh->errstr();
 
 while ( my $aref = $sth->fetch ) {
-		#as progress report even if you're not debugging, if you don't want that
-		#use > /dev/null
-		print "\n$aref->[0]";
+		debug "\n$aref->[0]";
 		if (! $aref->[1]){
 			next; #for deleted records
 		}
@@ -81,7 +82,7 @@ while ( my $aref = $sth->fetch ) {
 		my $nlist=$xpc->find ('mpx:museumPlusExport/mpx:multimediaobjekt');
 		foreach my $node ($nlist->get_nodelist) {
 			my $url=mk_url ($node, $host);
-			debug "  $url";
+			debug "  url: $url";
 			my $freigabe=$node->findvalue('@freigabe');
 			#debug "  freigabe: $freigabe";
 			my $exists=head($url);
@@ -102,7 +103,10 @@ while ( my $aref = $sth->fetch ) {
 
 
 		if ($change>0) {
+			print "$aref->[0] changed" if (config->{debug} == 0);
 			updateDb ($aref->[0], $storeDoc); #save in db
+		} else {
+			debug "  no change needed";
 		}
 }
 
@@ -163,13 +167,32 @@ sub mk_fn {
 	#conversion and leave the data in xml for the other processes
 	#to pick up
 	my $mulId=shift or die "mulId missing";
-	my $erw=shift or die "erweiterung missing";
+	my $erw=shift;
+	if (!$erw) {
+		warn "erweiterung missing, assume 'jpg'";
+		$erw='jpg'
+	}
+
 	$erw=lc($erw);
 
 	if ($erw=~/tif|tiff/) {
 		$erw='jpg'
 	}
-	return "$mulId.$erw";
+
+	my $folder='';
+	if ($erw=~/tif|tiff|jpg|gif/) {
+		$folder="IMAGE/";
+	}
+
+	if ($erw=~/mpg|wav/) {
+		$folder="AUDIO/";
+	}
+
+	if ($erw=~/mpeg|avi/) {
+		$folder="VIDEO/";
+	}
+
+	return "$folder$mulId.$erw";
 }
 
 
@@ -204,7 +227,7 @@ linklintMIMO.pl - remove freigabe if file is not online
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 SYNOPSIS
 
