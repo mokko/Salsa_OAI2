@@ -228,26 +228,31 @@ sub mk_fn {
 	my $mulId=shift or die "mulId missing";
 	my $erw=shift;
 	if (!$erw) {
-		warn "erweiterung missing, assume 'jpg'";
+		#erweiterng can be missing if only mulId is specified
+		#this is not an error
+		#for records produced by mpx-rif erweiterung should exist
+		#warn "erweiterung missing, assume 'jpg'";
 		$erw='jpg'
 	}
 
 	$erw=lc($erw);
 
+	#konvertierung
 	if ($erw=~/tif|tiff/) {
 		$erw='jpg'
 	}
 
+	#guess folder
 	my $folder='';
 	if ($erw=~/tif|tiff|jpg|gif/) {
 		$folder="IMAGE/";
 	}
 
-	if ($erw=~/mpg|wav/) {
+	if ($erw=~/mp3|wav/) {
 		$folder="AUDIO/";
 	}
 
-	if ($erw=~/mpeg|avi/) {
+	if ($erw=~/mpg|mpeg|avi/) {
 		$folder="VIDEO/";
 	}
 
