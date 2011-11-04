@@ -28,10 +28,6 @@ if (!$opts->{p}) {
 	$opts->{p}=0;
 }
 
-=head1 DESCRIPTION
-
-Applies xslt 1 of your choice to each item in the data store.
-
 =head1 SYNOPSIS
 
 transformStore.pl -p -v tansform.xsl
@@ -50,6 +46,9 @@ verbose: be more verbose
 
 =back
 
+=head1 DESCRIPTION
+
+Applies xslt 1 of your choice to each item in the data store.
 
 =head2 TODO
 
