@@ -57,6 +57,10 @@ freigabe to 'intern'.
 
 =head2 TODO
 
+Should this script change the exportdatum of the multimediaobjekt or the
+sammlungsobjekt if it changes a record? Changing the exportdatum could result
+in problems with updating this data.
+
 =cut
 
 Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
