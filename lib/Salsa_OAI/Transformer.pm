@@ -1,6 +1,6 @@
 package Salsa_OAI::Transformer;
 BEGIN {
-  $Salsa_OAI::Transformer::VERSION = '0.015';
+  $Salsa_OAI::Transformer::VERSION = '0.016';
 }
 
 # ABSTRACT: Apply an XSLT 1 to each item in the store
@@ -148,7 +148,7 @@ Salsa_OAI::Transformer - Apply an XSLT 1 to each item in the store
 
 =head1 VERSION
 
-version 0.015
+version 0.016
 
 =head1 SYNOPSIS
 
