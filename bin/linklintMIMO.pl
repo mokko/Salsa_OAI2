@@ -16,8 +16,14 @@ use Encode qw(decode from_to);
 use XML::LibXML;
 use LWP::Simple qw(head);
 
+getopts( 'vhp', my $opts = {} );
+pod2usage() if ($opts->{h});
+
+sub debug;
+
 #no trailing slash
 my $host="http://194.250.19.151/media/SPK";
+
 
 =head1 SYNOPSIS
 
@@ -56,10 +62,10 @@ freigabe to 'intern'.
 Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
 
-getopts( 'vhp', my $opts = {} );
-pod2usage() if ($opts->{h});
-
-sub debug;
+#in case none are found;
+$main::counter{id}=0;
+$main::counter{updateDb}=0;
+$main::counter{url}=0;
 
 if (!$opts->{v}) {
 	$opts->{v}=0;
@@ -95,7 +101,9 @@ my $sth = $dbh->prepare($sql);
 $sth->execute() or croak $dbh->errstr();
 
 while ( my $aref = $sth->fetch ) {
-		debug "\n$aref->[0]";
+		print "$aref->[0]\n"; #print for progress
+		$main::counter{id}++;
+
 		if (! $aref->[1]){
 			next; #for deleted records
 		}
@@ -115,17 +123,18 @@ while ( my $aref = $sth->fetch ) {
 		my $nlist=$xpc->find ('mpx:museumPlusExport/mpx:multimediaobjekt');
 		foreach my $node ($nlist->get_nodelist) {
 			my $url=mk_url ($node, $host);
-			debug "  url: $url";
 			my $freigabe=$node->findvalue('@freigabe');
 			#debug "  freigabe: $freigabe";
 			my $exists=head($url);
 			if (!$exists && $freigabe =~ /Web|web/ ) {
+				debug "  url: $url";
 				debug "  url does NOT exist, but freigabe is set -> unset";
 				$change++;
 				setFreigabe($storeDoc,$node,'intern');
 			}
 
 			if ($exists && $freigabe !~ /Web|web/ ) {
+				debug "  url: $url";
 				debug "  url does exist, but freigabe is unset -> set";
 				$change++;
 				setFreigabe($storeDoc, $node, 'Web');
@@ -136,16 +145,32 @@ while ( my $aref = $sth->fetch ) {
 
 
 		if ($change>0) {
-			print "$aref->[0] changed" if (config->{debug} == 0);
+			print "  changed\n" if (config->{debug} == 0);
 			updateDb ($aref->[0], $storeDoc); #save in db
 		} else {
-			debug "  no change needed";
+			#debug "  no change needed";
 		}
+report_results() if $main::counter{id} == 50;
 }
+
+exit 0;
 
 #
 # SUBs
 #
+
+sub report_results {
+	print $main::counter{id}." oai records processed\n";
+	print $main::counter{updateDb}." changed\n";
+	print $main::counter{url}." urls checked\n";
+	delete $main::counter{url};
+	delete $main::counter{id};
+	delete $main::counter{updateDb};
+	foreach my $value (keys %main::counter) {
+		print "set '$value' $main::counter{$value} times\n";
+	}
+	exit 0;
+}
 
 sub updateDb {
 	my $identifier=shift or die "Need identifier";
@@ -163,6 +188,7 @@ sub updateDb {
 	$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
 	my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
 	$sth->execute( $md, $identifier ) or croak $dbh->errstr();
+	$main::counter{updateDb}++;
 }
 
 sub setFreigabe {
@@ -173,6 +199,7 @@ sub setFreigabe {
 	#debug "DDvor:".$node->findvalue('@freigabe');
 	my $freigabe=$node->find('@freigabe');
 	my $newFreigabe = $doc->createAttribute('freigabe', $value);
+	$main::counter{$value}++;
 	foreach my $node ($freigabe->get_nodelist) {
 		$node->replaceNode ($newFreigabe);
 	}
