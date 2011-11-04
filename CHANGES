@@ -1,3 +1,6 @@
+0.014- 2011-11-04
+- new tool linklint.pl to switch mimo/lido resourceSet on and off depending on their
+  existence on MIMO server.
 0.013- 2011-08-31
 - mpx2lido: resourceSet: tif->jpg (resmvr.pl conversions)
 0.012- 2011-08-30
@@ -6,8 +9,8 @@
 - updateStore.pl: correct sorting
 - mpx-sort.x1.xsl: remove schemaLocation
 0.010- 2011-08-28
-- MPX2LIDO: lido:resourceSet preferred now depends on lowest mpx:priorität 
-  not on priorität=1 anymore
+- MPX2LIDO: lido:resourceSet preferred now depends on lowest mpx:prioritï¿½t
+  not on prioritï¿½t=1 anymore
 0.09 - 2011-08-26
 - MPX2LIDO: strange error with resourceSet
 0.08 - 2011-08-26

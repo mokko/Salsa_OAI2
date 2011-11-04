@@ -36,6 +36,7 @@
             "HTTP::OAI::Metadata" : 0,
             "HTTP::OAI::Repository" : 0,
             "IO::File" : 0,
+            "LWP::Simple" : 0,
             "Pod::Usage" : 0,
             "SOAP::DateTime" : 0,
             "Text::CSV" : 0,
@@ -67,6 +68,6 @@
          "web" : "https://github.com/mokko/Salsa_OAI2"
       }
    },
-   "version" : "0.013"
+   "version" : "0.014"
 }
 

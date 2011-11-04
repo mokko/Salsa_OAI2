@@ -32,6 +32,7 @@ requires:
   HTTP::OAI::Metadata: 0
   HTTP::OAI::Repository: 0
   IO::File: 0
+  LWP::Simple: 0
   Pod::Usage: 0
   SOAP::DateTime: 0
   Text::CSV: 0
@@ -44,4 +45,4 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Salsa_OAI
   homepage: https://github.com/mokko/Salsa_OAI2/wiki
   repository: git://github.com/mokko/Salsa_OAI2.git
-version: 0.013
+version: 0.014

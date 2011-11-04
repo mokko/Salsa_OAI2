@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<museumPlusExport xmlns="http://www.mpx.org/mpx"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <multimediaobjekt exportdatum="2011-08-22T17:37:24" mulId="2501854" freigabe="Web" priorität="101">
+      <bearbDatum>18.02.2009 11:37:09</bearbDatum>
+      <multimediaAnfertDat>13.02.2009</multimediaAnfertDat>
+      <multimediaDateiname>IV Ca 5216</multimediaDateiname>
+      <multimediaErweiterung>jpg</multimediaErweiterung>
+      <multimediaFarbe>farbig</multimediaFarbe>
+      <multimediaFunktion>Repro Digitalisat</multimediaFunktion>
+      <multimediaPersonenKörperschaft>Peter Jacob</multimediaPersonenKörperschaft>
+      <multimediaPfadangabe>M:\MuseumPlus\Produktiv\Multimedia\EM\Amerikanische Archäologie\Fotos</multimediaPfadangabe>
+      <multimediaTyp>Digitale Aufnahme</multimediaTyp>
+      <multimediaUrhebFotograf>Peter Jacob</multimediaUrhebFotograf>
+      <standardbild>M:\MuseumPlus\Produktiv\Multimedia\EM\Amerikanische Archäologie\Fotos\IV Ca 5216.jpg</standardbild>
+      <verknüpftesObjekt>66977</verknüpftesObjekt>
+   </multimediaobjekt>
+   <multimediaobjekt exportdatum="2011-08-22T17:37:24" mulId="2501890" freigabe="Web" priorität="10">
+      <bearbDatum>18.02.2009 11:37:19</bearbDatum>
+      <multimediaAnfertDat>13.02.2009</multimediaAnfertDat>
+      <multimediaDateiname>IV Ca 5216 -KK</multimediaDateiname>
+      <multimediaErweiterung>jpg</multimediaErweiterung>
+      <multimediaFarbe>farbig</multimediaFarbe>
+      <multimediaFunktion>Repro Digitalisat</multimediaFunktion>
+      <multimediaPersonenKörperschaft>Peter Jacob</multimediaPersonenKörperschaft>
+      <multimediaPfadangabe>M:\MuseumPlus\Produktiv\Multimedia\EM\Amerikanische Archäologie\Karteikarten</multimediaPfadangabe>
+      <multimediaTyp>Digitale Aufnahme</multimediaTyp>
+      <multimediaUrhebFotograf>Peter Jacob</multimediaUrhebFotograf>
+      <standardbild>M:\MuseumPlus\Produktiv\Multimedia\EM\Amerikanische Archäologie\Fotos\IV Ca 5216.jpg</standardbild>
+      <verknüpftesObjekt>66977</verknüpftesObjekt>
+   </multimediaobjekt>
+   <personKörperschaft exportdatum="2011-08-05T14:18:02" kueId="285">
+      <bearbDatum>29.06.2009</bearbDatum>
+      <bemerkungen>HK IV Ca alt: "Sammlung des Don Jimeno (Yucatan) 1875-1800, 236 u. 908/1881"</bemerkungen>
+      <berufTätigkeit>Sammler</berufTätigkeit>
+      <datierung art="Todesdatum"> - 1879</datierung>
+      <datierung art="erste Erwähnung">1869</datierung>
+      <datierung art="letzte Erwähnung">1880/1881</datierung>
+      <geogrBezug funktion="Herkunft (Allgemein)">Mexico</geogrBezug>
+      <geogrBezug funktion="Herkunft (Allgemein)">Yucatan</geogrBezug>
+      <name>Jimeno, Florentino</name>
+      <name art="Eigentlicher Name">Gimeno, Florentino</name>
+      <name art="andere Schreibweise">Gimeno, Don</name>
+      <nationalität>kubanisch</nationalität>
+      <nennform>Florentino Jimeno</nennform>
+      <quelle>Nachweis aus dem Inventar I, Vorgang  E 1089/1878, I B 5 Amerika, Baessler Archiv Bd. XXI (1973), S. 181, DS bearb. B. Gliesmann</quelle>
+      <typ>Person</typ>
+      <verantwortlichkeit>EM-Am Archäologie</verantwortlichkeit>
+   </personKörperschaft>
+   <sammlungsobjekt exportdatum="2011-08-22T17:37:24" objId="66977">
+      <abbildungen>Skizze auf Karteikarte</abbildungen>
+      <bearbDatum>10.05.2011</bearbDatum>
+      <credits>Staatliche Museen zu Berlin, Preußischer Kulturbesitz, Ethnologisches Museum</credits>
+      <erwerbDatum>1881</erwerbDatum>
+      <erwerbNotiz>Sammlung 1875-1880</erwerbNotiz>
+      <erwerbNr>I/71/1881</erwerbNr>
+      <geogrBezug funktion="Herkunft (Allgemein)">Mexiko</geogrBezug>
+      <geogrBezug funktion="Herkunft (Allgemein)">Yukatan</geogrBezug>
+      <geogrBezug bezeichnung="Kultur" funktion="Herkunft (Allgemein)">Maya</geogrBezug>
+      <identNr art="Ident. Nr.">IV Ca 5216</identNr>
+      <materialTechnik art="Ausgabe">Ton</materialTechnik>
+      <objekttyp>Musikinstrument</objekttyp>
+      <objStatus>vorhanden</objStatus>
+      <oov art="Vorgang">E 908/1881</oov>
+      <oov art="Vorgang">E 236/1881</oov>
+      <personKörperschaftRef id="285" funktion="Sammler">Jimeno, Florentino</personKörperschaftRef>
+      <sachbegriff art="Sachbegriff">Tonpfeife</sachbegriff>
+      <sachbegriff art="Weiterer Sachbegriff">Tonfigur</sachbegriff>
+      <ständigerStandort>Depot/Studiensammlung (Amerikanische Archäologie) / S: 308, F: 1, Kasten: B</ständigerStandort>
+      <systematikArt>Klangerzeugung</systematikArt>
+      <verantwortlichkeit>EM-Am Archäologie</verantwortlichkeit>
+      <verwaltendeInstitution>Ethnologisches Museum, Staatliche Museen zu Berlin</verwaltendeInstitution>
+   </sammlungsobjekt>
+</museumPlusExport>

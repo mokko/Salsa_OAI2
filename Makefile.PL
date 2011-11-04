@@ -28,6 +28,7 @@ my %WriteMakefileArgs = (
     'bin/digest.pl',
     'bin/dump-mpx.pl',
     'bin/extract.pl',
+    'bin/linklintMIMO.pl',
     'bin/querydb.pl',
     'bin/transformStore.pl',
     'bin/unwrap.pl',
@@ -51,6 +52,7 @@ my %WriteMakefileArgs = (
     'HTTP::OAI::Metadata' => '0',
     'HTTP::OAI::Repository' => '0',
     'IO::File' => '0',
+    'LWP::Simple' => '0',
     'Pod::Usage' => '0',
     'SOAP::DateTime' => '0',
     'Text::CSV' => '0',
@@ -60,7 +62,7 @@ my %WriteMakefileArgs = (
     'XML::Writer' => '0',
     'utf8' => '0'
   },
-  'VERSION' => '0.013',
+  'VERSION' => '0.014',
   'test' => {
     'TESTS' => 't/*.t'
   }

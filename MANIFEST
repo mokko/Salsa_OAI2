@@ -13,6 +13,7 @@ bin/deleteRecord.pl
 bin/digest.pl
 bin/dump-mpx.pl
 bin/extract.pl
+bin/linklintMIMO.pl
 bin/querydb.pl
 bin/transformStore.pl
 bin/unwrap.pl
@@ -43,6 +44,7 @@ t/002_index_route.t
 t/author-critic.t
 t/release-eol.t
 t/release-test-version.t
+t/test.mpx
 test/539/lido.xml
 test/539/mpx.xml
 test/539/oai.lido.xml

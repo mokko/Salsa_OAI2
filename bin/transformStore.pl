@@ -59,7 +59,7 @@ freigabe.pl - freigabe that acts on SalsaOAI's data store
 
 =head1 VERSION
 
-version 0.013
+version 0.014
 
 =head1 SYNOPSIS
 
@@ -79,13 +79,13 @@ verbose: be more verbose
 
 =back
 
-=head2 TODO
-
-?
-
 =head1 DESCRIPTION
 
 Applies xslt 1 of your choice to each item in the data store.
+
+=head2 TODO
+
+?
 
 =head1 AUTHOR
 
