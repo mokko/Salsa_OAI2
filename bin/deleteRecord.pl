@@ -104,7 +104,7 @@ deleteRecord.pl - Delete one record from Salsa_OAI's sqlite db
 
 =head1 VERSION
 
-version 0.016
+version 0.018
 
 =head1 SYNOPSIS
 

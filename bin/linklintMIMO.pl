@@ -117,9 +117,8 @@ while ( my $aref = $sth->fetch ) {
 		} else {
 			#debug "  no change needed";
 		}
-report_results() if $main::counter{id} == 50;
 }
-
+report_results();
 exit 0;
 
 #
@@ -196,26 +195,31 @@ sub mk_fn {
 	my $mulId=shift or die "mulId missing";
 	my $erw=shift;
 	if (!$erw) {
-		warn "erweiterung missing, assume 'jpg'";
+		#erweiterng can be missing if only mulId is specified
+		#this is not an error
+		#for records produced by mpx-rif erweiterung should exist
+		#warn "erweiterung missing, assume 'jpg'";
 		$erw='jpg'
 	}
 
 	$erw=lc($erw);
 
+	#konvertierung
 	if ($erw=~/tif|tiff/) {
 		$erw='jpg'
 	}
 
+	#guess folder
 	my $folder='';
 	if ($erw=~/tif|tiff|jpg|gif/) {
 		$folder="IMAGE/";
 	}
 
-	if ($erw=~/mpg|wav/) {
+	if ($erw=~/mp3|wav/) {
 		$folder="AUDIO/";
 	}
 
-	if ($erw=~/mpeg|avi/) {
+	if ($erw=~/mpg|mpeg|avi/) {
 		$folder="VIDEO/";
 	}
 
@@ -254,7 +258,7 @@ linklintMIMO.pl - remove freigabe if file is not online
 
 =head1 VERSION
 
-version 0.016
+version 0.018
 
 =head1 SYNOPSIS
 
