@@ -150,9 +150,8 @@ while ( my $aref = $sth->fetch ) {
 		} else {
 			#debug "  no change needed";
 		}
-report_results() if $main::counter{id} == 50;
 }
-
+report_results();
 exit 0;
 
 #
