@@ -27,6 +27,8 @@ xslt: '/oai2.xsl'
 
 nativePrefix: 'mpx'
 native_ns_uri: 'http://www.mpx.org/mpx'
+#schemaLocation for validating native format (used in digest.pl)
+nativeSchema: '/home/Mengel/projects/MPX/latest/mpx.xsd'
 
 #
 ##
@@ -58,10 +60,10 @@ adminEmail: "mauricemengel@gmail.com"
 
 #baseURL (url): for Identify verb (required)
 # also used to overwrite real requestURL
-baseURL: "http://spk.mimo-project.eu:8080/oai"
+baseURL: "http://localhost:3000/oai"
 
 #deletedRecord: does repository support deletedRecords? (required)
-deletedRecord: "no"
+deletedRecord: "transient"
 
 #repositoryName: Repository name for Identify verb (required)
 repositoryName: "SPK OAI Data Provider for MIMO"
@@ -123,7 +125,8 @@ setLibrary:
    setName: 'Schellackplatten aus dem Phonogramm-Archiv (ursprünglich für DISMARC exportiert)'
   MIMO:
    setName: 'Musical Instruments selected for MIMO project'
-
+  test:
+   setName: 'testing setSpecs - might not work without this one'
 
 #
 ##
