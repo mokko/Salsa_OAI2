@@ -182,17 +182,14 @@ sub updateDb {
 		debug "  planning mode, no update";
 		return;
 	}
-
 	my $md=$doc->toString;
-	#transform back to stupid encoding error
-	from_to( $md, "UTF-8", "utf8" );
-	#i should write a variant that can open both wrong and correct encoding
-	debug "  updateDb";
+	utf8::encode($md);
 
 	$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
 	my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
 	$sth->execute( $md, $identifier ) or croak $dbh->errstr();
 	$main::counter{updateDb}++;
+	debug "  updateDb";
 }
 
 sub setFreigabe {
