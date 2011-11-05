@@ -18,15 +18,6 @@ getopts( 'd', my $opts = {} );
 
 sub debug;
 
-=head1 SYNOPSIS
-
-dump-mpx.pl [-d] output.mpx
-
-=head1 COMMAND LINE OPTIONS
-
--d  	print debug info to STDOUT
-
-=cut
 
 my $config = {
 	dbfile => '/home/Mengel/projects/Salsa_OAI2/data/db',
@@ -154,3 +145,36 @@ sub debug {
 		print $msg. "\n";
 	}
 }
+
+__END__
+=pod
+
+=head1 NAME
+
+dump-mpx.pl - dump all xml from Salsa_OAI's sqlite in one big mpx file
+
+=head1 VERSION
+
+version 0.019
+
+=head1 SYNOPSIS
+
+dump-mpx.pl [-d] output.mpx
+
+=head1 COMMAND LINE OPTIONS
+
+-d  	print debug info to STDOUT
+
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

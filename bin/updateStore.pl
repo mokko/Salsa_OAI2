@@ -23,6 +23,47 @@ if (!$opts->{v}) {
 	$opts->{v}=0;
 }
 
+
+if (!$ARGV[0]) {
+	print "Error: Need command!\n";
+	exit 1;
+}
+
+if ($ARGV[0]!~/^rmres$|^upres$|^upagt$/) {
+	print "Error: Don't know command!\n";
+	exit 1;
+}
+
+
+if (!$ARGV[1]) {
+	print "Error: Need mpx file!\n";
+	exit 1;
+}
+
+if (! -f $ARGV[1]) {
+	print "Error: Need mpx file!\n";
+	exit 1;
+}
+
+my $updater=new Salsa_OAI::Updater (
+	dbfile=>config->{dbfile},
+	verbose=>$opts->{v},
+);
+
+my $cmd=$ARGV[0];
+$updater->$cmd ($ARGV[1]);
+print "done\n";
+__END__
+=pod
+
+=head1 NAME
+
+updateStore.pl - update mpx store
+
+=head1 VERSION
+
+version 0.019
+
 =head1 SYNOPSIS
 
  #remove outdated resources:
@@ -59,34 +100,16 @@ Script to initiate partial updates for resources or agents.
 digest.pl
 Salsa_OAI::Updater
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
 
-if (!$ARGV[0]) {
-	print "Error: Need command!\n";
-	exit 1;
-}
-
-if ($ARGV[0]!~/^rmres$|^upres$|^upagt$/) {
-	print "Error: Don't know command!\n";
-	exit 1;
-}
-
-
-if (!$ARGV[1]) {
-	print "Error: Need mpx file!\n";
-	exit 1;
-}
-
-if (! -f $ARGV[1]) {
-	print "Error: Need mpx file!\n";
-	exit 1;
-}
-
-my $updater=new Salsa_OAI::Updater (
-	dbfile=>config->{dbfile},
-	verbose=>$opts->{v},
-);
-
-my $cmd=$ARGV[0];
-$updater->$cmd ($ARGV[1]);
-print "done\n";

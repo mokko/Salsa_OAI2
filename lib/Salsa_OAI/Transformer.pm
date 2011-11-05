@@ -1,4 +1,7 @@
 package Salsa_OAI::Transformer;
+BEGIN {
+  $Salsa_OAI::Transformer::VERSION = '0.019';
+}
 
 # ABSTRACT: Apply an XSLT 1 to each item in the store
 
@@ -12,24 +15,7 @@ use utf8;
 our $verbose = 0;    #default value
 sub verbose;
 
-=head1 SYNOPSIS
 
-	my $transformer = new Salsa_OAI::Transformer (
-		dbfile=>'path/to/dbfile',
-		verbose=>1,
-		plan=>1,
-	);
-
-	$transformer->run($xslt_FN);
-
-=cut
-
-=method my $transformer = new Salsa_OAI::Transformer (%opts);
-
-TODO: This is a exact duplicate of the new from Updater. I should not duplicate
-code like that. Should inherit it.
-
-=cut
 
 sub new {
 	my $class = shift;
@@ -124,13 +110,6 @@ sub _transform {
 # UTILITY FUNCTIONS
 #
 
-=func verbose "bla";
-
-Outputs to STDOUT in case verbose is activated.
-
-TODO: Should be inherited
-
-=cut
 
 sub verbose {
 	my $msg = shift or return;
@@ -141,14 +120,6 @@ sub verbose {
 # PRIVATE SUBS
 #
 
-=method my $md=$self->_connectDB ($dbfileFN);
-
-Return native_md only if it has changed. This is called on each metadata.
-
-TODO: This is a exact duplicate of the new from Updater. I should not duplicate
-code like that. Should inherit it.
-
-=cut
 
 sub _connectDB {
 	my $self = shift;
@@ -167,3 +138,60 @@ sub _connectDB {
 }
 
 1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Salsa_OAI::Transformer - Apply an XSLT 1 to each item in the store
+
+=head1 VERSION
+
+version 0.019
+
+=head1 SYNOPSIS
+
+	my $transformer = new Salsa_OAI::Transformer (
+		dbfile=>'path/to/dbfile',
+		verbose=>1,
+		plan=>1,
+	);
+
+	$transformer->run($xslt_FN);
+
+=head1 METHODS
+
+=head2 my $transformer = new Salsa_OAI::Transformer (%opts);
+
+TODO: This is a exact duplicate of the new from Updater. I should not duplicate
+code like that. Should inherit it.
+
+=head2 my $md=$self->_connectDB ($dbfileFN);
+
+Return native_md only if it has changed. This is called on each metadata.
+
+TODO: This is a exact duplicate of the new from Updater. I should not duplicate
+code like that. Should inherit it.
+
+=head1 FUNCTIONS
+
+=head2 verbose "bla";
+
+Outputs to STDOUT in case verbose is activated.
+
+TODO: Should be inherited
+
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

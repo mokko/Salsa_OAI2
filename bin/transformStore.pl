@@ -28,6 +28,39 @@ if (!$opts->{p}) {
 	$opts->{p}=0;
 }
 
+
+
+if (!$ARGV[0]) {
+	print "Error: Need input file!\n";
+	exit 1;
+}
+
+if (! -f $ARGV[0]) {
+	print "Error: Specified input file not found!\n";
+	exit 1;
+}
+
+
+my $transformer=new Salsa_OAI::Transformer(
+	dbfile=>config->{dbfile},
+	verbose=>$opts->{v},
+	plan=>$opts->{p}
+);
+
+$transformer->run ($ARGV[0]);
+print "done\n";
+
+__END__
+=pod
+
+=head1 NAME
+
+freigabe.pl - freigabe that acts on SalsaOAI's data store
+
+=head1 VERSION
+
+version 0.019
+
 =head1 SYNOPSIS
 
 transformStore.pl -p -v tansform.xsl
@@ -54,25 +87,16 @@ Applies xslt 1 of your choice to each item in the data store.
 
 ?
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
 
-
-if (!$ARGV[0]) {
-	print "Error: Need input file!\n";
-	exit 1;
-}
-
-if (! -f $ARGV[0]) {
-	print "Error: Specified input file not found!\n";
-	exit 1;
-}
-
-
-my $transformer=new Salsa_OAI::Transformer(
-	dbfile=>config->{dbfile},
-	verbose=>$opts->{v},
-	plan=>$opts->{p}
-);
-
-$transformer->run ($ARGV[0]);
-print "done\n";

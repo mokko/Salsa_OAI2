@@ -3,28 +3,6 @@
 # PODNAME: csv2dict.pl
 # ABSTRACT: convert a two column csv into a dictionary file
 
-=head1 USAGE
-
-csv2dict.pl [-v] input.csv output.xml
-
-=head2 COMMAND LINE OPTIONS
-
-=for :list
-
-*-v: verbose mode
-*-h: help gives you usage
-
-=head1 CSV FILE REQUIREMENTS
-
-=for :list
-
-* be in cp1252 (normal out put from excel)
-* have 2 columns (left one with M+Sachbegriff, right one with MIMO keyword)
-
-This script checks for uniqueness of terms (Sachbegriff). It outputs a simple
-xml dictionary.
-
-=cut
 
 use strict;
 use warnings;
@@ -195,3 +173,57 @@ sub verbose {
 	my $msg = shift;
 	print $msg. "\n" if $opts->{v};
 }
+
+__END__
+=pod
+
+=head1 NAME
+
+csv2dict.pl - convert a two column csv into a dictionary file
+
+=head1 VERSION
+
+version 0.019
+
+=head1 USAGE
+
+csv2dict.pl [-v] input.csv output.xml
+
+=head2 COMMAND LINE OPTIONS
+
+=over 4
+
+
+
+=back
+
+*-v: verbose mode
+*-h: help gives you usage
+
+=head1 CSV FILE REQUIREMENTS
+
+=over 4
+
+
+
+=back
+
+* be in cp1252 (normal out put from excel)
+* have 2 columns (left one with M+Sachbegriff, right one with MIMO keyword)
+
+This script checks for uniqueness of terms (Sachbegriff). It outputs a simple
+xml dictionary.
+
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

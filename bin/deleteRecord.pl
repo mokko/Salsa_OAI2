@@ -13,31 +13,6 @@ getopts( 'v', my $opts = {} );
 
 sub debug;
 
-=head1 SYNOPSIS
-
-deleteRecord.pl [-v] spk-berlin.de:1234
-
-=head1 QUOTE FROM OAI 2.0 SPECIFICATION
-
-If a repository does not keep track of deletions then such records will simply
-vanish from responses and there will be no way for a harvester to discover
-deletions through continued incremental harvesting. If a repository does keep
-track of deletions then the datestamp of the deleted record must be the date
-and time that it was deleted. Responses to GetRecord request for a deleted
-record must then include a header with the attribute status="deleted", and
-must not include metadata or about parts. Similarly, responses to selective
-harvesting requests with set membership and date range criteria that include
-deleted records must include the headers of these records. Incremental
-harvesting will thus discover deletions from repositories that keep track of
-them.
-
-If a record is deleted,
--we have to change status=1,
--put the datestamp of now.
--delete native_md for that record
--delete all sets with the same identifier
-
-=cut
 
 my $config = {
 
@@ -112,12 +87,63 @@ exit 1;
 #
 # SUBS
 #
-=func debug "msg";
-=cut
 sub debug {
 	my $msg = shift;
 	if ( $config->{debug} > 0 ) {
 		print $msg. "\n";
 	}
 }
+
+
+__END__
+=pod
+
+=head1 NAME
+
+deleteRecord.pl - Delete one record from Salsa_OAI's sqlite db
+
+=head1 VERSION
+
+version 0.019
+
+=head1 SYNOPSIS
+
+deleteRecord.pl [-v] spk-berlin.de:1234
+
+=head1 FUNCTIONS
+
+=head2 debug "msg";
+
+=head1 QUOTE FROM OAI 2.0 SPECIFICATION
+
+If a repository does not keep track of deletions then such records will simply
+vanish from responses and there will be no way for a harvester to discover
+deletions through continued incremental harvesting. If a repository does keep
+track of deletions then the datestamp of the deleted record must be the date
+and time that it was deleted. Responses to GetRecord request for a deleted
+record must then include a header with the attribute status="deleted", and
+must not include metadata or about parts. Similarly, responses to selective
+harvesting requests with set membership and date range criteria that include
+deleted records must include the headers of these records. Incremental
+harvesting will thus discover deletions from repositories that keep track of
+them.
+
+If a record is deleted,
+-we have to change status=1,
+-put the datestamp of now.
+-delete native_md for that record
+-delete all sets with the same identifier
+
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
 
