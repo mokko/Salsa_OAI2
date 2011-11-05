@@ -175,6 +175,9 @@ option.
 sub output {
 	my $output = shift;
 	if ($output) {
+		#encoding terror
+		utf8::encode($output);
+		
 		if ( $opts->{o} ) {
 			#'>:encoding(UTF-8)' seems to work without it
 			open( my $fh, '>>', $opts->{o} ) or die $!;
