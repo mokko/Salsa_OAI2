@@ -1,4 +1,7 @@
 package Salsa_OAI::MPX;
+{
+  $Salsa_OAI::MPX::VERSION = '0.020';
+}
 BEGIN {
   $Salsa_OAI::MPX::VERSION = '0.019';
 }
@@ -216,7 +219,8 @@ sub locateXSL {
 
 1;                #Salsa_OAI::MPX;
 
-__END__
+
+
 =pod
 
 =head1 NAME
@@ -225,11 +229,19 @@ Salsa_OAI::MPX - MPX-specific extensions
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 
 This package contains everything that is specific to MPX as native format.
+
+=head1 NAME
+
+Salsa_OAI::MPX - MPX-specific extensions
+
+=head1 VERSION
+
+version 0.019
 
 =head1 FUNCTIONS
 
@@ -280,5 +292,19 @@ This software is copyright (c) 2011 by Maurice Mengel.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
 

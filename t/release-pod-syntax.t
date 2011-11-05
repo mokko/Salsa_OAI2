@@ -1,3 +1,4 @@
+#!perl
 
 BEGIN {
   unless ($ENV{RELEASE_TESTING}) {
@@ -6,11 +7,9 @@ BEGIN {
   }
 }
 
-use strict;
-use warnings;
 use Test::More;
 
-eval 'use Test::EOL';
-plan skip_all => 'Test::EOL required' if $@;
+eval "use Test::Pod 1.41";
+plan skip_all => "Test::Pod 1.41 required for testing POD" if $@;
 
-all_perl_files_ok({ trailing_whitespace => 1 });
+all_pod_files_ok();

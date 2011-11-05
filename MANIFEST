@@ -12,6 +12,7 @@ bin/csv2dict.pl
 bin/deleteRecord.pl
 bin/digest.pl
 bin/dump-mpx.pl
+bin/encodingTerror.pl
 bin/extract.pl
 bin/linklintMIMO.pl
 bin/querydb.pl
@@ -39,12 +40,9 @@ public/quicktests.htm
 public/test
 public/this.htm
 public/tmp/lr.xml
-t/001_base.t
-t/002_index_route.t
 t/author-critic.t
-t/release-eol.t
+t/release-pod-syntax.t
 t/release-test-version.t
-t/test.mpx
 test/539/lido.xml
 test/539/mpx.xml
 test/539/oai.lido.xml

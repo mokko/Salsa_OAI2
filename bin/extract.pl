@@ -133,6 +133,9 @@ sub verbose {
 sub output {
 	my $output = shift;
 	if ($output) {
+		#encoding terror
+		utf8::encode($output);
+		
 		if ( $opts->{o} ) {
 			#'>:encoding(UTF-8)' seems to work without it
 			open( my $fh, '>>', $opts->{o} ) or die $!;
@@ -160,7 +163,8 @@ sub output {
 
 
 
-__END__
+
+
 =pod
 
 =head1 NAME
@@ -169,13 +173,21 @@ transform.pl - apply a transformation to a record from the data store
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 
    transform.pl -o output.xml 538 lido
    transform.pl -h
 	Get usage summary, for more try 'perldoc transform.pl'
+
+=head1 NAME
+
+transform.pl - apply a transformation to a record from the data store
+
+=head1 VERSION
+
+version 0.019
 
 =head1 PARAMETERS
 
@@ -226,5 +238,19 @@ This software is copyright (c) 2011 by Maurice Mengel.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
 

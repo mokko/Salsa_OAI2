@@ -1,4 +1,7 @@
 package Salsa_OAI::Transformer;
+{
+  $Salsa_OAI::Transformer::VERSION = '0.020';
+}
 BEGIN {
   $Salsa_OAI::Transformer::VERSION = '0.019';
 }
@@ -139,7 +142,8 @@ sub _connectDB {
 
 1;
 
-__END__
+
+
 =pod
 
 =head1 NAME
@@ -148,7 +152,7 @@ Salsa_OAI::Transformer - Apply an XSLT 1 to each item in the store
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 
@@ -159,6 +163,14 @@ version 0.019
 	);
 
 	$transformer->run($xslt_FN);
+
+=head1 NAME
+
+Salsa_OAI::Transformer - Apply an XSLT 1 to each item in the store
+
+=head1 VERSION
+
+version 0.019
 
 =head1 METHODS
 
@@ -193,5 +205,19 @@ This software is copyright (c) 2011 by Maurice Mengel.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
 

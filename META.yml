@@ -3,14 +3,13 @@ abstract: 'Simple OAI data provider'
 author:
   - 'Maurice Mengel <mauricemengel@gmail.com>'
 build_requires:
-  Dancer::Test: 0
   English: 0
   Test::More: 0
   perl: 5.006
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930'
+generated_by: 'Dist::Zilla version 4.300003, CPAN::Meta::Converter version 2.112621'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -40,9 +39,11 @@ requires:
   XML::LibXML::XPathContext: 0
   XML::LibXSLT: 0
   XML::Writer: 0
+  strict: 0
   utf8: 0
+  warnings: 0
 resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Salsa_OAI
   homepage: https://github.com/mokko/Salsa_OAI2/wiki
   repository: git://github.com/mokko/Salsa_OAI2.git
-version: 0.019
+version: 0.020

@@ -1,4 +1,7 @@
 package Salsa_OAI;
+{
+  $Salsa_OAI::VERSION = '0.020';
+}
 BEGIN {
   $Salsa_OAI::VERSION = '0.019';
 }
@@ -197,7 +200,8 @@ sub salsa_locateXSL {
 	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
 
-__END__
+
+
 =pod
 
 =head1 NAME
@@ -206,7 +210,7 @@ Salsa_OAI - Simple OAI data provider
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 
@@ -216,8 +220,6 @@ it
 
 =over 4
 
-
-
 =back
 
 * does not support all OAI features (see below)
@@ -226,6 +228,14 @@ it
 * easy to install
 
 For a list of OAI features, see L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
+
+=head1 NAME
+
+Salsa_OAI - Simple OAI data provider
+
+=head1 VERSION
+
+version 0.019
 
 =head1 FUNCTIONS
 
@@ -304,5 +314,19 @@ This software is copyright (c) 2011 by Maurice Mengel.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
 

@@ -2,7 +2,7 @@ NAME
     Salsa_OAI - Simple OAI data provider
 
 VERSION
-    version 0.019
+    version 0.020
 
 SYNOPSIS
     This is a small webapp which acts as a OAI data provider based on
@@ -13,6 +13,12 @@ SYNOPSIS
     maintain * easy to configure * easy to install
 
     For a list of OAI features, see <HTTP::OAI::DataProvider>
+
+NAME
+    Salsa_OAI - Simple OAI data provider
+
+VERSION
+    version 0.019
 
 FUNCTIONS
   config_check ();
@@ -59,6 +65,15 @@ SEE ALSO
     *   HTTP::OAI
 
     *   <HTTP::OAI::DataProvider>
+
+AUTHOR
+    Maurice Mengel <mauricemengel@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2011 by Maurice Mengel.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
 
 AUTHOR
     Maurice Mengel <mauricemengel@gmail.com>

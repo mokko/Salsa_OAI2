@@ -50,7 +50,8 @@ my $transformer=new Salsa_OAI::Transformer(
 $transformer->run ($ARGV[0]);
 print "done\n";
 
-__END__
+
+
 =pod
 
 =head1 NAME
@@ -59,7 +60,7 @@ freigabe.pl - freigabe that acts on SalsaOAI's data store
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 
@@ -87,6 +88,25 @@ Applies xslt 1 of your choice to each item in the data store.
 
 ?
 
+=head1 NAME
+
+freigabe.pl - freigabe that acts on SalsaOAI's data store
+
+=head1 VERSION
+
+version 0.019
+
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =head1 AUTHOR
 
 Maurice Mengel <mauricemengel@gmail.com>
@@ -99,4 +119,7 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
 

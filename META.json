@@ -4,7 +4,7 @@
       "Maurice Mengel <mauricemengel@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930",
+   "generated_by" : "Dist::Zilla version 4.300003, CPAN::Meta::Converter version 2.112621",
    "license" : [
       "perl_5"
    ],
@@ -44,12 +44,13 @@
             "XML::LibXML::XPathContext" : 0,
             "XML::LibXSLT" : 0,
             "XML::Writer" : 0,
-            "utf8" : 0
+            "strict" : 0,
+            "utf8" : 0,
+            "warnings" : 0
          }
       },
       "test" : {
          "requires" : {
-            "Dancer::Test" : 0,
             "English" : 0,
             "Test::More" : 0,
             "perl" : "5.006"
@@ -68,6 +69,6 @@
          "web" : "https://github.com/mokko/Salsa_OAI2"
       }
    },
-   "version" : "0.019"
+   "version" : "0.020"
 }
 

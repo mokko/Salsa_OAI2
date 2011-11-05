@@ -174,8 +174,17 @@ sub verbose {
 	print $msg. "\n" if $opts->{v};
 }
 
-__END__
+
+
 =pod
+
+=head1 NAME
+
+csv2dict.pl - convert a two column csv into a dictionary file
+
+=head1 VERSION
+
+version 0.020
 
 =head1 NAME
 
@@ -193,8 +202,6 @@ csv2dict.pl [-v] input.csv output.xml
 
 =over 4
 
-
-
 =back
 
 *-v: verbose mode
@@ -203,8 +210,6 @@ csv2dict.pl [-v] input.csv output.xml
 =head1 CSV FILE REQUIREMENTS
 
 =over 4
-
-
 
 =back
 
@@ -225,5 +230,19 @@ This software is copyright (c) 2011 by Maurice Mengel.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
 

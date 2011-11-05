@@ -120,7 +120,8 @@ sub verbose {
 	}
 }
 
-__END__
+
+
 =pod
 
 =head1 NAME
@@ -129,7 +130,7 @@ digest.pl - store mpx info (onebig file) in SQLite db
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 
@@ -161,6 +162,14 @@ table 2 sets
 -setSpec
 -recordID
 
+=head1 NAME
+
+digest.pl - store mpx info (onebig file) in SQLite db
+
+=head1 VERSION
+
+version 0.019
+
 =head1 FUNCTIONS
 
 =head2 test_conf_var ($var1, $var2);
@@ -182,5 +191,19 @@ This software is copyright (c) 2011 by Maurice Mengel.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 AUTHOR
+
+Maurice Mengel <mauricemengel@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Maurice Mengel.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
+
+__END__
 
