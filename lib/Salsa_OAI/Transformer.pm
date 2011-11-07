@@ -72,7 +72,8 @@ sub run {
 	if ( !-f $xsltFN ) {
 		die "$xsltFN NOT FOUND!";
 	}
-	my $counter->{changed}=0;
+	my $counter={};
+	$counter->{changed}=0;
 
 	#prepare XSLT
 	my $xslt = XML::LibXSLT->new();
