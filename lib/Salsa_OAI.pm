@@ -1,6 +1,6 @@
 package Salsa_OAI;
 {
-  $Salsa_OAI::VERSION = '0.020';
+  $Salsa_OAI::VERSION = '0.021';
 }
 BEGIN {
   $Salsa_OAI::VERSION = '0.019';
@@ -210,7 +210,7 @@ Salsa_OAI - Simple OAI data provider
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 SYNOPSIS
 

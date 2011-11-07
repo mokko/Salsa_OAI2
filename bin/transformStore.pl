@@ -18,37 +18,34 @@ Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
 
 getopts( 'vhp', my $opts = {} );
-pod2usage() if ($opts->{h});
+pod2usage() if ( $opts->{h} );
 
-if (!$opts->{v}) {
-	$opts->{v}=0;
+if ( !$opts->{v} ) {
+	$opts->{v} = 0;
 }
 
-if (!$opts->{p}) {
-	$opts->{p}=0;
+if ( !$opts->{p} ) {
+	$opts->{p} = 0;
 }
 
-
-
-if (!$ARGV[0]) {
+if ( !$ARGV[0] ) {
 	print "Error: Need input file!\n";
 	exit 1;
 }
 
-if (! -f $ARGV[0]) {
+if ( !-f $ARGV[0] ) {
 	print "Error: Specified input file not found!\n";
 	exit 1;
 }
 
-
-my $transformer=new Salsa_OAI::Transformer(
-	dbfile=>config->{dbfile},
-	verbose=>$opts->{v},
-	plan=>$opts->{p}
+my $transformer = new Salsa_OAI::Transformer(
+	dbfile  => config->{dbfile},
+	verbose => $opts->{v},
+	plan    => $opts->{p}
 );
 
-$transformer->run ($ARGV[0]);
-print "done\n";
+my $changed = $transformer->run( $ARGV[0] );
+print "$changed records changed.\n";
 
 
 
@@ -60,7 +57,7 @@ freigabe.pl - freigabe that acts on SalsaOAI's data store
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 SYNOPSIS
 
@@ -122,4 +119,5 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+
 

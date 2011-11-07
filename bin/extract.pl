@@ -173,7 +173,7 @@ transform.pl - apply a transformation to a record from the data store
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 SYNOPSIS
 

@@ -17,7 +17,7 @@ app.pl - start Salsa_OAI as webapp
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 NAME
 

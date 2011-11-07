@@ -39,7 +39,6 @@ public/oai2.xsl
 public/quicktests.htm
 public/test
 public/this.htm
-public/tmp/lr.xml
 t/author-critic.t
 t/release-pod-syntax.t
 t/release-test-version.t
@@ -83,6 +82,9 @@ xslt/mpx2lido/sachbegriff-thesaurus.xsl
 xslt/mpx2lido/titleWrap.xsl
 xslt/mpx2museumdat.xsl
 xslt/mpx2oai_dc.xsl
+xslt/mpxFix3.xsl
+xslt/mpxFix3/multimediaobjekt.xsl
+xslt/mpxFix3/sammlungsobjekt.xsl
 xslt/reports/notInDictionary.xsl
 xslt/statistik.xsl
 xslt/unwrap.xsl

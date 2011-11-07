@@ -86,7 +86,7 @@ sub readTest {
 		#toString is supposed to return UTF-8 content!
 		my $new_md=$doc->toString();
 
-		writeDoc ($dbh,$identifier, $new_md,'clear');
+		#writeDoc ($dbh,$identifier, $new_md,'clear');
 		#print $md;
 	}
 }
@@ -144,7 +144,7 @@ linklintMIMO.pl - remove freigabe if file is not online
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 SYNOPSIS
 
