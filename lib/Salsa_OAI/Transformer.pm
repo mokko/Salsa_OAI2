@@ -3,7 +3,7 @@ BEGIN {
   $Salsa_OAI::Transformer::VERSION = '0.019';
 }
 
-# ABSTRACT: Apply an XSLT 1 to each item in the store
+# ABSTRACT: Apply an XSLT 1 to each record in the OAI store
 
 use XML::LibXML;
 use XML::LibXML::XPathContext;
@@ -15,6 +15,15 @@ use utf8;
 our $verbose = 0;    #default value
 sub verbose;
 
+=method my $transformer= new Salsa_OAI::Transformer (%options);
+
+%options=(
+	dbfile=>filepath,
+	verbose=>1,
+	plan=>1,
+);
+
+=cut
 
 
 sub new {
@@ -49,6 +58,12 @@ sub new {
 	return $self;
 }
 
+=method my $changed=$tranformer->run($xsltFN);
+
+$changed is an integer indicating how many records in store where changed
+
+=cut
+
 sub run {
 	my $self   = shift or die "Error!";
 	my $xsltFN = shift or die "Error!";
@@ -57,6 +72,7 @@ sub run {
 	if ( !-f $xsltFN ) {
 		die "$xsltFN NOT FOUND!";
 	}
+	my $counter->{changed}=0;
 
 	#prepare XSLT
 	my $xslt = XML::LibXSLT->new();
@@ -82,6 +98,7 @@ sub run {
 		if ( @{$aref}[1] eq $newMd ) {
 			verbose "old and new md are identifcal";
 		} else {
+			$counter->{changed}++;
 			if ( !$self->{plan} ) {
 				verbose " ->UPDATE ";    # . @{$aref}[0];
 				$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
@@ -93,17 +110,7 @@ sub run {
 			}
 		}
 	}
-}
-
-sub _transform {
-	my $storeMd    = shift or die "Error!";
-	my $stylesheet = shift or die "Error!";
-
-	from_to( $storeMd, "utf8", "UTF-8" );    # extrem schwere Geburt!
-	my $storeDoc = XML::LibXML->load_xml( string => $storeMd )
-	  or die "Have a problem loading xml from store";
-	my $results = $stylesheet->transform($storeDoc);
-	return $results->toString();
+	return $counter->{changed}=0;
 }
 
 #
@@ -115,6 +122,19 @@ sub verbose {
 	my $msg = shift or return;
 	print "$msg\n" if $verbose gt 0;
 }
+
+sub _transform {
+	my $storeMd    = shift or die "Error!";
+	my $stylesheet = shift or die "Error!";
+
+	#i don't understand this!
+	from_to( $storeMd, "utf8", "UTF-8" );    # extrem schwere Geburt!
+	my $storeDoc = XML::LibXML->load_xml( string => $storeMd )
+	  or die "Have a problem loading xml from store";
+	my $results = $stylesheet->transform($storeDoc);
+	return $results->toString();
+}
+
 
 #
 # PRIVATE SUBS

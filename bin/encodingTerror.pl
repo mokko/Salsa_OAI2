@@ -115,7 +115,7 @@ sub readTest {
 		#toString is supposed to return UTF-8 content!
 		my $new_md=$doc->toString();
 
-		writeDoc ($dbh,$identifier, $new_md,'clear');
+		#writeDoc ($dbh,$identifier, $new_md,'clear');
 		#print $md;
 	}
 }
