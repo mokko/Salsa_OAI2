@@ -97,7 +97,7 @@ sub run {
 		}
 
 		if ( @{$aref}[1] eq $newMd ) {
-			verbose "old and new md are identifcal";
+			verbose "old and new md are identical";
 		} else {
 			$counter->{changed}++;
 			if ( !$self->{plan} ) {
