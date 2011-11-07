@@ -111,7 +111,7 @@ sub run {
 			}
 		}
 	}
-	return $counter->{changed}=0;
+	return $counter->{changed};
 }
 
 #

@@ -8,6 +8,9 @@
 		-current
 		values: Bild|Audio|Video -->
 	<xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[not (@typ)]">
+		<xsl:message>
+			<xsl:text>//mpx:multimediaobjekt/@typ: add typ based on multimediaErweiterung</xsl:text>
+		</xsl:message>
 		<xsl:copy>
 			<xsl:attribute name="typ">
 			<xsl:call-template name="choosetyp" />
