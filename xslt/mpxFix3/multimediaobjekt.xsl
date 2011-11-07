@@ -3,10 +3,12 @@
 	version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.mpx.org/mpx"
 	xmlns:mpx="http://www.mpx.org/mpx">
 
-	<!-- Fix #1: Add multimediaobjekt/@typ where attribute does not yet exist -guess
-		type based on file extension, -fill in a value only if no value exists already 
-		-current
-		values: Bild|Audio|Video -->
+	<!--
+		Fix #1: Add multimediaobjekt/@typ where attribute does not yet exist
+		-guess type based on file extension,
+		-fill in a value only if no value exists already
+		-current values: /Bild|Audio|Video|Text/
+	-->
 	<xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[not (@typ)]">
 		<xsl:message>
 			<xsl:text>//mpx:multimediaobjekt/@typ: add typ based on multimediaErweiterung</xsl:text>

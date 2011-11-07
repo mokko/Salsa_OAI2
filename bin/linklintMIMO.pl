@@ -128,6 +128,11 @@ while ( my $aref = $sth->fetch ) {
 		foreach my $node ($nlist->get_nodelist) {
 			my $url=mk_url ($node, $host);
 			my $freigabe=$node->findvalue('@freigabe');
+			if (! $freigabe) {
+				#if freigabe doesn't exist we still want to check url
+				#assume some default value
+				$freigabe='intern';
+			}
 			#debug "  freigabe: $freigabe";
 			my $exists=head($url);
 			if (!$exists && $freigabe =~ /Web|web/ ) {

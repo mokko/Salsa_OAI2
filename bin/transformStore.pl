@@ -45,7 +45,11 @@ my $transformer = new Salsa_OAI::Transformer(
 );
 
 my $changed = $transformer->run( $ARGV[0] );
-print "$changed records changed.\n";
+if ($opts->{p}) {
+	print "$changed records would have been changed.\n";
+} else {
+	print "$changed records changed.\n";
+}
 
 __END__
 

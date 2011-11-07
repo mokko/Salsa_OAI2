@@ -1,7 +1,4 @@
 package Salsa_OAI;
-BEGIN {
-  $Salsa_OAI::VERSION = '0.019';
-}
 # ABSTRACT: Simple OAI data provider
 
 #still useful?
@@ -16,16 +13,55 @@ use HTTP::OAI::Repository qw/validate_request/;
 use Salsa_OAI::MPX;
 
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
-
 our $provider = init_provider();    #do this when starting the webapp
 
+=head1 SYNOPSIS
+
+This is a small webapp which acts as a OAI data provider based on
+L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider> and Tim Brody's L<HTTP::OAI>. It is simply since
+it
+
+=over 4
+
+=back
+
+* does not support all OAI features (see below)
+* it should be easy to maintain
+* easy to configure
+* easy to install
+
+For a list of OAI features, see L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<Dancer|http://perldancer.org> or at cpan
+
+=item *
+
+Some ideas concerning inheritance and abstracion derived from OCLC's OAIcat.
+
+=item *
+
+L<HTTP::OAI>
+
+=item *
+
+L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
+
+=back
+
+=cut
 
 #
 # THE ONLY ROUTE
 #
 
 any [ 'get', 'post' ] => '/oai' => sub {
-	my $ret;    # avoid perl's magic returns
+	my $ret;                        # avoid perl's magic returns
 	content_type 'text/xml';
 
 	#I have problems with requestURL. With some servers it disappears from
@@ -41,25 +77,37 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	#this needs to stay here to check if verb is valid
 	if ( my $verb = params->{verb} ) {
 		if ( validate_request(params) ) {
-			return $provider->err2XML(validate_request(params));
+			return $provider->err2XML( validate_request(params) );
 		}
 
 		no strict "refs";
 		return $provider->$verb( $request, params() );
-	} else {
+	}
+	else {
 		return welcome();
 	}
 };
 
-after sub {
+hook after => sub {
 	warning "Initial request is danced. How long did it take?";
 };
+
 dance;
 
 #
 #
 #
 
+
+=func config_check ();
+
+Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
+should also have the relevant information (e.g. chunk_dir). This check should
+run during initial start up and throw intelligble errors if it fails, so we can
+fix them right there and then and do not have to test all possibilities to
+discover them.
+
+=cut
 
 sub config_check {
 
@@ -95,6 +143,12 @@ sub config_check {
 
 }
 
+=func $provider=init_provider();
+
+Initialize the data provider with settings either from Dancer's config
+if classic configuration information or from callbacks.
+
+=cut
 
 sub init_provider {
 
@@ -112,6 +166,11 @@ sub init_provider {
 	return $provider;
 }
 
+=func welcome()
+
+Gets called from Dancer's routes to display html pages on Salsa_OAI
+
+=cut
 
 sub welcome {
 	content_type 'text/html';
@@ -124,26 +183,50 @@ true;
 # CALLBACKS
 #
 
+=func Debug "Message";
+
+Use Dancer's debug function if available or else write to STDOUT. Register this
+callback during init_provider.
+
+=cut
 
 sub salsa_debug {
 	if ( defined(&Dancer::Logger::debug) ) {
 		goto &Dancer::Logger::debug;
-	} else {
+	}
+	else {
 		foreach (@_) {
 			print "$_\n";
 		}
 	}
 }
 
+=func Warning "Message";
+
+Use Dancer's warning function if available or pass message to perl's warn.
+
+=cut
 
 sub salsa_warning {
 	if ( defined(&Dancer::Logger::warning) ) {
 		goto &Dancer::Logger::warning;
-	} else {
+	}
+	else {
 		warn @_;
 	}
 }
 
+=Func my $library = salsa_setLibrary();
+
+Reads the setLibrary from dancer's config file and returns it in form of a
+HTTP::OAI::ListSet object (which can, of course, include one or more
+HTTP::OAI::Set objects)
+  .
+Background: setNames and setDescriptions are not stored with OAI headers,
+but instead in the setLibrary. HTTP::OAI::DataProvider::SetLibrary associates
+setSpecs with setNames and setDescriptions.
+
+=cut
 
 sub salsa_setLibrary {
 
@@ -185,6 +268,13 @@ sub salsa_setLibrary {
 	#return empty-handed and fail
 }
 
+=func my xslt_fn=salsa_locateXSL($prefix);
+
+locateXSL callback expects a metadataFormat prefix and will return the full
+path to the xsl which is responsible for this transformation. On failure:
+returns nothing.
+
+=cut
 
 sub salsa_locateXSL {
 	my $prefix       = shift;
@@ -197,112 +287,7 @@ sub salsa_locateXSL {
 	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
 }
 
+1;
 __END__
-=pod
 
-=head1 NAME
-
-Salsa_OAI - Simple OAI data provider
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
-This is a small webapp which acts as a OAI data provider based on
-L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider> and Tim Brody's L<HTTP::OAI>. It is simply since
-it
-
-=over 4
-
-
-
-=back
-
-* does not support all OAI features (see below)
-* it should be easy to maintain
-* easy to configure
-* easy to install
-
-For a list of OAI features, see L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
-
-=head1 FUNCTIONS
-
-=head2 config_check ();
-
-Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
-should also have the relevant information (e.g. chunk_dir). This check should
-run during initial start up and throw intelligble errors if it fails, so we can
-fix them right there and then and do not have to test all possibilities to
-discover them.
-
-=head2 $provider=init_provider();
-
-Initialize the data provider with settings either from Dancer's config
-if classic configuration information or from callbacks.
-
-=head2 welcome()
-
-Gets called from Dancer's routes to display html pages on Salsa_OAI
-
-=head2 Debug "Message";
-
-Use Dancer's debug function if available or else write to STDOUT. Register this
-callback during init_provider.
-
-=head2 Warning "Message";
-
-Use Dancer's warning function if available or pass message to perl's warn.
-
-=head2 my $library = salsa_setLibrary();
-
-Reads the setLibrary from dancer's config file and returns it in form of a
-HTTP::OAI::ListSet object (which can, of course, include one or more
-HTTP::OAI::Set objects)
-  .
-Background: setNames and setDescriptions are not stored with OAI headers,
-but instead in the setLibrary. HTTP::OAI::DataProvider::SetLibrary associates
-setSpecs with setNames and setDescriptions.
-
-=head2 my xslt_fn=salsa_locateXSL($prefix);
-
-locateXSL callback expects a metadataFormat prefix and will return the full
-path to the xsl which is responsible for this transformation. On failure:
-returns nothing.
-
-=head1 SEE ALSO
-
-=over 4
-
-=item *
-
-L<Dancer|http://perldancer.org> or at cpan
-
-=item *
-
-Some ideas concerning inheritance and abstracion derived from OCLC's OAIcat.
-
-=item *
-
-L<HTTP::OAI>
-
-=item *
-
-L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
-
-=back
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
