@@ -92,7 +92,6 @@
 					<!-- xsl:value-of select="text(.)" / -->
 				</xsl:message>
 			</xsl:otherwise>
-		</xsl:when>
 		</xsl:choose>
 	</xsl:template>
 </xsl:stylesheet>
