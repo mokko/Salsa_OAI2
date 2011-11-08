@@ -36,6 +36,9 @@
 		TODO: Here is something wrong with the export. No other values than
 		default!
 	-->
+	<!-- remove schemaLocation if any -->
+	<xsl:template match="@xsi:schemaLocation" />
+
 	<xsl:template match="//mpx:geogrBezug[not (@funktion)]">
 		<xsl:message>
 			<xsl:text>//mpx:geogrBezug/@funktion: add default value</xsl:text>

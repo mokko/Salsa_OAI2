@@ -13,6 +13,35 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";    #works only under *nix, of course
 use Salsa_OAI::Updater;
 
+=head1 SYNOPSIS
+
+ #remove outdated resources:
+ updateStore.pl rmres mume.mpx
+
+ #update resources:
+ updateStore.pl upres mume.mpx
+
+ #update agents:
+ updateStore.pl upagt mume.mpx
+
+ The first parameter is called command.
+
+=head2 Command Line Options
+
+=over 1
+
+=item -v
+
+verbose output
+
+=item -h
+
+help text
+
+=back
+
+=cut
+
 Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
 
@@ -53,63 +82,3 @@ my $updater=new Salsa_OAI::Updater (
 my $cmd=$ARGV[0];
 $updater->$cmd ($ARGV[1]);
 print "done\n";
-__END__
-=pod
-
-=head1 NAME
-
-updateStore.pl - update mpx store
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
- #remove outdated resources:
- updateStore.pl rmres mume.mpx
-
- #update resources:
- updateStore.pl upres mume.mpx
-
- #update agents:
- updateStore.pl upagt mume.mpx
-
- The first parameter is called command.
-
-=head2 Command Line Options
-
-=over 1
-
-=item -v
-
-verbose output
-
-=item -h
-
-help text
-
-=back
-
-=head1 DESCRIPTION
-
-Script to initiate partial updates for resources or agents.
-
-=head1 SEE ALSO
-
-digest.pl
-Salsa_OAI::Updater
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
-

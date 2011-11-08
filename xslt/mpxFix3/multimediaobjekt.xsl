@@ -4,37 +4,56 @@
 	xmlns:mpx="http://www.mpx.org/mpx">
 
 	<!--
-		Fix #1: Add multimediaobjekt/@typ where attribute does not yet exist
+		Fix #1: Add multimediaobjekt/@typ, @freigabe, @priorität
+		-where attributes does not yet exist
 		-guess type based on file extension,
-		-fill in a value only if no value exists already
-		-current values: /Bild|Audio|Video|Text/
+		-current typ values: /Bild|Audio|Video|Text/
+		-set freigabe=Web for Standardbild or default to 'intern'
+		-set priorität to 10 for Standardbild
 	-->
-	<xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[not (@typ)]">
-		<xsl:message>
-			<xsl:text>//mpx:multimediaobjekt/@typ: add typ based on multimediaErweiterung</xsl:text>
-		</xsl:message>
+	<xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt">
 		<xsl:copy>
-			<xsl:attribute name="typ">
-			<xsl:call-template name="choosetyp" />
-		</xsl:attribute>
+			<xsl:if test="not (@typ)">
+				<xsl:message>
+					<xsl:text>//mpx:multimediaobjekt/@typ: add typ based on multimediaErweiterung</xsl:text>
+				</xsl:message>
+				<xsl:attribute name="typ">
+					<xsl:call-template name="choosetyp" />
+				</xsl:attribute>
+			</xsl:if>
+
+			<xsl:choose>
+				<xsl:when test="mpx:standardbild">
+					<xsl:attribute name="freigabe">Web</xsl:attribute>
+					<xsl:message>
+						<xsl:text>//mpx:multimediaobjekt/@freigabe: standardbild:reset to Web</xsl:text>
+					</xsl:message>
+				</xsl:when>
+				<xsl:when test="not(mpx:standardbild) and not (@freigabe)">
+					<xsl:attribute name="freigabe">intern</xsl:attribute>
+					<xsl:message>
+						<xsl:text>//mpx:multimediaobjekt/@freigabe: add default value</xsl:text>
+					</xsl:message>
+				</xsl:when>
+				<xsl:when test="@freigabe">
+					<xsl:attribute name="freigabe">
+								<xsl:value-of select="." />
+							</xsl:attribute>
+				</xsl:when>
+			</xsl:choose>
+
+			<xsl:if test="not (@priorität)">
+				<xsl:if test="mpx:standardbild">
+					<xsl:attribute name="priorität">10</xsl:attribute>
+					<xsl:message>
+						<xsl:text>//mpx:multimediaobjekt/@priorität: add 10 for standardbild</xsl:text>
+					</xsl:message>
+				</xsl:if>
+			</xsl:if>
 			<xsl:apply-templates select="@*|node()" />
 		</xsl:copy>
 	</xsl:template>
 
-	<!-- Fix #2: Add multimediaobjekt/@freigabe -->
-	<xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt[not (@freigabe)]">
-		<xsl:message>
-			<xsl:text>///mpx:multimediaobjekt/@freigabe: add default value</xsl:text>
-		</xsl:message>
-
-		<xsl:copy>
-			<xsl:attribute name="freigabe">
-			<xsl:text>intern</xsl:text>
-		</xsl:attribute>
-
-			<xsl:apply-templates select="@*|node()" />
-		</xsl:copy>
-	</xsl:template>
 
 
 	<xsl:template name="choosetyp">

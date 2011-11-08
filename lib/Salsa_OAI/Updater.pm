@@ -1,7 +1,4 @@
 package Salsa_OAI::Updater;
-BEGIN {
-  $Salsa_OAI::Updater::VERSION = '0.019';
-}
 
 # ABSTRACT: Update store partially
 
@@ -16,6 +13,55 @@ use utf8;
 our $verbose = 0;    #default value
 sub verbose;
 
+=head1 SYNOPSIS
+
+ my $updater=new Salsa_OAI::Updater (dbfile=>$dbfile, verbose=>1);
+ $updater->rmres ($mpx_file);
+ $updater->upres ($mpx_file);
+ $updater->upagt ($mpx_file);
+
+=head2 Background
+
+The digester expects mpx data in one big file and loads it into the sqlite store.
+Information is stored there in one xml metadata. Each object can have multiple
+agents and resources associated with it.
+
+Later in the workflow, I might need to update agents or resources.
+
+So far I had to dump the content of the store to one big file, work on that and
+re-import it back to the store. This is cumbersome and error-prone, but didn't
+require writing new tools.
+
+Now I will have this task several times and this indicates that I need a more
+generic solution.
+
+The digester already updates objects. But it requires that during the update i
+not only have the current object, but also current agent and resources all in
+one file.
+
+For trivial updates this is ok. Now, I need a way to update agents and
+resources separately. I assume that I overwrite existing records which have the
+same id.
+
+A true update removes outdated information, thus I also need a way to delete
+resources with outdated.
+
+=head2 Towards an algorithm
+
+Attention:
+ object points to related agent:
+ sammlungsobjekt/personKörperschaftRef/@id = kueId
+
+ resource points to related object:
+ multimediaobjekt/verknüpftesObjekt = objId
+
+Update agent
+ 1. parse mpx file containing new agents and keep all new kueId in mind
+ 2. walk thru all objects in store and examine personKörperschaftRef
+ 3.
+	update only if exportdatum is newer
+
+=cut
 
 sub new {
 	my $class = shift;
@@ -44,6 +90,24 @@ sub new {
 	return $self;
 }
 
+=method $updater->rmres ($mume_mpx);
+
+Remove outdated mume. Removes multimediaobject mentioned in mume_mpx from
+store. rmres does not check the content of multimediaobjekt. It simply
+extracts mulId from mume_mpx and removes all occurences of multimedia with
+this mulId.
+
+TODO: there might still be a unicode problem that prevents the deletion of
+some of them. Unclear at the moment!
+
+Alogorithm.
+
+ 1. parse a mume.mpx and extract all mulIds
+ 2. walk thru store and delete resources with these mulIds
+
+	exportdatum is irrelevant
+
+=cut
 
 sub rmres {
 	my $self = shift;
@@ -91,6 +155,19 @@ sub rmres {
 	}
 }
 
+
+=method $updater->upres ($mume_mpx);
+
+Update resources
+ 1. parse a mume.mpx and extract verknüpftesObjekt
+ 2. open objects referred to in verknüpftesObjekt
+ 3. add resource to that object in store
+
+ Update only if exportdatum is newer
+
+ Report which objects were NOT found!
+
+=cut
 
 sub upres {
 	my $self = shift;
@@ -154,6 +231,22 @@ sub upres {
 }
 
 
+=method $self->upagt ($mpxFN)
+
+	Update agent information in the store with perKör from a mpx file. Update
+	only if perKör has newer exportDatum.
+
+	Note: This requires the sammmlungsobjekt/personKörperschaftRef to have the
+	correct id!
+
+	Algorithm:
+	-walk thru every sammlungsobjekt in store
+	-look for personKörperschaftRef/@id
+	-if file has a this perKör and the exportdatum is newer or same age
+	 update this item
+
+=cut
+
 sub upagt {
 	my $self = shift;
 	my $file = shift or die "Need mpx!";
@@ -185,6 +278,42 @@ sub upagt {
 		}
 	}
 }
+
+
+=func $md=_upagt_single ($storeMd, $fileXpc);
+
+	Expect the md from store and file xpc to compare.
+	Compare the current store document with agent info in file.
+	Update and add if necessary.
+
+	Towards an Algorithm
+	1. Read $sid=store/mpx/sammlungsobjekt/personKörperschaftRef/@id
+		The people we are looking for are ONLY the ones mentioned in
+		sammlungsobjekt.
+	2. Read file/mpx/personKörperschaft/@kueId=$sid
+		We need to see if we have any of those in the file. We can forget
+		about those people who are wanted (1.), but not part of 2., so let's
+		call the common elements of both sets the Wanted.
+	3. In the Wanted group (or set), compare file with store
+		store/mpx/personKörperschaft
+		file/mpx/personKörperschaft
+	   Update if
+	   a) there is no person in store, but there is one in file
+	   b) there is a person in store and one in file, and file exportdatum
+	      is newer or the same
+
+	STEPS
+	upagt
+	1 Make an Hash with kueIds in the file
+		$perKorFile{$kueId}=1
+
+	_upagt_single
+	2 Walk thru store
+	  for each perKorRef check if
+
+	3
+
+=cut
 
 
 sub _upagt_single {
@@ -289,6 +418,13 @@ sub _connectDB {
 	#verbose "DB connect successful: $self->{dbh}";
 }
 
+
+=method my $md=$self->_rmres_single (@{$aref}[1], \%delete);
+
+Return native_md only if it has changed. This is called on each metadata.
+
+=cut
+
 sub _rmres_single {
 	my $self     = shift or die "Really wrong!";
 	my $md       = shift or die "No md!";
@@ -328,6 +464,24 @@ sub _rmres_single {
 	}
 }
 
+=func my $md=_upres_single ($objId, $doc, $md);
+
+Gets called for each database record which needs change. Hands over the current
+objId, the complete document which needs importing with multimedia objects, and
+the current metadata from the respective record from the db.
+
+This func rewrites the metadata, i.e. adds multimediaobjekt from file referring
+to this record and returns it as string.
+
+TODO: Currently, we add metadata no matter what. That means we can add multiple
+multimedia records with the same mulId and we can add outdated info. We ddon't
+want either of that.
+
+What to do to avoid this?
+
+Also we wanted to overwrite resources with respect to exportdatum
+
+=cut
 
 sub _upres_single {
 	my $objId  = shift or die "Need objId!";
@@ -396,6 +550,9 @@ sub _upres_single {
 	return $mddoc->toString;
 }
 
+=head2 $doc=_registerNS ($doc);
+
+=cut
 
 sub _registerNS {
 	my $doc = shift or die "Can't registerNS";
@@ -408,177 +565,4 @@ sub _registerNS {
 }
 1;
 
-__END__
-=pod
-
-=head1 NAME
-
-Salsa_OAI::Updater - Update store partially
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
- my $updater=new Salsa_OAI::Updater (dbfile=>$dbfile, verbose=>1);
- $updater->rmres ($mpx_file);
- $updater->upres ($mpx_file);
- $updater->upagt ($mpx_file);
-
-=head2 Background
-
-The digester expects mpx data in one big file and loads it into the sqlite store.
-Information is stored there in one xml metadata. Each object can have multiple
-agents and resources associated with it.
-
-Later in the workflow, I might need to update agents or resources.
-
-So far I had to dump the content of the store to one big file, work on that and
-re-import it back to the store. This is cumbersome and error-prone, but didn't
-require writing new tools.
-
-Now I will have this task several times and this indicates that I need a more
-generic solution.
-
-The digester already updates objects. But it requires that during the update i
-not only have the current object, but also current agent and resources all in
-one file.
-
-For trivial updates this is ok. Now, I need a way to update agents and
-resources separately. I assume that I overwrite existing records which have the
-same id.
-
-A true update removes outdated information, thus I also need a way to delete
-resources with outdated.
-
-=head2 Towards an algorithm
-
-Attention:
- object points to related agent:
- sammlungsobjekt/personKörperschaftRef/@id = kueId
-
- resource points to related object:
- multimediaobjekt/verknüpftesObjekt = objId
-
-Update agent
- 1. parse mpx file containing new agents and keep all new kueId in mind
- 2. walk thru all objects in store and examine personKörperschaftRef
- 3.
-	update only if exportdatum is newer
-
-=head1 METHODS
-
-=head2 $updater->rmres ($mume_mpx);
-
-Remove outdated mume. Removes multimediaobject mentioned in mume_mpx from
-store. rmres does not check the content of multimediaobjekt. It simply
-extracts mulId from mume_mpx and removes all occurences of multimedia with
-this mulId.
-
-TODO: there might still be a unicode problem that prevents the deletion of
-some of them. Unclear at the moment!
-
-Alogorithm.
-
- 1. parse a mume.mpx and extract all mulIds
- 2. walk thru store and delete resources with these mulIds
-
-	exportdatum is irrelevant
-
-=head2 $updater->upres ($mume_mpx);
-
-Update resources
- 1. parse a mume.mpx and extract verknüpftesObjekt
- 2. open objects referred to in verknüpftesObjekt
- 3. add resource to that object in store
-
- Update only if exportdatum is newer
-
- Report which objects were NOT found!
-
-=head2 $self->upagt ($mpxFN)
-
-	Update agent information in the store with perKör from a mpx file. Update
-	only if perKör has newer exportDatum.
-
-	Note: This requires the sammmlungsobjekt/personKörperschaftRef to have the
-	correct id!
-
-	Algorithm:
-	-walk thru every sammlungsobjekt in store
-	-look for personKörperschaftRef/@id
-	-if file has a this perKör and the exportdatum is newer or same age
-	 update this item
-
-=head2 my $md=$self->_rmres_single (@{$aref}[1], \%delete);
-
-Return native_md only if it has changed. This is called on each metadata.
-
-=head1 FUNCTIONS
-
-=head2 $md=_upagt_single ($storeMd, $fileXpc);
-
-	Expect the md from store and file xpc to compare.
-	Compare the current store document with agent info in file.
-	Update and add if necessary.
-
-	Towards an Algorithm
-	1. Read $sid=store/mpx/sammlungsobjekt/personKörperschaftRef/@id
-		The people we are looking for are ONLY the ones mentioned in
-		sammlungsobjekt.
-	2. Read file/mpx/personKörperschaft/@kueId=$sid
-		We need to see if we have any of those in the file. We can forget
-		about those people who are wanted (1.), but not part of 2., so let's
-		call the common elements of both sets the Wanted.
-	3. In the Wanted group (or set), compare file with store
-		store/mpx/personKörperschaft
-		file/mpx/personKörperschaft
-	   Update if
-	   a) there is no person in store, but there is one in file
-	   b) there is a person in store and one in file, and file exportdatum
-	      is newer or the same
-
-	STEPS
-	upagt
-	1 Make an Hash with kueIds in the file
-		$perKorFile{$kueId}=1
-
-	_upagt_single
-	2 Walk thru store
-	  for each perKorRef check if
-
-	3
-
-=head2 my $md=_upres_single ($objId, $doc, $md);
-
-Gets called for each database record which needs change. Hands over the current
-objId, the complete document which needs importing with multimedia objects, and
-the current metadata from the respective record from the db.
-
-This func rewrites the metadata, i.e. adds multimediaobjekt from file referring
-to this record and returns it as string.
-
-TODO: Currently, we add metadata no matter what. That means we can add multiple
-multimedia records with the same mulId and we can add outdated info. We ddon't
-want either of that.
-
-What to do to avoid this?
-
-Also we wanted to overwrite resources with respect to exportdatum
-
-=head2 $doc=_registerNS ($doc);
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
