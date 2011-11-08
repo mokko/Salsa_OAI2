@@ -17,14 +17,18 @@
 				<xsl:message>
 					<xsl:text>//mpx:multimediaobjekt/@typ: add typ based on multimediaErweiterung</xsl:text>
 				</xsl:message>
-				<xsl:attribute name="typ">
-					<xsl:call-template name="choosetyp" />
-				</xsl:attribute>
+				<xsl:if test="mpx:multimediaErweiterung">
+					<xsl:attribute name="typ">
+						<xsl:call-template name="choosetyp" />
+					</xsl:attribute>
+				</xsl:if>
 			</xsl:if>
+
+			<xsl:if test="@typ=''"></xsl:if>
 
 			<xsl:choose>
 				<xsl:when test="mpx:standardbild">
-					<xsl:attribute name="freigabe">Web</xsl:attribute>
+					<xsl:attribute name="freigabe">web</xsl:attribute>
 					<xsl:message>
 						<xsl:text>//mpx:multimediaobjekt/@freigabe: standardbild:reset to Web</xsl:text>
 					</xsl:message>
@@ -81,19 +85,14 @@
 			<xsl:when test="$ext = 'wpd'">
 				<xsl:text>Text</xsl:text>
 			</xsl:when>
-			<xsl:when test="$ext = ''">
+			<xsl:otherwise>
 				<xsl:message>
 					<xsl:text>Add multimediaobjekt/@typ: Erweiterung empty; assume </xsl:text>
 					<xsl:text>default "Bild"</xsl:text>
 					<!-- xsl:value-of select="text(.)" / -->
 				</xsl:message>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:message>
-					<xsl:text>Warning: Erweiterung unbekannt:</xsl:text>
-					<xsl:value-of select="$ext" />
-				</xsl:message>
 			</xsl:otherwise>
+		</xsl:when>
 		</xsl:choose>
 	</xsl:template>
 </xsl:stylesheet>
