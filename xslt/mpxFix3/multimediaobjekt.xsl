@@ -24,8 +24,6 @@
 				</xsl:if>
 			</xsl:if>
 
-			<xsl:if test="@typ=''"></xsl:if>
-
 			<xsl:choose>
 				<xsl:when test="mpx:standardbild">
 					<xsl:attribute name="freigabe">web</xsl:attribute>
@@ -58,6 +56,13 @@
 		</xsl:copy>
 	</xsl:template>
 
+
+	<xsl:template match="/mpx:museumPlusExport/mpx:multimediaobjekt/@typ[.= '']">
+		<xsl:message>
+			<xsl:text>empty typ</xsl:text>
+			<xsl:value-of select="." />
+		</xsl:message>
+	</xsl:template>
 
 
 	<xsl:template name="choosetyp">
