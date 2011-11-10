@@ -5,7 +5,7 @@ config.yml
 *.stackdump
 *~
 *.yml
-*.mpx
+#.mpx - need that for perkor.mpx
 *.xml
 *.log
 *.zip

@@ -14,9 +14,10 @@
 	-->
 
 	<xsl:include href="mpxFix3/multimediaobjekt.xsl" />
+	<xsl:include href="mpxFix3/personKörperschaft.xsl" />
 	<xsl:include href="mpxFix3/sammlungsobjekt.xsl" />
 
-	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" />
+	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" />
 	<xsl:strip-space elements="*" />
 
 	<!-- Identity -->

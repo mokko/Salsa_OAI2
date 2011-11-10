@@ -9,16 +9,14 @@
 
 	<xsl:template match="/">
 		<xsl:for-each-group select="/mpx:museumPlusExport/mpx:multimediaobjekt"
-			group-by="@id">
-			<xsl:sort data-type="text" lang="en" order="ascending" />
-			<xsl:message>
-				<xsl:value-of select="count(current-group())" />
-				<xsl:text>:</xsl:text>
-				<xsl:value-of select="." />
-			</xsl:message>
-		</xsl:element>
+			group-by="@mulId">
+			<xsl:if test="count(current-group())> 1">
+				<xsl:message>
+					<xsl:value-of select="count(current-group())" />
+					<xsl:text>:</xsl:text>
+					<xsl:value-of select="@mulId" />
+				</xsl:message>
+			</xsl:if>
 		</xsl:for-each-group>
-	</sachbegriffe>
-
 	</xsl:template>
 </xsl:stylesheet>
