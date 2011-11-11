@@ -105,12 +105,13 @@
      <xsl:when test="@typ = 'Bild' ">
       <xsl:text>image</xsl:text>
      </xsl:when>
-     <xsl:otherwise>
-      <xsl:text>bla</xsl:text>
-      <!-- <xsl:message>
+      <!-- 
+           <xsl:otherwise>
+      <xsl:message>
        resourceType unclear
-       </xsl:message> -->
-     </xsl:otherwise>
+       </xsl:message> 
+            </xsl:otherwise>
+       -->
     </xsl:choose>
    </lido:term>
   </lido:resourceType>
