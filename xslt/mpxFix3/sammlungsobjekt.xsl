@@ -10,10 +10,7 @@
      select="document('perkor.mpx')/mpx:museumPlusExport/mpx:personKörperschaft[ mpx:nennform = current()or mpx:name = current()]/@kueId"/>
    <xsl:if
     test="not (@id) and count ($kueId)= 1">
-    <!--
-     currently we allow people with the same name to be confused. If should check
-     if there is really only one person with that name
-    -->
+    <!-- do not confuse people or records with the same name-->
     <xsl:attribute name="id">
      <xsl:value-of select="$kueId"/>
      </xsl:attribute>
@@ -25,10 +22,8 @@
     </xsl:message>
    </xsl:if>
 
-
    <xsl:apply-templates select="@*|node()"/>
   </xsl:copy>
-
  </xsl:template>
 
 

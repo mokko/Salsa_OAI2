@@ -27,21 +27,22 @@
    <xsl:choose>
     <xsl:when test="mpx:standardbild">
      <xsl:attribute name="freigabe">web</xsl:attribute>
-     <xsl:message>
-      <xsl:text>//mpx:multimediaobjekt/@freigabe: standardbild:reset to Web</xsl:text>
-     </xsl:message>
-    </xsl:when>
-    <xsl:when test="not(mpx:standardbild) and not (@freigabe)">
-     <xsl:attribute name="freigabe">intern</xsl:attribute>
-     <xsl:message>
-      <xsl:text>//mpx:multimediaobjekt/@freigabe: add default value</xsl:text>
-     </xsl:message>
-    </xsl:when>
-    <xsl:when test="@freigabe">
-     <xsl:attribute name="freigabe">
+     <xsl:when test="not (@freigabe = 'Web' or @freigabe = 'web')">
+      <xsl:message>
+       <xsl:text>//mpx:multimediaobjekt/@freigabe: standardbild:reset to Web</xsl:text>
+      </xsl:message>
+     </xsl:when>
+     <xsl:when test="not(mpx:standardbild) and not (@freigabe)">
+      <xsl:attribute name="freigabe">intern</xsl:attribute>
+      <xsl:message>
+       <xsl:text>//mpx:multimediaobjekt/@freigabe: add default value</xsl:text>
+      </xsl:message>
+     </xsl:when>
+     <xsl:when test="@freigabe">
+      <xsl:attribute name="freigabe">
 	  <xsl:value-of select="."/>
 	 </xsl:attribute>
-    </xsl:when>
+     </xsl:when>
    </xsl:choose>
 
    <xsl:if test="not (@priorität)">

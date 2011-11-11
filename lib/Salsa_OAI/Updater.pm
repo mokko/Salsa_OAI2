@@ -155,7 +155,6 @@ sub rmres {
 	}
 }
 
-
 =method $updater->upres ($mume_mpx);
 
 Update resources
@@ -190,46 +189,38 @@ sub upres {
 
 		#verbose "VVVVVVVVVV".$vObj->to_literal;
 		$vObjs{ $vObj->to_literal }++;
-	}
+		if ( $vObjs{ $vObj->to_literal } == 1 ) {
+			verbose "vObj:$vObj";
+			my $md = $self->getMdfromStore($vObj);
+			my $newMd = _upres_single( $vObj, $doc, $md ) if ($md);
 
-	foreach my $vObj ( keys %vObjs ) {
-
-		verbose "vObj:$vObj";
-		my $sql = q/SELECT native_md FROM records WHERE identifier=?/;
-		my $dbh = $self->{dbh};
-
-		#quick and very dirty production of oai-identifiers TODO
-		my $oaiId = "spk-berlin.de:EM-objId-$vObj";
-		verbose "oaiId: $oaiId";
-
-		my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
-		$sth->execute($oaiId) or croak $dbh->errstr();
-
-		#expect one or zero responses
-		while ( my $aref = $sth->fetch ) {
-			verbose "About to update " . $vObj;
-
-			#dirty xml work in extra sub
-			#current objId, mpx file and md from db
-			#returns rewritten md only if it has changed, should change always
-			my $md = _upres_single( $vObj, $doc, @{$aref}[0] );
-
-			if ($md) {
-
-				#verbose @{$aref}[0];
-				#verbose "------------------";
-				#verbose $md;
-				#update_store
-				#verbose " update store";
-				$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
-				my $sth = $dbh->prepare($sql)
-				  or croak $dbh->errstr();
-				$sth->execute( $md, $oaiId ) or croak $dbh->errstr();
+			#update only if $md and $newMd are NOT the same
+			if ( $newMd && $newMd ne $md ) {
+				updateStoreMd($newMd);
 			}
 		}
 	}
 }
 
+=method updateStoreMd ($objId, $md);
+
+dies or croaks on failure, return 0 on success
+
+=cut
+
+sub updateStoreMd {
+	my $self  = shift or croak "Something's really wrong";
+	my $objId = shift or croak "Need objId to update store";
+	my $md    = shift or croak "Need metadata to update store";
+
+	#verbose "updateStoreMd: md: $md";
+	my $oaiId = $self->oaiIdID($objId);
+	my $sql   = qq/UPDATE records SET native_md=? WHERE identifier=?/;
+	my $dbh   = $self->{dbh};
+	my $sth   = $dbh->prepare($sql) or croak $dbh->errstr();
+	$sth->execute( $md, $oaiId ) or croak $dbh->errstr();
+	return 0;
+}
 
 =method $self->upagt ($mpxFN)
 
@@ -248,7 +239,7 @@ sub upres {
 =cut
 
 sub upagt {
-	my $self = shift;
+	my $self = shift or die "Something's really wrong";
 	my $file = shift or die "Need mpx!";
 
 	verbose 'update agent: Read mume.mpx file and import new '
@@ -279,6 +270,23 @@ sub upagt {
 	}
 }
 
+=method my $oaiId=$self->oaiId($objId);
+
+Dies on failure
+
+=cut
+
+sub oaiId {
+	my $self  = shift or die "Someting's really wrong!";
+	my $objId = shift or die "need objId";
+
+	#quick and very dirty production of oai-identifiers TODO
+	#make this configurable in config.yml
+	my $oaiId = "spk-berlin.de:EM-objId-$objId";
+
+	#debug "objId->oaiId: $objid";
+	return $oaiId;
+}
 
 =func $md=_upagt_single ($storeMd, $fileXpc);
 
@@ -314,7 +322,6 @@ sub upagt {
 	3
 
 =cut
-
 
 sub _upagt_single {
 	my $storeMd = shift or die "No md!";
@@ -372,7 +379,8 @@ sub _upagt_single {
 						$storeRoot[0]->replaceChild( $clone, $storeAgt[0] );
 						$update++;
 					}
-				} else {
+				}
+				else {
 
 					#import from file to store if perKor doesn't exist in store
 					$storeRoot[0]->insertBefore( $clone, $storeSam[0] );
@@ -380,7 +388,8 @@ sub _upagt_single {
 					$update++;
 				}
 
-			} else {
+			}
+			else {
 				verbose " this perKor does not exist in file (kueId:$storeId)";
 			}
 		}
@@ -397,10 +406,78 @@ sub verbose {
 	print "$msg\n" if $verbose gt 0;
 }
 
+=method $updater->upObj ($mpx_file);
+
+Work in progress.
+
+Update sammlungsobjekte without deleting multimediaobjekte or 
+personenKörperschaften.
+
+
+
+=cut
+
+sub _upObj {
+
+	my $self = shift;
+	my $mpx = shift or die "Need mpx!";    #INPUT document
+
+	verbose "update objects: read input file and import it into store";
+
+	#verbose "mpx:$mpx";
+	my $doc = XML::LibXML->new->parse_file($mpx);
+	$doc = _registerNS($doc);
+	my @objIds =
+	  $doc->findnodes('/mpx:museumPlusExport/mpx:sammlungsobjekt/@objId');
+
+	#we enter here only those agents and resources come with the input doc
+	#we leave it the outside world to ensure that the right res and agts
+	#are part of the input document
+	foreach my $objId (@objIds) {
+
+		#query db for that specific record
+
+		my $md = $self->getMdfromStore($objId);
+
+		#else: insert new record
+		#_insertObj($objId);
+	}
+
+}
+
+=method my $md=$self->getMdfromStore ($objId);
+
+I expect that I get only one md for each $objId. getMdfromStore only ever 
+returns the first existing md. 
+
+=cut
+
+sub getMdFromStore {
+	my $self  = shift or die "Someting's really wrong!";
+	my $objId = shift or return;
+
+	verbose "objId:$objId (from mpx)";
+	my $sql = q/SELECT native_md FROM records WHERE identifier=?/;
+	my $dbh = $self->{dbh};
+
+	my $oaiId = $self->OAIID($objId);
+	verbose "oaiId: $oaiId";
+
+	my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
+	$sth->execute($oaiId) or croak $dbh->errstr();
+
+	#expect one or zero responses
+	my $aref = $sth->fetch;
+	my $md   = @{$aref}[0];
+	if ( !$md ) {
+		return;
+	}
+	return $md;
+}
+
 #
 # PRIVAtE SUBS
 #
-
 
 sub _connectDB {
 	my $self = shift;
@@ -417,7 +494,6 @@ sub _connectDB {
 
 	#verbose "DB connect successful: $self->{dbh}";
 }
-
 
 =method my $md=$self->_rmres_single (@{$aref}[1], \%delete);
 
@@ -564,5 +640,4 @@ sub _registerNS {
 	return $xpc;
 }
 1;
-
 
