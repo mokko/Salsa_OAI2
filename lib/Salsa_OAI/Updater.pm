@@ -7,6 +7,7 @@ use warnings;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 use DBI;
+use Carp 'croak';
 use Encode qw (from_to);
 use utf8;
 
