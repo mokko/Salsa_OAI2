@@ -38,7 +38,7 @@
         <lido:titleSet>
             <xsl:element name="lido:appellationValue">
                 <xsl:attribute name="xml:lang">de</xsl:attribute>
-                <xsl:attribute name="lido:encodinganalog">
+                <xsl:attribute name="lido:label">
                     <xsl:text>mpx:</xsl:text>
                     <xsl:value-of select="name()"/>
                 </xsl:attribute>

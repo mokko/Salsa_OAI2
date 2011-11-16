@@ -88,7 +88,7 @@
  </xsl:template>
 
 
- <!-- NAMED templates  -->
+ <!-- NAMED templates -->
 
 
  <xsl:template name="resourceType">
@@ -105,13 +105,13 @@
      <xsl:when test="@typ = 'Bild' ">
       <xsl:text>image</xsl:text>
      </xsl:when>
-      <!-- 
-           <xsl:otherwise>
+     <!--
+      <xsl:otherwise>
       <xsl:message>
-       resourceType unclear
-       </xsl:message> 
-            </xsl:otherwise>
-       -->
+      resourceType unclear
+      </xsl:message>
+      </xsl:otherwise>
+     -->
     </xsl:choose>
    </lido:term>
   </lido:resourceType>
@@ -147,17 +147,26 @@
    <xsl:choose>
     <xsl:when test="$count > 1">
      <xsl:if test="@typ ='Bild'">
-      <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+      <!--
+       it is still possible that there are multiple images of lowest pref, right?
+       not really. Currently they would probably overwritten on the filesystem.
+       But this is a not a good xslt solution anyways
+      -->
+     <xsl:call-template name="attrPref"/>
      </xsl:if>
     </xsl:when>
 
     <!-- if only one resource with lowest pref, disregard type -->
     <xsl:otherwise>
-     <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+     <xsl:call-template name="attrPref"/>
     </xsl:otherwise>
    </xsl:choose>
   </xsl:if>
  </xsl:template>
 
+
+ <xsl:template name="attrPref">
+  <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+ </xsl:template>
 
 </xsl:stylesheet>

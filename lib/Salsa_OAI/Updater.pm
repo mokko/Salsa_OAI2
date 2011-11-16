@@ -1,22 +1,21 @@
 package Salsa_OAI::Updater;
 
 # ABSTRACT: Update store partially
+# will become part of HTTP::OAI::DataProvider when I have the time for that
 
 use strict;
 use warnings;
 use XML::LibXML;
-use XML::LibXML::XPathContext;
+#use XML::LibXML::XPathContext;    #necessary to use?
 use DBI;
 use Carp 'croak';
 use Encode qw (from_to);
 use utf8;
-
-our $verbose = 0;    #default value
-sub verbose;
+use Debug::Simpler 'debug';
 
 =head1 SYNOPSIS
 
- my $updater=new Salsa_OAI::Updater (dbfile=>$dbfile, verbose=>1);
+ my $updater=new Salsa_OAI::Updater (dbfile=>$dbfile);
  $updater->rmres ($mpx_file);
  $updater->upres ($mpx_file);
  $updater->upagt ($mpx_file);
@@ -78,16 +77,16 @@ sub new {
 		die "Dbfile not found: $args{dbfile}!";
 	}
 
-	if ( $args{verbose} ) {
-
-		#overwrites default
-		$verbose = $args{verbose} = 1 if $args{verbose} gt 0;
+	if ( $args{debug} && $args{debug} gt 0 ) {
+		Debug::Simpler::debug_on();
 	}
-
+	else {
+		Debug::Simpler::debug_off();
+	}
 	bless $self, $class;
 	$self->_connectDB( $args{dbfile} );
 
-	#verbose "dbfile exists: $args{dbfile}";
+	#debug "dbfile exists: $args{dbfile}";
 	return $self;
 }
 
@@ -114,7 +113,7 @@ sub rmres {
 	my $self = shift;
 	my $mpx = shift or die "Need mpx!";
 
-	#verbose "mpx:$mpx";
+	#debug "mpx:$mpx";
 	my $doc = XML::LibXML->new->parse_file($mpx);
 
 	$doc = _registerNS($doc);
@@ -129,8 +128,8 @@ sub rmres {
 		$delete{ $_->value } = 0;
 		$msg .= $_->value . ';';
 	}
-	verbose $msg. ')';
-	verbose "total: " . scalar keys %delete;
+	debug $msg. ')';
+	debug "total: " . scalar keys %delete;
 
 	#walk thru store
 	my $sql = q/SELECT identifier,native_md FROM records;/;
@@ -139,16 +138,16 @@ sub rmres {
 	$sth->execute() or croak $dbh->errstr();
 
 	while ( my $aref = $sth->fetch ) {
-		verbose @{$aref}[0];
+		debug @{$aref}[0];
 
 		#xml action
 		my $md = $self->_rmres_single( @{$aref}[1], \%delete );
 		if ($md) {
 
-			#verbose @{$aref}[1];
-			#verbose "---------------";
-			#verbose $ret;
-			verbose "update store - record: @{$aref}[0]";
+			#debug @{$aref}[1];
+			#debug "---------------";
+			#debug $ret;
+			debug "update store - record: @{$aref}[0]";
 			$sql = qq/UPDATE records SET native_md=? WHERE / . qq/identifier=?/;
 			my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
 			$sth->execute( $md, @{$aref}[0] ) or croak $dbh->errstr();
@@ -173,9 +172,9 @@ sub upres {
 	my $self = shift;
 	my $mpx = shift or die "Need mpx!";
 
-	verbose "update resources: read mume.mpx file and import it into store";
+	debug "update resources: read mume.mpx file and import it into store";
 
-	#verbose "mpx:$mpx";
+	#debug "mpx:$mpx";
 	my $doc = XML::LibXML->new->parse_file($mpx);
 
 	$doc = _registerNS($doc);
@@ -188,10 +187,10 @@ sub upres {
 	my %vObjs;
 	foreach my $vObj (@vObjs) {
 
-		#verbose "VVVVVVVVVV".$vObj->to_literal;
+		#debug "VVVVVVVVVV".$vObj->to_literal;
 		$vObjs{ $vObj->to_literal }++;
 		if ( $vObjs{ $vObj->to_literal } == 1 ) {
-			verbose "vObj:$vObj";
+			debug "vObj:$vObj";
 			my $md = $self->getMdfromStore($vObj);
 			my $newMd = _upres_single( $vObj, $doc, $md ) if ($md);
 
@@ -201,26 +200,6 @@ sub upres {
 			}
 		}
 	}
-}
-
-=method updateStoreMd ($objId, $md);
-
-dies or croaks on failure, return 0 on success
-
-=cut
-
-sub updateStoreMd {
-	my $self  = shift or croak "Something's really wrong";
-	my $objId = shift or croak "Need objId to update store";
-	my $md    = shift or croak "Need metadata to update store";
-
-	#verbose "updateStoreMd: md: $md";
-	my $oaiId = $self->oaiIdID($objId);
-	my $sql   = qq/UPDATE records SET native_md=? WHERE identifier=?/;
-	my $dbh   = $self->{dbh};
-	my $sth   = $dbh->prepare($sql) or croak $dbh->errstr();
-	$sth->execute( $md, $oaiId ) or croak $dbh->errstr();
-	return 0;
 }
 
 =method $self->upagt ($mpxFN)
@@ -243,10 +222,10 @@ sub upagt {
 	my $self = shift or die "Something's really wrong";
 	my $file = shift or die "Need mpx!";
 
-	verbose 'update agent: Read mume.mpx file and import new '
+	debug 'update agent: Read mume.mpx file and import new '
 	  . 'personKörperschaft records where they are newer';
 
-	#verbose "mpx:$mpx";
+	#debug "mpx:$mpx";
 	my $doc = XML::LibXML->new->parse_file($file);
 
 	#sql part
@@ -258,11 +237,11 @@ sub upagt {
 	#expect one or zero responses
 	while ( my $aref = $sth->fetch ) {
 
-		verbose "oai-id:" . @{$aref}[0];
+		debug "oai-id:" . @{$aref}[0];
 		my $md = _upagt_single( @{$aref}[1], $doc );
 
 		if ($md) {
-			verbose " ->UPDATE ";    # . @{$aref}[0];
+			debug " ->UPDATE ";    # . @{$aref}[0];
 
 			$sql = qq/UPDATE records SET native_md=? WHERE identifier=?/;
 			my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
@@ -347,13 +326,13 @@ sub _upagt_single {
 		if ($storeId) {
 
 			$storeId = $storeId->textContent;
-			verbose ' perkorRef/@id: "' . $storeId . '"';
+			debug ' perkorRef/@id: "' . $storeId . '"';
 
 			#check if storeXpc exists for this person
 			#read exportdatum for both
 			my $xpath = '/mpx:museumPlusExport/mpx:personKörperschaft'
 			  . "[\@kueId = '$storeId']";
-			verbose '   ' . $xpath;
+			debug '   ' . $xpath;
 			my @storeAgt = $storeXpc->findnodes($xpath);
 			my @fileAgt  = $fileXpc->findnodes($xpath);
 			if ( scalar @storeAgt > 1 ) {
@@ -370,13 +349,13 @@ sub _upagt_single {
 				if ( $storeAgt[0] ) {
 
 					#import (replace) if storeDate older/equal
-					verbose "   perKor exists in file and store. check datum";
+					debug "   perKor exists in file and store. check datum";
 					my $fileDate  = $fileAgt[0]->findvalue('@exportdatum');
 					my $storeDate = $storeAgt[0]->findvalue('@exportdatum');
-					verbose "   fileDate $fileDate";
-					verbose "   storeDate $storeDate";
+					debug "   fileDate $fileDate";
+					debug "   storeDate $storeDate";
 					if ( $storeDate le $fileDate ) {
-						verbose "   storeDate older or equal";
+						debug "   storeDate older or equal";
 						$storeRoot[0]->replaceChild( $clone, $storeAgt[0] );
 						$update++;
 					}
@@ -385,26 +364,21 @@ sub _upagt_single {
 
 					#import from file to store if perKor doesn't exist in store
 					$storeRoot[0]->insertBefore( $clone, $storeSam[0] );
-					verbose "   store:no AND file:yes -> Insert from file!";
+					debug "   store:no AND file:yes -> Insert from file!";
 					$update++;
 				}
 
 			}
 			else {
-				verbose " this perKor does not exist in file (kueId:$storeId)";
+				debug " this perKor does not exist in file (kueId:$storeId)";
 			}
 		}
 	}
 	if ( $update > 0 ) {
 
-		#verbose "RETURN";
+		#debug "RETURN";
 		return $storeDoc->toString;
 	}
-}
-
-sub verbose {
-	my $msg = shift or return;
-	print "$msg\n" if $verbose gt 0;
 }
 
 =method $updater->upObj ($mpx_file);
@@ -423,9 +397,9 @@ sub _upObj {
 	my $self = shift;
 	my $mpx = shift or die "Need mpx!";    #INPUT document
 
-	verbose "update objects: read input file and import it into store";
+	debug "update objects: read input file and import it into store";
 
-	#verbose "mpx:$mpx";
+	#debug "mpx:$mpx";
 	my $doc = XML::LibXML->new->parse_file($mpx);
 	$doc = _registerNS($doc);
 	my @objIds =
@@ -446,55 +420,9 @@ sub _upObj {
 
 }
 
-=method my $md=$self->getMdfromStore ($objId);
-
-I expect that I get only one md for each $objId. getMdfromStore only ever 
-returns the first existing md. 
-
-=cut
-
-sub getMdFromStore {
-	my $self  = shift or die "Someting's really wrong!";
-	my $objId = shift or return;
-
-	verbose "objId:$objId (from mpx)";
-	my $sql = q/SELECT native_md FROM records WHERE identifier=?/;
-	my $dbh = $self->{dbh};
-
-	my $oaiId = $self->OAIID($objId);
-	verbose "oaiId: $oaiId";
-
-	my $sth = $dbh->prepare($sql) or croak $dbh->errstr();
-	$sth->execute($oaiId) or croak $dbh->errstr();
-
-	#expect one or zero responses
-	my $aref = $sth->fetch;
-	my $md   = @{$aref}[0];
-	if ( !$md ) {
-		return;
-	}
-	return $md;
-}
-
 #
 # PRIVAtE SUBS
 #
-
-sub _connectDB {
-	my $self = shift;
-	my $dbfile = shift or die "Need dbfile!";
-
-	$self->{dbh} = DBI->connect(
-		"dbi:SQLite:dbname=$dbfile",
-		"", "",
-		{
-			RaiseError     => 1,
-			sqlite_unicode => 1,
-		}
-	) or die "Cant connect to sqlite";
-
-	#verbose "DB connect successful: $self->{dbh}";
-}
 
 =method my $md=$self->_rmres_single (@{$aref}[1], \%delete);
 
@@ -519,14 +447,14 @@ sub _rmres_single {
 	foreach my $store (@store_mulIds) {
 		$store = $store->value;
 
-		#verbose " store-mulIds: $store";
+		#debug " store-mulIds: $store";
 		foreach my $del (@deletes) {
 
 			#TODO: i can't use == indicating that there might still be
 			#a serious unicode problem. Grh!
 			if ( $del eq $store ) {
 				$i++;
-				verbose "-->delete ";
+				debug "-->delete ";
 				my @nodes =
 				  $xpc->findnodes( "/mpx:museumPlusExport/mpx:multimediaobjekt"
 					  . "[\@mulId = '$store']" );
@@ -565,7 +493,7 @@ sub _upres_single {
 	my $impxpc = shift or die "Need doc!";
 	my $md     = shift or die "Need md!";
 
-	#verbose "Enter _upres_single";
+	#debug "Enter _upres_single";
 
 	from_to( $md, "utf8", "UTF-8" );    # extrem schwere Geburt!
 	my $mddoc  = XML::LibXML->load_xml( string => $md );
@@ -590,7 +518,7 @@ sub _upres_single {
 		die "Strange result!";          #should never happen
 	}
 
-	verbose ' about to insert ' . scalar @new_mume;
+	debug ' about to insert ' . scalar @new_mume;
 
 	#insert resources from file into md
 	foreach my $new_node (@new_mume) {
@@ -615,7 +543,7 @@ sub _upres_single {
 					    '/mpx:museumPlusExport/mpx:multimediaobjekt'
 					  . "[\@mulId = '$mulId']" );
 				foreach (@overwrites) {
-					verbose " drop to overwrite $mulId";
+					debug " drop to overwrite $mulId";
 					$_->unbindNode();
 				}
 			}
@@ -627,18 +555,5 @@ sub _upres_single {
 	return $mddoc->toString;
 }
 
-=head2 $doc=_registerNS ($doc);
-
-=cut
-
-sub _registerNS {
-	my $doc = shift or die "Can't registerNS";
-	my $xpc = XML::LibXML::XPathContext->new($doc);
-
-	#should configurable, of course $self->{nativePrefix}, $self->{nativeURI}
-	$xpc->registerNs( 'mpx', 'http://www.mpx.org/mpx' );
-
-	return $xpc;
-}
 1;
 
