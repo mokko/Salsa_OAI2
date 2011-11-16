@@ -4,7 +4,8 @@
   xmlns:lido="http://www.lido-schema.org"
   xmlns:mpx="http://www.mpx.org/mpx" 
   xmlns:func="http://www.mpx.org/func"
-  exclude-result-prefixes="mpx">
+  lido:schemaLocation="http://www.lido-schema.org/schema/v1.0/lido-v1.0.xsd"
+  exclude-result-prefixes="mpx func">
 
   <xsl:import href="mpx2lido/descriptiveMetadata.xsl"/>
   <xsl:import href="mpx2lido/administrativeMetadata.xsl"/>
