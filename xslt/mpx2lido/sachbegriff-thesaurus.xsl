@@ -16,7 +16,7 @@
         <xsl:variable name="this" select="text()"/>
         <xsl:if test="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]">
             <lido:classification>
-                <lido:term xml:lang="de" encodinganalog="SPK's MIMO Keyword Mapping">
+                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping">
                             <xsl:value-of select="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref"/>
                     </lido:term>
             </lido:classification>
