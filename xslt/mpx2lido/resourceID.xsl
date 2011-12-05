@@ -76,7 +76,6 @@
    -->
    <xsl:for-each
     select="../mpx:multimediaobjekt/@priorität[
-     ../mpx:verknüpftesObjekt = $objId and
      . = $min and 
      ../@freigabe='Web' or ../@freigabe='web' and
      ../@typ ='Bild'
