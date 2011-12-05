@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
- xmlns:mpx="http://www.mpx.org/mpx"
- exclude-result-prefixes="mpx"
+ xmlns:mpx="http://www.mpx.org/mpx" exclude-result-prefixes="mpx"
  xsi:schemaLocation="http://www.lido-schema.org  http://www.lido-schema.org/schema/v1.0/lido-v1.0.xsd">
 
  <xsl:import href="mpx2lido/descriptiveMetadata.xsl"/>
@@ -23,9 +22,9 @@
 
   KNOWN ISSUES
   -The indent function of eclipse's xml editor messes up whitespace in this document.
-  -URL in linkResource
+  -no URL in linkResource
   -obj835417 is Trommelschlegel i.e. Teil von Musikinstrument. Wie soll man das erkennen?
-  -events not yet implemented
+  -currently not applicable on one big mpx
  -->
 
  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
@@ -39,16 +38,14 @@
  </xsl:template>
 
  <xsl:template match="/mpx:museumPlusExport/mpx:sammlungsobjekt">
-  <xsl:variable name="currentId" select="@objId"/>
 
-  <!-- Salsa_OAI doesn't like message
-
-   <xsl:message>xxxxxxxxxxxxxxxxxxxxxblah</xsl:message>
-
-   <xsl:message>
-   <xsl:value-of select="concat ('objId',$currentId)"/>
-   </xsl:message>
+  <!-- Salsa_OAI doesn't like message too much
+  <xsl:message>
+   <xsl:text>objId:</xsl:text>
+   <xsl:value-of select="@objId"/>
+  </xsl:message>
   -->
+
   <lido:lido>
    <lido:lidoRecID lido:type="local">
         <xsl:value-of select="concat ('spk:obj-',@objId)"/>

@@ -53,19 +53,18 @@
 
    $min: the lowest @priorität of any image attached
 
-    slow, but universal:
-    ../mpx:multimediaobjekt[mpx:verknüpftesObjekt=$objId]/@priorität[../@typ
-    ='Bild']
-    
-    a little faster, but works only inside data provider
-    ../mpx:multimediaobjekt/@priorität[../@typ ='Bild']
+   slow, but universal:
+   ../mpx:multimediaobjekt[mpx:verknüpftesObjekt=$objId]/@priorität[../@typ
+   ='Bild']
+
+   a little faster, but works only inside data provider
+   ../mpx:multimediaobjekt/@priorität[../@typ ='Bild']
 
   -->
-  <xsl:param name="objId"/>
+  <xsl:variable name="objId" select="../@objId"/>
   <xsl:variable name="min">
 
-   <xsl:for-each
-    select="../mpx:multimediaobjekt/@priorität[../@typ ='Bild']">
+   <xsl:for-each select="../mpx:multimediaobjekt/@priorität[../@typ ='Bild']">
     <xsl:sort select="."/>
     <xsl:if test="position() = 1">
      <xsl:value-of select="."/>
@@ -78,6 +77,7 @@
    -->
    <xsl:for-each
     select="../mpx:multimediaobjekt/@priorität[
+     ../mpx:verknüpftesObjekt = $objId and
      . = $min and 
      ../@freigabe='Web' or ../@freigabe='web' and
      ../@typ ='Bild'
@@ -86,7 +86,7 @@
      <!-- xsl:message>
       <xsl:text>lido:pref for mpx:priorität: </xsl:text>
       <xsl:value-of select="$min"/>
-      </xsl:message -->
+     </xsl:message -->
      <xsl:attribute name="lido:pref">preferred</xsl:attribute>
     </xsl:if>
    </xsl:for-each>
