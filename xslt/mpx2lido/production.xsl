@@ -28,7 +28,7 @@
     <xsl:call-template name="general-culture"/>
 
     <!-- eventDate: both display and data -->
-    <xsl:call-template select="eventDate"/>
+    <xsl:call-template name="eventDate"/>
 
     <!-- eventPlace -->
     <xsl:apply-templates
