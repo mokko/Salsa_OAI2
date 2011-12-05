@@ -61,7 +61,6 @@
    ../mpx:multimediaobjekt/@priorität[../@typ ='Bild']
 
   -->
-  <xsl:variable name="objId" select="../@objId"/>
   <xsl:variable name="min">
 
    <xsl:for-each select="../mpx:multimediaobjekt/@priorität[../@typ ='Bild']">
