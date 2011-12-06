@@ -96,6 +96,17 @@
     </xsl:if>
    </xsl:for-each>
   </xsl:if>
+
+  <!-- if no priorität whatsoever, but only one image, put also pref -->
+  <xsl:if
+   test="count(
+     ../mpx:multimediaobjekt[not (@priorität) and
+      ../mpx:verknüpftesObjekt = $objId and
+      ../@freigabe='Web' or ../@freigabe='web' and
+      ../@typ ='Bild'
+     ]) = 1">
+   <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+  </xsl:if>
  </xsl:template>
 
 </xsl:stylesheet>
