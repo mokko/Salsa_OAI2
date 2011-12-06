@@ -79,6 +79,7 @@
 
   <xsl:if test="@priorität = $min">
    <!-- new: only first IMAGE with $min priority
+   FALL APOLLO: 
    -->
    <xsl:for-each
     select="../mpx:multimediaobjekt/@priorität[
@@ -97,14 +98,16 @@
    </xsl:for-each>
   </xsl:if>
 
-  <!-- if no priorität whatsoever, but only one image, put also pref -->
+  <!-- 
+   FALL ATHENA: if no priorität whatsoever, but only one image, put also pref 
+   -->
   <xsl:if
    test="count(
      ../mpx:multimediaobjekt[not (@priorität) and
-      ../mpx:verknüpftesObjekt = $objId and
-      ../@freigabe='Web' or ../@freigabe='web' and
-      ../@typ ='Bild'
-     ]) = 1">
+       mpx:verknüpftesObjekt = $objId and
+       @freigabe='Web' or @freigabe='web' and
+       @typ ='Bild'
+   ]) = 1">
    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
   </xsl:if>
  </xsl:template>
