@@ -61,9 +61,15 @@
    ../mpx:multimediaobjekt/@priorität[../@typ ='Bild']
 
   -->
+  <xsl:variable name="objId" select="mpx:verknüpftesObjekt"/>
   <xsl:variable name="min">
 
-   <xsl:for-each select="../mpx:multimediaobjekt/@priorität[../@typ ='Bild']">
+   <!-- select the group of images which are linked linked to this object -->
+   <xsl:for-each
+    select="../mpx:multimediaobjekt/@priorität[
+     ../@typ ='Bild' and 
+     ../mpx:verknüpftesObjekt = $objId
+    ]">
     <xsl:sort select="."/>
     <xsl:if test="position() = 1">
      <xsl:value-of select="."/>
@@ -76,6 +82,7 @@
    -->
    <xsl:for-each
     select="../mpx:multimediaobjekt/@priorität[
+     ../mpx:verknüpftesObjekt = $objId and
      . = $min and 
      ../@freigabe='Web' or ../@freigabe='web' and
      ../@typ ='Bild'
@@ -84,7 +91,7 @@
      <!-- xsl:message>
       <xsl:text>lido:pref for mpx:priorität: </xsl:text>
       <xsl:value-of select="$min"/>
-     </xsl:message -->
+      </xsl:message -->
      <xsl:attribute name="lido:pref">preferred</xsl:attribute>
     </xsl:if>
    </xsl:for-each>
