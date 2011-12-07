@@ -77,7 +77,7 @@
    </xsl:for-each>
   </xsl:variable>
 
-  <xsl:if test="@priorität = $min">
+  <xsl:if test="@priorität = $min and @typ ='Bild'">
    <!-- new: only first IMAGE with $min priority
    FALL APOLLO: 
    -->
