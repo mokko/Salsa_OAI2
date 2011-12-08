@@ -113,7 +113,7 @@
   </xsl:variable>
 
   <!-- new: only first IMAGE with $min priority
-  <xsl:message>
+   <xsl:message>
    <xsl:text>count candidates: </xsl:text>
    <xsl:value-of select="count($candidates)"/>
    <xsl:text>&#xa;</xsl:text>
@@ -125,7 +125,7 @@
    <xsl:text>&#xa;</xsl:text>
    <xsl:text>prio: </xsl:text>
    <xsl:value-of select="@priorität"/>
-  </xsl:message>
+   </xsl:message>
 
    FALL APOLLO:
   -->
@@ -138,12 +138,14 @@
    </xsl:for-each>
   </xsl:variable>
 
+  <!-- xsl:message>
+   <xsl:text>pos: </xsl:text>
+   <xsl:value-of select="position()"/>
+   <xsl:text>CHECK</xsl:text>
+   </xsl:message
+  -->
+
   <xsl:if test="@mulId =$id">
-   <xsl:message>
-    <xsl:text>pos: </xsl:text>
-    <xsl:value-of select="position()"/>
-    <xsl:text>CHECK</xsl:text>
-   </xsl:message>
    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
   </xsl:if>
  </xsl:template>
