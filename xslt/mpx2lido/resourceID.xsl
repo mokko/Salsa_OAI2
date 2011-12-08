@@ -60,25 +60,26 @@
    anything that wants the preferred attribute has to be a image, web-accessible
    and linked
   -->
-
+  <xsl:variable name="objId" select="../mpx:sammlungsobjekt/@objId"/>
   <xsl:choose>
    <xsl:when
     test="../mpx:multimediaobjekt[
+     mpx:verknüpftesObjekt = $objId and
      @priorität and 
      @typ='Bild' and 
      (@freigabe='Web' or @freigabe='web')
     ]">
-    <!-- xsl:message>
-     apollo: at least one image with priorität
-     </xsl:message -->
     <xsl:call-template name="apollo"/>
    </xsl:when>
-   <xsl:otherwise>
-    <!-- xsl:message>
-     athena: absolute no image with priorität
-     </xsl:message -->
+   <xsl:when
+    test="../mpx:multimediaobjekt[
+     mpx:verknüpftesObjekt = $objId and
+     not (@priorität) and 
+     @typ='Bild' and 
+     (@freigabe='Web' or @freigabe='web')
+    ]">
     <xsl:call-template name="athena"/>
-   </xsl:otherwise>
+   </xsl:when>
   </xsl:choose>
  </xsl:template>
 
@@ -91,43 +92,59 @@
 
 
  <xsl:template name="apollo">
-  <xsl:variable name="objId" select="../mpx:sammlungsobjekt/@objId"/>
-  <xsl:if
-   test="
-     @typ ='Bild' and  
-     mpx:verknüpftesObjekt = $objId and
-     (@freigabe='Web' or @freigabe='web')
-   ">
-
-   <xsl:variable name="candidates"
-    select="../mpx:multimediaobjekt[
+  <xsl:variable name="candidates"
+   select="../mpx:multimediaobjekt[
      @freigabe='Web' or @freigabe='web' and
-     mpx:verknüpftesObjekt = $objId and
      @priorität and
      @typ ='Bild' 
    ]"/>
 
-   <!--
-    select the group of images which are linked to this object to determine smallest
-    priority
-   -->
-   <xsl:variable name="min">
-    <xsl:for-each select="$candidates/@priorität">
-     <xsl:sort select="."/>
-     <xsl:if test="position() = 1">
-      <xsl:value-of select="."/>
-     </xsl:if>
-    </xsl:for-each>
-   </xsl:variable>
+  <!--
+   select the group of images which are linked to this object to determine smallest
+   priority
+  -->
+  <xsl:variable name="min">
+   <xsl:for-each select="$candidates/@priorität">
+    <xsl:sort select="."/>
+    <xsl:if test="position() = 1">
+     <xsl:value-of select="."/>
+    </xsl:if>
+   </xsl:for-each>
+  </xsl:variable>
 
-   <!-- new: only first IMAGE with $min priority
-    FALL APOLLO:
-    <xsl:text>&#xa;</xsl:text>
-   -->
+  <!-- new: only first IMAGE with $min priority
+  <xsl:message>
+   <xsl:text>count candidates: </xsl:text>
+   <xsl:value-of select="count($candidates)"/>
+   <xsl:text>&#xa;</xsl:text>
+   <xsl:text>min: </xsl:text>
+   <xsl:value-of select="$min"/>
+   <xsl:text>&#xa;</xsl:text>
+   <xsl:text>pos: </xsl:text>
+   <xsl:value-of select="position()"/>
+   <xsl:text>&#xa;</xsl:text>
+   <xsl:text>prio: </xsl:text>
+   <xsl:value-of select="@priorität"/>
+  </xsl:message>
 
-   <xsl:if test="@priorität = $min">
-    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
-   </xsl:if>
+   FALL APOLLO:
+  -->
+
+  <xsl:variable name="id">
+   <xsl:for-each select="$candidates[@priorität = $min]">
+    <xsl:if test="position() = 1">
+     <xsl:value-of select="@mulId"/>
+    </xsl:if>
+   </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:if test="@mulId =$id">
+   <xsl:message>
+    <xsl:text>pos: </xsl:text>
+    <xsl:value-of select="position()"/>
+    <xsl:text>CHECK</xsl:text>
+   </xsl:message>
+   <xsl:attribute name="lido:pref">preferred</xsl:attribute>
   </xsl:if>
  </xsl:template>
 </xsl:stylesheet>
