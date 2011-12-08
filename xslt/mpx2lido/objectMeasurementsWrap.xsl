@@ -30,14 +30,12 @@
         @typ = 'Länge' or
         @typ = 'Objektmaß' 
         ">
-    <lido:objectMeasurements>
-     <xsl:if test="@typ = 'Durchmesser' or @typ = 'Höhe' or @typ = 'Länge' ">
-      <xsl:call-template name="DurchmesserHöheLänge"/>
-     </xsl:if>
-     <xsl:if test="@typ = 'Objektmaß' ">
-      <xsl:call-template name="Objektmaß"/>
-     </xsl:if>
-    </lido:objectMeasurements>
+    <xsl:if test="@typ = 'Durchmesser' or @typ = 'Höhe' or @typ = 'Länge' ">
+     <xsl:call-template name="DurchmesserHöheLänge"/>
+    </xsl:if>
+    <xsl:if test="@typ = 'Objektmaß' ">
+     <xsl:call-template name="Objektmaß"/>
+    </xsl:if>
    </xsl:if>
   </lido:objectMeasurementsSet>
  </xsl:template>
@@ -49,27 +47,30 @@
   <xsl:variable name="rest" select="substring-after(.,' ')"/>
   <xsl:variable name="unit" select="substring ($rest, 1,2)"/>
 
-  <xsl:element name="lido:measurementsSet">
-   <xsl:element name="lido:measurementType" xml:lang="en">
-    <xsl:choose>
-     <xsl:when test="@typ = 'Durchmesser'">
-      <xsl:text>diameter</xsl:text>
-     </xsl:when>
-     <xsl:when test="@typ = 'Höhe'">
-      <xsl:text>height</xsl:text>
-     </xsl:when>
-     <xsl:when test="@typ = 'Länge'">
-      <xsl:text>length</xsl:text>
-     </xsl:when>
-    </xsl:choose>
+  <lido:objectMeasurements>
+   <xsl:element name="lido:measurementsSet">
+    <xsl:element name="lido:measurementType" xml:lang="en">
+     <xsl:choose>
+      <xsl:when test="@typ = 'Durchmesser'">
+       <xsl:text>diameter</xsl:text>
+      </xsl:when>
+      <xsl:when test="@typ = 'Höhe'">
+       <xsl:text>height</xsl:text>
+      </xsl:when>
+      <xsl:when test="@typ = 'Länge'">
+       <xsl:text>length</xsl:text>
+      </xsl:when>
+     </xsl:choose>
+    </xsl:element>
+    <xsl:element name="lido:measurementUnit">
+     <xsl:value-of select="$unit"/>
+    </xsl:element>
+    <xsl:element name="lido:measurementValue">
+     <xsl:value-of select="translate($value,',','.')"/>
+    </xsl:element>
    </xsl:element>
-   <xsl:element name="lido:measurementUnit">
-    <xsl:value-of select="$unit"/>
-   </xsl:element>
-   <xsl:element name="lido:measurementValue">
-    <xsl:value-of select="translate($value,',','.')"/>
-   </xsl:element>
-  </xsl:element>
+  </lido:objectMeasurements>
+
  </xsl:template>
 
 
@@ -96,41 +97,43 @@
   -->
   <xsl:if test="number ($value1) = number($value1)">
 
-   <xsl:element name="lido:measurementsSet">
-    <xsl:element name="lido:measurementType" xml:lang="en">
-     <xsl:text>height</xsl:text>
+   <lido:objectMeasurements>
+    <xsl:element name="lido:measurementsSet">
+     <xsl:element name="lido:measurementType" xml:lang="en">
+      <xsl:text>height</xsl:text>
+     </xsl:element>
+     <xsl:element name="lido:measurementUnit">
+      <xsl:value-of select="$unit"/>
+     </xsl:element>
+     <xsl:element name="lido:measurementValue">
+      <xsl:value-of select="translate($value1,',','.')"/>
+     </xsl:element>
     </xsl:element>
-    <xsl:element name="lido:measurementUnit">
-     <xsl:value-of select="$unit"/>
-    </xsl:element>
-    <xsl:element name="lido:measurementValue">
-     <xsl:value-of select="translate($value1,',','.')"/>
-    </xsl:element>
-   </xsl:element>
 
-   <xsl:element name="lido:measurementsSet">
-    <xsl:element name="lido:measurementType" xml:lang="en">
-     <xsl:text>width</xsl:text>
+    <xsl:element name="lido:measurementsSet">
+     <xsl:element name="lido:measurementType" xml:lang="en">
+      <xsl:text>width</xsl:text>
+     </xsl:element>
+     <xsl:element name="lido:measurementUnit">
+      <xsl:value-of select="$unit"/>
+     </xsl:element>
+     <xsl:element name="lido:measurementValue">
+      <xsl:value-of select="translate($value2,',','.')"/>
+     </xsl:element>
     </xsl:element>
-    <xsl:element name="lido:measurementUnit">
-     <xsl:value-of select="$unit"/>
-    </xsl:element>
-    <xsl:element name="lido:measurementValue">
-     <xsl:value-of select="translate($value2,',','.')"/>
-    </xsl:element>
-   </xsl:element>
 
-   <xsl:element name="lido:measurementsSet">
-    <xsl:element name="lido:measurementType" xml:lang="en">
-     <xsl:text>depth</xsl:text>
+    <xsl:element name="lido:measurementsSet">
+     <xsl:element name="lido:measurementType" xml:lang="en">
+      <xsl:text>depth</xsl:text>
+     </xsl:element>
+     <xsl:element name="lido:measurementUnit">
+      <xsl:value-of select="$unit"/>
+     </xsl:element>
+     <xsl:element name="lido:measurementValue">
+      <xsl:value-of select="translate($value3,',','.')"/>
+     </xsl:element>
     </xsl:element>
-    <xsl:element name="lido:measurementUnit">
-     <xsl:value-of select="$unit"/>
-    </xsl:element>
-    <xsl:element name="lido:measurementValue">
-     <xsl:value-of select="translate($value3,',','.')"/>
-    </xsl:element>
-   </xsl:element>
+   </lido:objectMeasurements>
   </xsl:if>
  </xsl:template>
 
