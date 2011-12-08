@@ -27,9 +27,7 @@
 
 
   <xsl:element name="lido:resourceID">
-   <xsl:call-template name="preferred">
-    <xsl:with-param name="objId" select="mpx:verknüpftesObjekt"/>
-   </xsl:call-template>
+   <xsl:call-template name="preferred"/>
    <xsl:attribute name="lido:type">local</xsl:attribute>
    <xsl:value-of select="$filename"/>
   </xsl:element>
@@ -60,56 +58,63 @@
    a little faster, but works only inside data provider
    ../mpx:multimediaobjekt/@priorität[../@typ ='Bild']
 
+   anything that wants the preferred attribute has to be a image, web-accessible
+   and linked
   -->
-  <xsl:variable name="objId" select="mpx:verknüpftesObjekt"/>
-  <xsl:variable name="min">
-
-   <!-- select the group of images which are linked linked to this object -->
-   <xsl:for-each
-    select="../mpx:multimediaobjekt/@priorität[
-     ../@typ ='Bild' and 
-     ../mpx:verknüpftesObjekt = $objId
-    ]">
-    <xsl:sort select="."/>
-    <xsl:if test="position() = 1">
-     <xsl:value-of select="."/>
-    </xsl:if>
-   </xsl:for-each>
-  </xsl:variable>
-
-  <xsl:if test="@priorität = $min and @typ ='Bild'">
-   <!-- new: only first IMAGE with $min priority
-   FALL APOLLO: 
-   -->
-   <xsl:for-each
-    select="../mpx:multimediaobjekt/@priorität[
-     ../mpx:verknüpftesObjekt = $objId and
-     . = $min and 
-     ../@freigabe='Web' or ../@freigabe='web' and
-     ../@typ ='Bild'
-     ]">
-    <xsl:if test="position() = 1">
-     <!-- xsl:message>
-      <xsl:text>lido:pref for mpx:priorität: </xsl:text>
-      <xsl:value-of select="$min"/>
-      </xsl:message -->
-     <xsl:attribute name="lido:pref">preferred</xsl:attribute>
-    </xsl:if>
-   </xsl:for-each>
-  </xsl:if>
-
-  <!-- 
-   FALL ATHENA: if no priorität whatsoever, but only one image, put also pref 
-   -->
+  <xsl:variable name="objId" select="../mpx:sammlungsobjekt/@objId"/>
   <xsl:if
-   test="count(
-     ../mpx:multimediaobjekt[not (@priorität) and
-       mpx:verknüpftesObjekt = $objId and
-       @freigabe='Web' or @freigabe='web' and
-       @typ ='Bild'
-   ]) = 1">
-   <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+   test="
+     @typ ='Bild' and  
+     mpx:verknüpftesObjekt = $objId and
+     (@freigabe='Web' or @freigabe='web')
+   ">
+
+   <xsl:variable name="candidates"
+    select="../mpx:multimediaobjekt[
+     @freigabe='Web' or @freigabe='web' and
+     mpx:verknüpftesObjekt = $objId and
+     @priorität and
+     @typ ='Bild' 
+   ]"/>
+
+   <!--
+    select the group of images which are linked to this object to determine smallest
+    priority
+   -->
+   <xsl:variable name="min">
+    <xsl:for-each select="$candidates/@priorität">
+     <xsl:sort select="."/>
+     <xsl:if test="position() = 1">
+      <xsl:value-of select="."/>
+     </xsl:if>
+    </xsl:for-each>
+   </xsl:variable>
+
+   <!-- new: only first IMAGE with $min priority
+    FALL APOLLO:
+    <xsl:text>&#xa;</xsl:text>
+   -->
+
+   <xsl:if test="@priorität = $min">
+    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+   </xsl:if>
+
+   <!--
+    FALL ATHENA: if no priorität whatsoever, but only one image, put also pref
+   -->
+   <xsl:if
+    test="
+   not (@priorität) and
+   count(
+     ../mpx:multimediaobjekt[
+        not (@priorität) and
+        mpx:verknüpftesObjekt = $objId and
+        @freigabe='Web' or @freigabe='web' and
+        @typ ='Bild'
+      ]
+    ) = 1">
+    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+   </xsl:if>
   </xsl:if>
  </xsl:template>
-
 </xsl:stylesheet>
