@@ -25,7 +25,6 @@
    </xsl:choose>
   </xsl:variable>
 
-
   <xsl:element name="lido:resourceID">
    <xsl:call-template name="preferred"/>
    <xsl:attribute name="lido:type">local</xsl:attribute>
@@ -61,6 +60,37 @@
    anything that wants the preferred attribute has to be a image, web-accessible
    and linked
   -->
+
+  <xsl:choose>
+   <xsl:when
+    test="../mpx:multimediaobjekt[
+     @priorität and 
+     @typ='Bild' and 
+     (@freigabe='Web' or @freigabe='web')
+    ]">
+    <!-- xsl:message>
+     apollo: at least one image with priorität
+     </xsl:message -->
+    <xsl:call-template name="apollo"/>
+   </xsl:when>
+   <xsl:otherwise>
+    <!-- xsl:message>
+     athena: absolute no image with priorität
+     </xsl:message -->
+    <xsl:call-template name="athena"/>
+   </xsl:otherwise>
+  </xsl:choose>
+ </xsl:template>
+
+
+ <xsl:template name="athena">
+  <xsl:if test="position() = 1">
+   <xsl:attribute name="lido:pref">preferred</xsl:attribute>
+  </xsl:if>
+ </xsl:template>
+
+
+ <xsl:template name="apollo">
   <xsl:variable name="objId" select="../mpx:sammlungsobjekt/@objId"/>
   <xsl:if
    test="
@@ -96,23 +126,6 @@
    -->
 
    <xsl:if test="@priorität = $min">
-    <xsl:attribute name="lido:pref">preferred</xsl:attribute>
-   </xsl:if>
-
-   <!--
-    FALL ATHENA: if no priorität whatsoever, but only one image, put also pref
-   -->
-   <xsl:if
-    test="
-   not (@priorität) and
-   count(
-     ../mpx:multimediaobjekt[
-        not (@priorität) and
-        mpx:verknüpftesObjekt = $objId and
-        @freigabe='Web' or @freigabe='web' and
-        @typ ='Bild'
-      ]
-    ) = 1">
     <xsl:attribute name="lido:pref">preferred</xsl:attribute>
    </xsl:if>
   </xsl:if>
