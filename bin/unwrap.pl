@@ -14,6 +14,12 @@ getopts( 'hv', my $opts = {} );
 sub verbose;
 
 
+=head1 SYNOPSIS
+
+unwrap.pl -v input.oai.xml output.xml
+
+=cut 
+
 #
 # General Sanity
 #
@@ -59,6 +65,9 @@ exit;
 #
 # SUBS
 #
+=func output ($result);
+=cut
+
 sub output {
 	my $result=shift;
 	if ($ARGV[1]) {
@@ -71,6 +80,12 @@ sub output {
 }
 
 
+=func verbose "message";
+
+Print message to STDOUT if script is run with -v options.
+
+=cut
+
 sub verbose {
 	my $msg = shift;
 	if ($msg) {
@@ -80,39 +95,5 @@ sub verbose {
 	}
 }
 
-__END__
-=pod
 
-=head1 NAME
-
-unwrap.pl - Unwraps the metadata inside of a OAI response (ListRecord, GetRecord)
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
-unwrap.pl -v input.oai.xml output.xml
-
-=head1 FUNCTIONS
-
-=head2 output ($result);
-
-=head2 verbose "message";
-
-Print message to STDOUT if script is run with -v options.
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
