@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# PODNAME: linklintMIMO.pl
-# ABSTRACT: remove freigabe if file is not online
+# PODNAME: encodingTerror.pl
+# ABSTRACT: encoding diagnostic unfinished buisness
 
 use strict;
 use warnings;

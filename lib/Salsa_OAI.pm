@@ -1,9 +1,6 @@
 package Salsa_OAI;
 # ABSTRACT: Simple OAI data provider
 
-#still useful?
-#use lib '/home/Mengel/projects/HTTP-OAI-DataProvider/lib';
-
 use Dancer ':syntax';
 use Carp qw/carp croak/;
 use XML::LibXML;    #for salsa_setLibrary;
