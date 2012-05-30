@@ -20,9 +20,9 @@ sub debug;
 
 
 my $config = {
-	dbfile => '/home/Mengel/projects/Salsa_OAI2/data/db',
+	dbfile => '/home/maurice/projects/Salsa_OAI2/data/db',
 	debug  => 0,                                            #1 = on; 2 = off
-	sortXSL => '/home/Mengel/projects/Salsa_OAI2/xslt/mpx-sort.x1.xsl',
+	sortXSL => '/home/maurice/projects/Salsa_OAI2/xslt/mpx-sort.x1.xsl',
 };
 
 if ( $opts->{d} ) {

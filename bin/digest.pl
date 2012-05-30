@@ -36,7 +36,7 @@ if ( !$ARGV[0] ) {
 
 if ( !-f $ARGV[0] ) {
 	print "Error: Specified digest files does not exist\n";
-	print "Try /home/Mengel/projects/Salsa_OAI2/data/fix-test.lvl2.mpx\n";
+	print "Try /home/Maurice/projects/Salsa_OAI2/data/fix-test.lvl2.mpx\n";
 	exit 1;
 }
 
