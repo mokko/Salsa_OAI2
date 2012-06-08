@@ -1,10 +1,8 @@
-config.yml
 +*#
 +.#*
 \#*
 *.stackdump
 *~
-*.yml
 #.mpx - need that for perkor.mpx
 *.xml
 *.log
