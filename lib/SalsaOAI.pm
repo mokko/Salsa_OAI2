@@ -5,13 +5,11 @@ package Salsa_OAI;
 use Dancer ':syntax';    #!debug !warning
 use Carp qw/carp croak/;
 use XML::LibXML;         #for salsa_setLibrary;
-use HTTP::OAI::DataProvider;
+use HTTP::OAI::DataProvider 0.007;
 use HTTP::OAI::Repository qw/validate_request/;
-
-#use HTTP::OAI::DataProvider::Mapping::MPX;    #use new MPX courtesy of DP
+our $provider = initProvider();    #do this when starting the webapp
 
 #use Data::Dumper qw/Dumper/; #for debugging, not for production
-our $provider = initProvider();    #do this when starting the webapp
 
 =head1 DESCRIPTION
 
