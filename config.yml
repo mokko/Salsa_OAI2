@@ -6,8 +6,8 @@
 
 appname: "SalsaOAI"
 content_type: "text/html"
-debug: 'Salsa_OAI::salsa_debug'
-warning: 'Salsa_OAI::salsa_debug'
+debug: 'initDebug'
+warning: 'initWarning'
 XSLT_dir: '/home/maurice/projects/SalsaOAI/xslt'
 xslt: '/oai2.xsl'
 
@@ -21,10 +21,10 @@ engine:
   engine: 'HTTP::OAI::DataProvider::Engine::SQLite'
   nativeFormat: 
     'mpx': 'http://www.mpx.org/mpx'
-  locateXSL: 'Salsa_OAI::MPX::locateXSL'
+  locateXSL: 'initLocateXSL'
   chunkCache:
-  recordsPerChunk: 100
-  maxChunks: 4000
+    recordsPerChunk: 100
+    maxChunks: 4000
   dbfile: "/home/maurice/projects/SalsaOAI/data/db"
   #extractRecords (callback): returns HTTP::OAI::Record from source xml
   extractRecords: 'Salsa_OAI::MPX::extractRecords'

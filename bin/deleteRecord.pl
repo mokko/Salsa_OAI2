@@ -94,18 +94,6 @@ sub debug {
 	}
 }
 
-
-__END__
-=pod
-
-=head1 NAME
-
-deleteRecord.pl - Delete one record from Salsa_OAI's sqlite db
-
-=head1 VERSION
-
-version 0.019
-
 =head1 SYNOPSIS
 
 deleteRecord.pl [-v] spk-berlin.de:1234
@@ -128,22 +116,11 @@ deleted records must include the headers of these records. Incremental
 harvesting will thus discover deletions from repositories that keep track of
 them.
 
+=head1 DESCRIPTION
+
 If a record is deleted,
 -we have to change status=1,
 -put the datestamp of now.
 -delete native_md for that record
 -delete all sets with the same identifier
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
