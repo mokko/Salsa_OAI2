@@ -31,24 +31,25 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	my $ret;    # avoid perl's magic returns
 	content_type 'text/xml';
 
-	#I have problems with requestURL. With some servers it disappears from
-	#HTTP::OAI::Response. Let's hand it over explicitly!
-	my $env     = request->env;
-	my $request = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
-	debug "request: " . $request;
-
 	#check if verb is valid
+	my $params=params();
 	if ( my $verb = params->{verb} ) {
-		if ( validate_request(params) ) {
-			return $provider->err2XML( validate_request(params) );
+		if ( validate_request(%{$params}) ) {
+			return $provider->err2XML( validate_request(%{$params}) );
 		}
 
+		#I have problems with requestURL. With some servers it disappears from
+		#HTTP::OAI::Response. Let's hand it over explicitly!
+		my $env = request->env;
+		my $request =
+		  'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
+		debug "request: " . $request;
+		$provider->requestURL($request);
+
 		no strict "refs";
-		return $provider->$verb( $request, params() );
+		return $provider->$verb( %{$params} );
 	}
-	else {
-		return welcome();
-	}
+	return welcome();
 };
 
 hook after => sub {
