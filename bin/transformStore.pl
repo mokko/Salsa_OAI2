@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # PODNAME: freigabe.pl
-# ABSTRACT: freigabe that acts on SalsaOAI's data store
+# ABSTRACT: apply freigabe.xsl on SalsaOAI's data store
 
 use strict;
 use warnings;
@@ -19,6 +19,26 @@ Dancer::Config::load();
 
 getopts( 'vhp', my $opts = {} );
 pod2usage() if ( $opts->{h} );
+
+=head1 SYNOPSIS
+
+transformStore.pl -p -v tansform.xsl
+
+=head2 COMMAND LINE OPTIONS
+
+=over 1
+
+=item -p
+
+plan only: don't save the transform in the store
+
+=item -v
+
+verbose: be more verbose
+
+=back
+
+=cut
 
 if ( !$opts->{v} ) {
 	$opts->{v} = 0;
@@ -50,55 +70,4 @@ if ($opts->{p}) {
 } else {
 	print "$changed records changed.\n";
 }
-
-__END__
-
-=pod
-
-=head1 NAME
-
-freigabe.pl - freigabe that acts on SalsaOAI's data store
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
-transformStore.pl -p -v tansform.xsl
-
-=head2 COMMAND LINE OPTIONS
-
-=over 1
-
-=item -p
-
-plan only: don't save the transform in the store
-
-=item -v
-
-verbose: be more verbose
-
-=back
-
-=head1 DESCRIPTION
-
-Applies xslt 1 of your choice to each item in the data store.
-
-=head2 TODO
-
-?
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
