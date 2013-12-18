@@ -9,7 +9,7 @@ use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use Salsa_OAI::MPX;
 
-#use Data::Dumper qw/Dumper/; #for debugging, not for production
+use Data::Dumper qw/Dumper/; #for debugging, not for production
 our $provider = init_provider();    #do this when starting the webapp
 
 =head1 SYNOPSIS
@@ -107,7 +107,6 @@ discover them.
 =cut
 
 sub config_check {
-
 	#1) check whether all required config data is available
 	my @required = qw/
 	  adminEmail
@@ -118,6 +117,7 @@ sub config_check {
 	  xslt
 	  XSLT_dir/;
 
+#TODO config missing
 	foreach (@required) {
 		if ( !$_ ) {
 			die "Configuration Error: Required config value $_ missing";
@@ -137,7 +137,6 @@ sub config_check {
 
 	#VALIDATE all xslts for conversion to target format during startup.
 	#lasts too long
-
 }
 
 =func $provider=init_provider();
@@ -152,7 +151,7 @@ sub init_provider {
 	#require conditions during start up or die
 	#apply defaults, return as hashref
 	config_check();
-
+	print Dumper config;
 	my $provider = HTTP::OAI::DataProvider->new(config);
 
 	#according to Demeter's law I should NOT access internal data

@@ -14,4 +14,4 @@ SALSA_OAI-*
 .build/*
 data/*
 xml/*
-#keep bak/* in devel, but delete from master
+#keep bak/* in devel, but delete from master.project
