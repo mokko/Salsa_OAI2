@@ -1,4 +1,5 @@
 package Salsa_OAI;
+
 # ABSTRACT: Simple OAI data provider
 
 use Dancer ':syntax';
@@ -9,7 +10,7 @@ use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
 use Salsa_OAI::MPX;
 
-use Data::Dumper qw/Dumper/; #for debugging, not for production
+use Data::Dumper qw/Dumper/;    #for debugging, not for production
 our $provider = init_provider();    #do this when starting the webapp
 
 =head1 SYNOPSIS
@@ -58,7 +59,7 @@ L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
 #
 
 any [ 'get', 'post' ] => '/oai' => sub {
-	my $ret;                        # avoid perl's magic returns
+	my $ret;    # avoid perl's magic returns
 	content_type 'text/xml';
 
 	#I have problems with requestURL. With some servers it disappears from
@@ -78,7 +79,8 @@ any [ 'get', 'post' ] => '/oai' => sub {
 		}
 
 		no strict "refs";
-		return $provider->$verb( $request, params() );
+		return $provider->$verb( params() );
+		#return $provider->$verb( $request, params() );
 	}
 	else {
 		return welcome();
@@ -95,7 +97,6 @@ dance;
 #
 #
 
-
 =func config_check ();
 
 Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
@@ -107,33 +108,48 @@ discover them.
 =cut
 
 sub config_check {
-	#1) check whether all required config data is available
-	my @required = qw/
-	  adminEmail
-	  baseURL
-	  chunkCacheMaxSize
-	  repositoryName
-	  setLibrary
-	  xslt
-	  XSLT_dir/;
 
-#TODO config missing
-	foreach (@required) {
-		if ( !$_ ) {
-			die "Configuration Error: Required config value $_ missing";
-		}
-	}
+	#NOT SURE THIS STILL MAKES SENSE...
+
+	#1) check whether all required config data is available
+	#	my %required = (
+	#		chunkCache => { maxChunks => 1 },
+	#		identify => {
+	#			adminEmail     => 1,
+	#			baseURL        => 1,
+	#			repositoryName => 1,
+	#		},
+	#		setLibrary => 1,
+	#		xslt       => 1,
+	#		XSLT_dir   => 1,
+	#	);
+	#	print Dumper config;
+	#
+	#	foreach my $check ( keys %required ) {
+	#		if (ref $check) {
+	#		print "\n........$check  :" . keys config{$check} . "\n";
+	#
+	#		}
+	#
+	#		if ( !config->{$check} ) {
+	#			die "Configuration Error: Required config value $check missing";
+	#		}
+	#	}
 
 	#2) apply defaults, check conditionals
-	if ( !config->{chunkSize} ) {
-		debug "Config check: set chunk_size to default (100)";
-		config->{chunkSize} = 100;    #default
+	if ( !config->{engine}{chunkCache}{maxChunks} ) {
+		debug "Config check: set engine/chunkCache/maxChunks to default (100)";
+		config->{engine}{chunkCache}{maxChunks} = 100;    #default
 	}
 
 	#3) correct config data
 
+	no strict "refs";
+	config->{engine}{locateXSL} = &{config->{engine}{locateXSL}};
+	use strict "refs";
+
 	#write oai_baseURL also in explicit requestURL
-	config->{requestURL} = config->{baseURL};
+	config->{requestURL} = config->{identify}{baseURL};
 
 	#VALIDATE all xslts for conversion to target format during startup.
 	#lasts too long
@@ -149,9 +165,9 @@ if classic configuration information or from callbacks.
 sub init_provider {
 
 	#require conditions during start up or die
-	#apply defaults, return as hashref
+	#apply defaults, changes Dancer's config values
 	config_check();
-	print Dumper config;
+
 	my $provider = HTTP::OAI::DataProvider->new(config);
 
 	#according to Demeter's law I should NOT access internal data
@@ -273,14 +289,16 @@ returns nothing.
 =cut
 
 sub salsa_locateXSL {
-	my $prefix       = shift;
-	my $nativeFormat = config->{nativePrefix};
+	return sub {
+	my $prefix       = shift or die "Need prefix!";
+	my $nativeFormat=(keys %{config->{engine}{'nativeFormat'}})[0];
 
 	if ( !$nativeFormat ) {
-		die "Info on nativeFormat missing";
+		  die "Info on nativeFormat missing";
 	}
 
 	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
+	}
 }
 
 1;
