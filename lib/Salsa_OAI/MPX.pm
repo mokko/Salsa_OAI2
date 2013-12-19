@@ -147,7 +147,7 @@ sub _mk_md {
 
 	#related info: personKörperschaft
 	{
-		my $node   = $self->_registerNS($node);
+		my $node   = $self->registerNS($node);
 		my @kueIds = $node->findnodes('mpx:personKörperschaftRef/@id');
 
 		foreach my $kueId (@kueIds) {

@@ -8,15 +8,17 @@ use XML::LibXML;
 use XML::LibXML::XPathContext;
 use Carp qw/croak/;
 use Dancer ':syntax';
-use FindBin;
-use lib "$FindBin::Bin/../lib";    #works only under *nix, of course
-use HTTP::OAI::DataProvider;
-use HTTP::OAI::DataProvider::SQLite;
+
+#use FindBin;
+#use lib "$FindBin::Bin/../lib";    #works only under *nix, of course
+use HTTP::OAI::DataProvider::Ingester;
+
+#use HTTP::OAI::DataProvider;
+#use HTTP::OAI::DataProvider::Engine::SQLite;
 use Salsa_OAI::MPX;
 use Cwd 'realpath';
 use Getopt::Std;
 use Pod::Usage;
-
 
 =head1 SYNOPSIS
 
@@ -51,12 +53,11 @@ table 2 sets
 =cut
 
 getopts( 'nvh', my $opts = {} );
-pod2usage() if ($opts->{h});
+pod2usage() if ( $opts->{h} );
 sub verbose;
 
 #for dirty debugging
 #use Data::Dumper qw/Dumper/;
-
 
 #
 # command line input
@@ -81,53 +82,57 @@ Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
 config->{environment} = 'production';    #makes debug silent
 
-#croak if vars missing in conf
-test_conf_var(qw/dbfile nativePrefix native_ns_uri/);
+#croak if vars missing in conf TODO
+#test_conf_var(qw/dbfile nativePrefix native_ns_uri/);
 
 #
 # validate source file
 #
+
+my $nativePrefix = ( keys %{ config->{engine}{'nativeFormat'} } )[0];
+my $nativeURI    = config->{engine}{nativeFormat}{$nativePrefix}
+  || die "No schema uri for validation specified!";
+
 if ( !$opts->{n} ) {
-	if ( config->{nativeSchema} ) {
-		verbose "About to validate source file before import";
-		if ( !config->{nativeSchema} ) {
-			die 'Schema not found (' . config->{nativeSchema} . ')';
-		}
+	verbose "About to validate source file before import";
 
-		my $doc = XML::LibXML->new->parse_file( $ARGV[0] );
-		my $xmlschema =
-		  XML::LibXML::Schema->new( location => config->{nativeSchema} );
-		eval { $xmlschema->validate($doc); };
+	my $doc = XML::LibXML->new->parse_file( $ARGV[0] );
+	my $xmlschema = XML::LibXML::Schema->new( location => $nativeURI );
+	eval { $xmlschema->validate($doc); };
 
-		if ($@) {
-			die "$ARGV[0] failed validation: $@" if $@;
-		} else {
-			print "$ARGV[0] validates\n";
-		}
+	if ($@) {
+		die "$ARGV[0] failed validation: $@" if $@;
 	}
-} else {
-	debug "no validate option";
+	else {
+		print "$ARGV[0] validates\n";
+	}
+}
+else {
+	debug "no validate option active, so no validation attempted";
 }
 
 #
 # init
 #
-my $provider = HTTP::OAI::DataProvider->new(config);
-
+my $ingester = HTTP::OAI::DataProvider::Ingester->new(
+	engine       => config->{engine}{engine},
+	dbfile       => config->{engine}{dbfile},
+	nativePrefix => $nativePrefix,
+	nativeURI    => $nativeURI,
+);
 #
 # call digest_single
 #
 
 #violates demeter's law
-my $err = $provider->{engine}->digest_single(
-	source  => $ARGV[0],
-	mapping => config->{extractRecords},
-);
+#my $err = $ingester->{engine}->digest_single(
+#	source  => $ARGV[0],
+#	mapping => config->{extractRecords},
+#);
 
-#report errors if any
-if ($err) {
-	die $err;
-}
+#Salsa_OAI::MPX::extractRecords is not propper. Should be loaded from config
+$ingester->digest( source => $ARGV[0], mapping => \&Salsa_OAI::MPX::extractRecords )
+  or die "Can't digest";
 
 print "done\n";
 exit;
@@ -141,7 +146,6 @@ Croaks if specified vars do not exist in config.
 
 =cut
 
-
 sub test_conf_var {
 	foreach (@_) {
 		if ( !config->{$_} ) {
@@ -149,7 +153,6 @@ sub test_conf_var {
 		}
 	}
 }
-
 
 =func verbose 'message';
 =cut
@@ -162,7 +165,4 @@ sub verbose {
 		}
 	}
 }
-
-
-
 
