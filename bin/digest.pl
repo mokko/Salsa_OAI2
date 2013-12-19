@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # PODNAME: digest.pl
-# ABSTRACT: store mpx info (onebig file) in SQLite db
+# ABSTRACT: store mpx info (one big file) in SQLite db
 
 use strict;
 use warnings;
@@ -16,6 +16,39 @@ use Salsa_OAI::MPX;
 use Cwd 'realpath';
 use Getopt::Std;
 use Pod::Usage;
+
+
+=head1 SYNOPSIS
+
+digest.pl file.mpx
+
+=head2 Command Line Options
+
+=over 4
+
+*-n:   no validation
+*-v:   verbose
+
+=back
+
+=head1 DESCRIPTION
+
+This helper script reads in a big mpx lvl2 file, processes it and stores
+relevant information into an SQLite database for use in OAI data provider.
+
+=head2 Database Structure
+
+table 1 records
+-ID
+-identifier
+-datestamp
+-metadata
+
+table 2 sets
+-setSpec
+-recordID
+
+=cut
 
 getopts( 'nvh', my $opts = {} );
 pod2usage() if ($opts->{h});
@@ -97,10 +130,17 @@ if ($err) {
 }
 
 print "done\n";
-
+exit;
 #
 # SUBS
 #
+
+=func test_conf_var ($var1, $var2);
+
+Croaks if specified vars do not exist in config.
+
+=cut
+
 
 sub test_conf_var {
 	foreach (@_) {
@@ -111,6 +151,9 @@ sub test_conf_var {
 }
 
 
+=func verbose 'message';
+=cut
+
 sub verbose {
 	my $msg = shift;
 	if ($msg) {
@@ -120,67 +163,6 @@ sub verbose {
 	}
 }
 
-__END__
-=pod
 
-=head1 NAME
 
-digest.pl - store mpx info (onebig file) in SQLite db
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
-digest.pl file.mpx
-
-=head2 Command Line Options
-
-=over 4
-
-*-n:   no validation
-*-v:   verbose
-
-=back
-
-=head1 DESCRIPTION
-
-This helper script reads in a big mpx lvl2 file, processes it and stores
-relevant information into an SQLite database for use in OAI data provider.
-
-=head2 Database Structure
-
-table 1 records
--ID
--identifier
--datestamp
--metadata
-
-table 2 sets
--setSpec
--recordID
-
-=head1 FUNCTIONS
-
-=head2 test_conf_var ($var1, $var2);
-
-Croaks if specified vars do not exist in config.
-
-=head2 verbose 'message';
-
-=head1 KNOWN ISSUES / TODO
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
