@@ -30,7 +30,7 @@ sub extractRecords {
 	my $self = shift;
 	my $doc  = shift;    #old document
 
-	debug "Enter extractRecords!";
+	#debug "Enter extractRecords!";
 
 	if ( !$doc ) {
 		die "Error: No doc";

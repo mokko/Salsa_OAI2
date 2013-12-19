@@ -23,8 +23,8 @@ use Debug::Simpler 'debug';
 =head2 Background
 
 The digester expects mpx data in one big file and loads it into the sqlite store.
-Information is stored there in one xml metadata. Each object can have multiple
-agents and resources associated with it.
+Information is stored there in one xml metadata per sammlungsobjekt. Each object 
+can have multiple agents and resources associated with it.
 
 Later in the workflow, I might need to update agents or resources.
 
@@ -44,7 +44,7 @@ resources separately. I assume that I overwrite existing records which have the
 same id.
 
 A true update removes outdated information, thus I also need a way to delete
-resources with outdated.
+resources which are no longer needed.
 
 =head2 Towards an algorithm
 
@@ -252,7 +252,7 @@ sub upagt {
 
 =method my $oaiId=$self->oaiId($objId);
 
-Dies on failure
+Returns oaiId. Dies on failure
 
 =cut
 
