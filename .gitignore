@@ -15,3 +15,4 @@ SALSA_OAI-*
 data/*
 xml/*
 #keep bak/* in devel, but delete from master.project
+bak/xslt-*
