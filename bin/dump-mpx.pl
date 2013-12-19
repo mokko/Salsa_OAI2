@@ -14,15 +14,27 @@ use Carp qw/croak/;
 use DBD::SQLite;
 use XML::LibXSLT;
 use Getopt::Std;
+use Salsa_OAI::Util 'modDir';
 getopts( 'd', my $opts = {} );
 
 sub debug;
 
+=head1 SYNOPSIS
+
+dump-mpx.pl [-d] output.mpx
+
+=head1 COMMAND LINE OPTIONS
+
+-d  	print debug info to STDOUT
+
+=cut
+
+#QUiCK AND DiRtY. Instead we should read the config values from somewhere else.
 
 my $config = {
-	dbfile => '/home/maurice/projects/Salsa_OAI2/data/db',
+	dbfile => modDir('data','db'),
 	debug  => 0,                                            #1 = on; 2 = off
-	sortXSL => '/home/maurice/projects/Salsa_OAI2/xslt/mpx-sort.x1.xsl',
+	sortXSL => modDir('xslt','mpx-sort.x1.xsl'),
 };
 
 if ( $opts->{d} ) {
@@ -145,36 +157,3 @@ sub debug {
 		print $msg. "\n";
 	}
 }
-
-__END__
-=pod
-
-=head1 NAME
-
-dump-mpx.pl - dump all xml from Salsa_OAI's sqlite in one big mpx file
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
-dump-mpx.pl [-d] output.mpx
-
-=head1 COMMAND LINE OPTIONS
-
--d  	print debug info to STDOUT
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
-

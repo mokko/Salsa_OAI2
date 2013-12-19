@@ -1,8 +1,5 @@
-package Salsa_OAI::MPX;
-BEGIN {
-  $Salsa_OAI::MPX::VERSION = '0.019';
-}
 # ABSTRACT: MPX-specific extensions
+package Salsa_OAI::MPX;
 
 use strict;
 use warnings;
@@ -11,6 +8,23 @@ use utf8;    #for verknupftesObjekt
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 
+=head1 DESCRIPTION
+
+This package contains everything that is specific to MPX as native format.
+
+=func my @records=extractRecords ($doc);
+
+Expects an mpx document as dom and returns an array of HTTP::OAI::Records. Gets
+called from digest_single.
+
+Recent changes:
+- was a function, became a method lately.
+- DOES NOT Call setRules ANYMORE on every record to ensure OAI sets get set. It
+  now leaves that to extractHeaders.
+
+Todo: What to do on failure?
+
+=cut
 
 sub extractRecords {
 	my $self = shift;
@@ -47,6 +61,17 @@ sub extractRecords {
 		return $record;
 	}
 }
+
+
+=func my $header=extractHeader ($node);
+
+extractHeader is a function, not a method. It expects a XML::LibXML object.
+(I am not sure which. Maybe XML::LibXML::Node) and returns a complete
+HTTP::OAI::Header. (I emphasize complete, because an earlier version did not
+deal with sets.) This FUNCTION gets called from extractRecord, but also from
+DataProvider::$Engine::findByIdentifier
+
+=cut
 
 #includes the logic of how to extract OAI header information from the node
 #expects libxml node (sammlungsobjekt) and returns HTTP::OAI::Header
@@ -158,6 +183,14 @@ sub _mk_md {
 }
 
 
+=func my ($node, $header) = setRules ($node, $header);
+
+Gets called during extractRecords for every node (i.e. record) in the xml
+source file to map OAI sets to simple criteria on per-node-based
+rules. Returns node and header. Header can have multiple sets
+
+=cut
+
 sub setRules {
 	my $self   = shift;
 	my $node   = shift;
@@ -198,10 +231,18 @@ sub setRules {
 	return $node, $header;
 }
 
+
+
+=func my xsl_fn=locateXSL($prefix);
+
+locateXSL callback expects a metadataFormat prefix and will return the full
+path to the xsl which is responsible for this transformation. On failure:
+returns nothing.
+
+=cut
 #
 # not sure where this should go. It is not strictly speaking mpx, but it belongs
 # to transformation.
-
 
 sub locateXSL {
 	my $prefix       = shift;
@@ -214,71 +255,6 @@ sub locateXSL {
 	  : return ();
 }
 
-1;                #Salsa_OAI::MPX;
+1;              
 
-__END__
-=pod
-
-=head1 NAME
-
-Salsa_OAI::MPX - MPX-specific extensions
-
-=head1 VERSION
-
-version 0.019
-
-=head1 DESCRIPTION
-
-This package contains everything that is specific to MPX as native format.
-
-=head1 FUNCTIONS
-
-=head2 my @records=extractRecords ($doc);
-
-Expects an mpx document as dom and returns an array of HTTP::OAI::Records. Gets
-called from digest_single.
-
-Recent changes:
-- was a function, became a method lately.
-- DOES NOT Call setRules ANYMORE on every record to ensure OAI sets get set. It
-  now leaves that to extractHeaders.
-
-Todo: What to do on failure?
-
-=head2 my $header=extractHeader ($node);
-
-extractHeader is a function, not a method. It expects a XML::LibXML object.
-(I am not sure which. Maybe XML::LibXML::Node) and returns a complete
-HTTP::OAI::Header. (I emphasize complete, because an earlier version did not
-deal with sets.) This FUNCTION gets called from extractRecord, but also from
-DataProvider::$Engine::findByIdentifier
-
-=head2 my ($node, $header) = setRules ($node, $header);
-
-Gets called during extractRecords for every node (i.e. record) in the xml
-source file to map OAI sets to simple criteria on per-node-based
-rules. Returns node and header. Header can have multiple sets
-
-=head2 my xsl_fn=locateXSL($prefix);
-
-locateXSL callback expects a metadataFormat prefix and will return the full
-path to the xsl which is responsible for this transformation. On failure:
-returns nothing.
-
-=head1 NAME
-
-Salsa_OAI::MPX
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
 
