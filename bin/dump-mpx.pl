@@ -15,6 +15,8 @@ use DBD::SQLite;
 use XML::LibXSLT;
 use Getopt::Std;
 use Salsa_OAI::Util 'modDir';
+use Path::Class;
+
 getopts( 'd', my $opts = {} );
 
 sub debug;
@@ -46,12 +48,17 @@ if ( $opts->{d} ) {
 #
 
 if ( !$ARGV[0] ) {
-	print "Error: Need output file to proceed\n";
+	print 'Error: Need output file to proceed\n';
 	exit 1;
 }
 
 if ( -f $ARGV[0] ) {
-	print "Warning: Output file exists already. Will be overwritten.\n";
+	print 'Warning: Output file exists already. Will be overwritten.\n';
+}
+
+if ( !-d file($ARGV[0])->parent ) {
+	print "Error: Directory '".file($ARGV[0])->parent."' does not exist!\n";
+	exit 1;
 }
 
 if ( !-f $config->{dbfile} ) {

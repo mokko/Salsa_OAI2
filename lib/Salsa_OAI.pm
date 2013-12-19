@@ -2,7 +2,7 @@ package Salsa_OAI;
 
 # ABSTRACT: Simple OAI data provider
 
-use Dancer ':syntax';
+use Dancer ':script';
 use Carp qw/carp croak/;
 use XML::LibXML;    #for salsa_setLibrary;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
