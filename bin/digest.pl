@@ -82,16 +82,15 @@ Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
 config->{environment} = 'production';    #makes debug silent
 
-#croak if vars missing in conf TODO
-#test_conf_var(qw/dbfile nativePrefix native_ns_uri/);
+
+my $nativePrefix = ( keys %{ config->{engine}{'nativeFormat'} } )[0];
+my $nativeURI    = config->{engine}{nativeFormat}{$nativePrefix}
+  || die "No schema uri for validation specified!";
 
 #
 # validate source file
 #
 
-my $nativePrefix = ( keys %{ config->{engine}{'nativeFormat'} } )[0];
-my $nativeURI    = config->{engine}{nativeFormat}{$nativePrefix}
-  || die "No schema uri for validation specified!";
 
 if ( !$opts->{n} ) {
 	verbose "About to validate source file before import";
@@ -124,35 +123,17 @@ my $ingester = HTTP::OAI::DataProvider::Ingester->new(
 # call digest_single
 #
 
-#violates demeter's law
-#my $err = $ingester->{engine}->digest_single(
-#	source  => $ARGV[0],
-#	mapping => config->{extractRecords},
-#);
-
 #Salsa_OAI::MPX::extractRecords is not propper. Should be loaded from config
 $ingester->digest( source => $ARGV[0], mapping => \&Salsa_OAI::MPX::extractRecords )
   or die "Can't digest";
 
 print "done\n";
 exit;
+
 #
 # SUBS
 #
 
-=func test_conf_var ($var1, $var2);
-
-Croaks if specified vars do not exist in config.
-
-=cut
-
-sub test_conf_var {
-	foreach (@_) {
-		if ( !config->{$_} ) {
-			croak "Error:Config variable $_ missing";
-		}
-	}
-}
 
 =func verbose 'message';
 =cut
