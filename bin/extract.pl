@@ -20,11 +20,36 @@ pod2usage() if ($opts->{h});
 sub verbose;    #predeclare
 sub output;
 
+=head1 SYNOPSIS
 
+   transform.pl -o output.xml 538 lido
+   transform.pl -h
+	Get usage summary, for more try 'perldoc transform.pl'
+
+=head1 PARAMETERS
+
+=head2 identifier (required)
+
+Identifier can be shortened (e.g. 538).
+
+=head2 target metadataPrefix (required)
+
+Metadata prefix indicating the format the record will be given out in.
+
+=head2 o (option, optional)
+
+Indicates to write output to file. If not specified, output is written to
+STDOUT.
+
+=head2 h (help, optional, exclusive)
+
+Prints a little usage tip. For more info use perldoc transform.pl (this text).
+
+=cut
 
 if ( $opts->{h} ) {
-	print "Usage example: transform.pl -o output.xml 538 lido\n";
-	print "See 'perldoc transform.pl' for more\n";
+	print "Usage example: extract.pl -o output.xml 538 lido\n";
+	print "See 'perldoc extract.pl' for more\n";
 	exit 0;
 }
 
@@ -48,9 +73,6 @@ config->{environment}='production'; #also makes debug silent
 # CONFIGURATION
 #
 
-#not ideal to have the path here
-#print "dbfile" . config->{dbfile} . "\n";
-#print "chunkCacheMaxSize: " . config->{chunkCacheMaxSize} . "\n";
 
 #from commandline
 
@@ -119,6 +141,16 @@ verbose '   request validates';
 
 exit 0;
 
+##
+## SUBS
+##
+
+=func verbose "message";
+
+Print message to STDOUT if script is run with -v options.
+
+=cut
+
 
 sub verbose {
 	my $msg = shift;
@@ -128,6 +160,14 @@ sub verbose {
 		}
 	}
 }
+
+
+=func output $string;
+
+Print $string either to STDOUT or to filehandle provided by -o commandline
+option.
+
+=cut
 
 
 sub output {
@@ -149,6 +189,9 @@ sub output {
 }
 
 
+#=func debug
+#Overwrite Dancer's debug if you like
+#=cut
 #sub debug {
 #	print "Get Here";
 	#if ( defined(&Dancer::Logger::debug) ) {
@@ -159,75 +202,3 @@ sub output {
 	#	};
 	#}
 #}
-
-
-
-
-__END__
-=pod
-
-=head1 NAME
-
-transform.pl - apply a transformation to a record from the data store
-
-=head1 VERSION
-
-version 0.019
-
-=head1 SYNOPSIS
-
-   transform.pl -o output.xml 538 lido
-   transform.pl -h
-	Get usage summary, for more try 'perldoc transform.pl'
-
-=head1 PARAMETERS
-
-=head2 identifier (required)
-
-Identifier can be shortened (e.g. 538).
-
-=head2 target metadataPrefix (required)
-
-Metadata prefix indicating the format the record will be given out in.
-
-=head2 o (option, optional)
-
-Indicates to write output to file. If not specified, output is written to
-STDOUT.
-
-=head2 h (help, optional, exclusive)
-
-Prints a little usage tip. For more info use perldoc transform.pl (this text).
-
-=head1 NOTES / TODO
-
-=head1 INTERNAL METHODS AND FUNCTIONS
-
-Documented here only for my own good
-
-=head2 verbose "message";
-
-Print message to STDOUT if script is run with -v options.
-
-=head2 output $string;
-
-Print $string either to STDOUT or to filehandle provided by -o commandline
-option.
-
-=head2 debug
-
-Overwrite Dancer's debug if you like
-
-=head1 AUTHOR
-
-Maurice Mengel <mauricemengel@gmail.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2011 by Maurice Mengel.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
-
