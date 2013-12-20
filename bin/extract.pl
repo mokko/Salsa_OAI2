@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# PODNAME: transform.pl
-# ABSTRACT: apply a transformation to a record from the data store
+# PODNAME: extract.pl
+# ABSTRACT: extracts a single record from the data store 
 
 use FindBin;
 use Cwd 'realpath';
@@ -22,7 +22,7 @@ sub output;
 
 =head1 SYNOPSIS
 
-   transform.pl -o output.xml 538 lido
+   extract.pl -o output.xml 538 lido
    transform.pl -h
 	Get usage summary, for more try 'perldoc transform.pl'
 
@@ -66,8 +66,7 @@ config->{environment}='production'; #also makes debug silent
 
 #use Data::Dumper qw/Dumper/;
 #print Dumper config;
-#verbose "here";
-#exit;
+
 
 #
 # CONFIGURATION
