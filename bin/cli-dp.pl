@@ -23,8 +23,10 @@ N.B. CURRENTLY RESUMPTION (TOKENS) NOT SUPPORTED.
 =head1 SYNOPSIS
 
 	#OAI verbs and paramters
-	cli-dp.pl --verb Identify
+	cli-dp.pl --host --verb Identify
 	cli-dp.pl --verb GetRecord --identifier 12342 --metadataPrefix oai_dc
+
+	#default host is http:://localhost:3000/oai
 
 	#other arguments
 	--verbose #more 
@@ -57,6 +59,7 @@ sub getOpt {
 	GetOptions(
 		'config=s'          => \$opts{c},
 		'help'              => \$opts{h},
+		'host=s'			=> \$opts{host},
 		'identifier=s'      => \$params{identifier},
 		'from=s'            => \$params{from},
 		'metadataPrefix=s'  => \$params{metadataPrefix},
@@ -65,7 +68,6 @@ sub getOpt {
 		'until=s'           => \$params{'until'},
 		'verb=s'            => \$params{verb},
 		'verbose'           => \$opts{v},
-		'host=s'			=> \$opts{host}
 	);
 	pod2usage(1) if ( $opts{h} );
 
