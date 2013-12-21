@@ -255,6 +255,28 @@ sub locateXSL {
 	  : return ();
 }
 
+=func my xslt_fn=salsa_locateXSL($prefix);
+
+locateXSL callback expects a metadataFormat prefix and will return the full
+path to the xsl which is responsible for this transformation. On failure:
+returns nothing.
+
+=cut
+
+sub myLocateXSL {
+	return sub {
+	my $prefix       = shift or die "Need prefix!";
+	my $nativeFormat=(keys %{config->{engine}{'nativeFormat'}})[0];
+
+	if ( !$nativeFormat ) {
+		  die "Info on nativeFormat missing";
+	}
+
+	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
+	}
+}
+
+
 1;              
 
 

@@ -8,9 +8,11 @@ use XML::LibXML;    #for salsa_setLibrary;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
-use Salsa_OAI::MPX;
+use Salsa_OAI::MPX; #should the package be loaded dynamically?
+use HTTP::OAI::DataProvider::Mapping::MPX; #for alternative extractRecords
+use Salsa_OAI::Util;
 
-use Data::Dumper qw/Dumper/;    #for debugging, not for production
+#use Data::Dumper qw/Dumper/;    #for debugging, not for production
 our $provider = init_provider();    #do this when starting the webapp
 
 =head1 SYNOPSIS
@@ -97,63 +99,8 @@ dance;
 #
 #
 
-=func config_check ();
 
-Run checks if Dancer's configuration make sense, e.g. if chunking enabled, it
-should also have the relevant information (e.g. chunk_dir). This check should
-run during initial start up and throw intelligble errors if it fails, so we can
-fix them right there and then and do not have to test all possibilities to
-discover them.
 
-=cut
-
-sub config_check {
-
-	#NOT SURE THIS STILL MAKES SENSE...
-
-	#1) check whether all required config data is available
-	#	my %required = (
-	#		chunkCache => { maxChunks => 1 },
-	#		identify => {
-	#			adminEmail     => 1,
-	#			baseURL        => 1,
-	#			repositoryName => 1,
-	#		},
-	#		setLibrary => 1,
-	#		xslt       => 1,
-	#		XSLT_dir   => 1,
-	#	);
-	#	print Dumper config;
-	#
-	#	foreach my $check ( keys %required ) {
-	#		if (ref $check) {
-	#		print "\n........$check  :" . keys config{$check} . "\n";
-	#
-	#		}
-	#
-	#		if ( !config->{$check} ) {
-	#			die "Configuration Error: Required config value $check missing";
-	#		}
-	#	}
-
-	#2) apply defaults, check conditionals
-	if ( !config->{engine}{chunkCache}{maxChunks} ) {
-		debug "Config check: set engine/chunkCache/maxChunks to default (100)";
-		config->{engine}{chunkCache}{maxChunks} = 100;    #default
-	}
-
-	#3) correct config data
-
-	no strict "refs";
-	config->{engine}{locateXSL} = &{config->{engine}{locateXSL}};
-	use strict "refs";
-
-	#write oai_baseURL also in explicit requestURL
-	config->{requestURL} = config->{identify}{baseURL};
-
-	#VALIDATE all xslts for conversion to target format during startup.
-	#lasts too long
-}
 
 =func $provider=init_provider();
 
@@ -166,9 +113,8 @@ sub init_provider {
 
 	#require conditions during start up or die
 	#apply defaults, changes Dancer's config values
-	config_check();
-
-	my $provider = HTTP::OAI::DataProvider->new(config);
+	my $config=Salsa_OAI::Util::configSanity();
+	my $provider = HTTP::OAI::DataProvider->new($config);
 
 	#according to Demeter's law I should NOT access internal data
 	#instead I should talk to provider's interface and hand over all
@@ -280,26 +226,6 @@ sub salsa_setLibrary {
 	#return empty-handed and fail
 }
 
-=func my xslt_fn=salsa_locateXSL($prefix);
-
-locateXSL callback expects a metadataFormat prefix and will return the full
-path to the xsl which is responsible for this transformation. On failure:
-returns nothing.
-
-=cut
-
-sub salsa_locateXSL {
-	return sub {
-	my $prefix       = shift or die "Need prefix!";
-	my $nativeFormat=(keys %{config->{engine}{'nativeFormat'}})[0];
-
-	if ( !$nativeFormat ) {
-		  die "Info on nativeFormat missing";
-	}
-
-	return config->{XSLT_dir} . '/' . $nativeFormat . '2' . $prefix . '.xsl';
-	}
-}
 
 1;
 __END__

@@ -1,28 +1,27 @@
 #!/usr/bin/perl
 # PODNAME: extract.pl
-# ABSTRACT: extracts a single record from the data store 
+# ABSTRACT: extracts a single record or a named set of records from the data store
 
-use FindBin;
-use Cwd 'realpath';
-use Dancer ':syntax';
 use HTTP::OAI;
 use HTTP::OAI::Repository 'validate_request';
 use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider;
-use lib "$FindBin::Bin/../lib";
+#use lib "$FindBin::Bin/../lib";
 use Pod::Usage;
-use Salsa_OAI::MPX;
+use Salsa_OAI::Util;
 use Getopt::Std;
 
 getopts( 'o:hv', my $opts = {} );
-pod2usage() if ($opts->{h});
+pod2usage() if ( $opts->{h} );
 
 sub verbose;    #predeclare
 sub output;
 
 =head1 SYNOPSIS
 
-   extract.pl -o output.xml 538 lido
+   extract.pl identifier_required metadataPrefix_required [set_optional]
+ 
+   extract.pl -o output.xml 538 lido set
    transform.pl -h
 	Get usage summary, for more try 'perldoc transform.pl'
 
@@ -57,41 +56,33 @@ if ( $opts->{h} ) {
 # Dancer Config
 #
 
-#correct bug in current dancer
-Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
-Dancer::Config::load();
-config->{environment}='production'; #also makes debug silent
-#print 'appdir'.Dancer::Config::setting('appdir')."\n";
-#print 'conffile'.Dancer::Config::conffile()."\n";
+my $config=Salsa_OAI::Util::loadConfig();
+$config=Salsa_OAI::Util::configSanity($config);
 
 #use Data::Dumper qw/Dumper/;
 #print Dumper config;
-
 
 #
 # CONFIGURATION
 #
 
-
 #from commandline
 
 if ( !$ARGV[0] ) {
-	print "Error: Need identifier!";
+	print "Error: Need identifier!\n";
 
 	#$config->{id}=$ARGV[0];
 	exit 1;
 }
 if ( !$ARGV[1] ) {
-	print "Error: Need target metadata prefix!";
+	print "Error: Need target metadata prefix!\n";
 
 	#$config->{target}=$ARGV[1];
 	exit 1;
 }
 
 verbose "\nCommand line input:";
-my $params = {
-	verb => 'GetRecord'
-};
+my $params = { verb => 'GetRecord' };
 if ( $ARGV[0] =~ /\d+/ ) {
 	$ARGV[0] = 'spk-berlin.de:EM-objId-' . $ARGV[0];
 	verbose "   identifier ='$ARGV[0]'";
@@ -105,25 +96,25 @@ if ( $ARGV[1] ) {
 
 if ( $ARGV[2] ) {
 	verbose "   set='$ARGV[2]'";
-	$params->{Set} = $ARGV[2];
+	$params->{Set}  = $ARGV[2];
 	$params->{verb} = 'ListRecords';
 }
 
 if ( $opts->{o} ) {
 	verbose "Will print to file handle using UTF-8 for output ($opts->{o})\n";
-	if (-f $opts->{o}) {
-		verbose '   Overwriting '.$opts->{o};
+	if ( -f $opts->{o} ) {
+		verbose '   Overwriting ' . $opts->{o};
 		unlink $opts->{o};
 	}
 }
 
-verbose '   verb: '.$params->{verb};
+verbose '   verb: ' . $params->{verb};
 
 #
 # MAIN
 #
 
-my $provider = HTTP::OAI::DataProvider->new(config);
+my $provider = HTTP::OAI::DataProvider->new($config);
 
 if ( validate_request( %{$params} ) ) {
 	output $provider->err2XML( validate_request( %{$params} ) );
@@ -135,7 +126,7 @@ verbose '   request validates';
 {
 	no strict "refs";
 	my $verb = $params->{verb};
-	output $provider->$verb( config->{baseURL}, %{$params} );
+	output $provider->$verb( %{$params} );
 }
 
 exit 0;
@@ -150,16 +141,14 @@ Print message to STDOUT if script is run with -v options.
 
 =cut
 
-
 sub verbose {
 	my $msg = shift;
 	if ($msg) {
 		if ( $opts->{v} ) {
-			print $msg."\n";
+			print $msg. "\n";
 		}
 	}
 }
-
 
 =func output $string;
 
@@ -168,36 +157,37 @@ option.
 
 =cut
 
-
 sub output {
 	my $output = shift;
 	if ($output) {
+
 		#encoding terror
 		utf8::encode($output);
-		
+
 		if ( $opts->{o} ) {
+
 			#'>:encoding(UTF-8)' seems to work without it
 			open( my $fh, '>>', $opts->{o} ) or die $!;
 			print $fh $output;
 
 			#close file automatically if this script ends
-		} else {
-			print $output;
+		}
+		else {
+			print $output."\n";
 		}
 	}
 }
-
 
 #=func debug
 #Overwrite Dancer's debug if you like
 #=cut
 #sub debug {
 #	print "Get Here";
-	#if ( defined(&Dancer::Logger::debug) ) {
-	#	goto &Dancer::Logger::debug;
-	#} else {
-	#	foreach (@_) {
-	#		print "$_\n";
-	#	};
-	#}
+#if ( defined(&Dancer::Logger::debug) ) {
+#	goto &Dancer::Logger::debug;
+#} else {
+#	foreach (@_) {
+#		print "$_\n";
+#	};
+#}
 #}
