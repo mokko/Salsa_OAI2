@@ -65,6 +65,7 @@ Gets called from Salso_OAI.pm and extract.pl.
 =cut
 
 sub configSanity {
+	die "Error: Need baseURL" if (! config->{identify}{baseURL});
 
 	#apply defaults, check conditionals
 	if ( !config->{engine}{chunkCache}{maxChunks} ) {

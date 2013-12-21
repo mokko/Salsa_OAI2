@@ -8,8 +8,8 @@ use XML::LibXML;    #for salsa_setLibrary;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
-use Salsa_OAI::MPX; #should the package be loaded dynamically?
-use HTTP::OAI::DataProvider::Mapping::MPX; #for alternative extractRecords
+#use Salsa_OAI::MPX; #should the package be loaded dynamically?
+#use HTTP::OAI::DataProvider::Mapping::MPX; #for alternative extractRecords
 use Salsa_OAI::Util;
 
 #use Data::Dumper qw/Dumper/;    #for debugging, not for production
@@ -67,9 +67,9 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	#I have problems with requestURL. With some servers it disappears from
 	#from DataProvider's HTTP::OAI::Response. Therefore, let's hand it over to
 	#the data provider explicitly!
-	my $env     = request->env;
-	my $request = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
-	debug "request: " . $request;
+	#my $env     = request->env;
+	#my $request = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
+	#debug "request: " . $request;
 
 	#I am not sure this is the best way to reconstruct the real request
 	#but it should work for me

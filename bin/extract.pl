@@ -6,6 +6,9 @@ use HTTP::OAI;
 use HTTP::OAI::Repository 'validate_request';
 use HTTP::OAI::Metadata;
 use HTTP::OAI::DataProvider;
+use URI;
+#use URI::Escape;
+
 #use lib "$FindBin::Bin/../lib";
 use Pod::Usage;
 use Salsa_OAI::Util;
@@ -19,11 +22,20 @@ sub output;
 
 =head1 SYNOPSIS
 
-   extract.pl identifier_required metadataPrefix_required [set_optional]
- 
-   extract.pl -o output.xml 538 lido set
-   transform.pl -h
-	Get usage summary, for more try 'perldoc transform.pl'
+   #Get single record
+   extract.pl identifier metadataPrefix 
+
+   #List a whole set	
+   extract.pl - metadataPrefix set 
+
+   #Example
+   extract.pl -o output.xml 538 lido
+
+	N.B. set works now, but resume is not implemented yet.
+
+=head1 KNOWN ISSUES
+
+requestURL in OAI header is not correct!
 
 =head1 PARAMETERS
 
@@ -56,11 +68,8 @@ if ( $opts->{h} ) {
 # Dancer Config
 #
 
-my $config=Salsa_OAI::Util::loadConfig();
-$config=Salsa_OAI::Util::configSanity($config);
-
-#use Data::Dumper qw/Dumper/;
-#print Dumper config;
+my $config = Salsa_OAI::Util::loadConfig();
+$config = Salsa_OAI::Util::configSanity($config);
 
 #
 # CONFIGURATION
@@ -81,6 +90,8 @@ if ( !$ARGV[1] ) {
 	exit 1;
 }
 
+$config->{requestURL} = URI->new( $config->{identify}{baseURL} );
+
 verbose "\nCommand line input:";
 my $params = { verb => 'GetRecord' };
 if ( $ARGV[0] =~ /\d+/ ) {
@@ -92,13 +103,30 @@ if ( $ARGV[0] =~ /\d+/ ) {
 if ( $ARGV[1] ) {
 	verbose "   metadataPrefix='$ARGV[1]'";
 	$params->{metadataPrefix} = $ARGV[1];
+	$config->{requestURL}->query_form(
+		[
+			verb           => $params->{verb},
+			metadataPrefix => $params->{metadataPrefix},
+			identifier     => $params->{identifier},
+		],
+	);
 }
 
 if ( $ARGV[2] ) {
 	verbose "   set='$ARGV[2]'";
-	$params->{Set}  = $ARGV[2];
+	$params->{set}  = $ARGV[2];
 	$params->{verb} = 'ListRecords';
+	delete $params->{identifier};
+	$config->{requestURL}->query_form(
+		[
+			verb           => $params->{verb},
+			metadataPrefix => $params->{metadataPrefix},
+			set            => $params->{set},
+		],
+	);
 }
+$config->{requestURL}=$config->{requestURL}->canonical->as_string;
+verbose "handmade requestURL". $config->{requestURL};
 
 if ( $opts->{o} ) {
 	verbose "Will print to file handle using UTF-8 for output ($opts->{o})\n";
@@ -107,8 +135,6 @@ if ( $opts->{o} ) {
 		unlink $opts->{o};
 	}
 }
-
-verbose '   verb: ' . $params->{verb};
 
 #
 # MAIN
@@ -123,11 +149,12 @@ if ( validate_request( %{$params} ) ) {
 
 verbose '   request validates';
 
-{
-	no strict "refs";
-	my $verb = $params->{verb};
-	output $provider->$verb( %{$params} );
-}
+no strict "refs";
+my $verb   = $params->{verb};
+my $string = $provider->$verb( %{$params} );
+use strict "refs";
+
+output($string);
 
 exit 0;
 
@@ -158,22 +185,21 @@ option.
 =cut
 
 sub output {
-	my $output = shift;
-	if ($output) {
+	my $response = shift;
+	if ($response) {
 
 		#encoding terror
-		utf8::encode($output);
+		utf8::encode($response);
 
 		if ( $opts->{o} ) {
 
 			#'>:encoding(UTF-8)' seems to work without it
 			open( my $fh, '>>', $opts->{o} ) or die $!;
-			print $fh $output;
-
-			#close file automatically if this script ends
+			print $fh $response;
+			close $fh;    #or close file automatically if this script ends?
 		}
 		else {
-			print $output."\n";
+			print $response. "\n";
 		}
 	}
 }
