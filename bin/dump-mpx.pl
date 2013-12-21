@@ -48,12 +48,12 @@ if ( $opts->{d} ) {
 #
 
 if ( !$ARGV[0] ) {
-	print 'Error: Need output file to proceed\n';
+	print "Error: Need output file to proceed!\n";
 	exit 1;
 }
 
 if ( -f $ARGV[0] ) {
-	print 'Warning: Output file exists already. Will be overwritten.\n';
+	print "Warning: Output file exists already. Will be overwritten.\n";
 }
 
 if ( !-d file($ARGV[0])->parent ) {
