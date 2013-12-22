@@ -8,6 +8,7 @@ use XML::LibXML;    #for salsa_setLibrary;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
+
 #use Salsa_OAI::MPX; #should the package be loaded dynamically?
 #use HTTP::OAI::DataProvider::Mapping::MPX; #for alternative extractRecords
 use Salsa_OAI::Util;
@@ -61,28 +62,24 @@ L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
 #
 
 any [ 'get', 'post' ] => '/oai' => sub {
-	my $ret;    # avoid perl's magic returns
 	content_type 'text/xml';
 
-	#I have problems with requestURL. With some servers it disappears from
-	#from DataProvider's HTTP::OAI::Response. Therefore, let's hand it over to
-	#the data provider explicitly!
-	#my $env     = request->env;
-	#my $request = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
-	#debug "request: " . $request;
-
-	#I am not sure this is the best way to reconstruct the real request
-	#but it should work for me
-
-	#this needs to stay here to check if verb is valid
+	#check if verb is valid
 	if ( my $verb = params->{verb} ) {
 		if ( validate_request(params) ) {
-			return $provider->err2XML( validate_request(params) );
+			return $provider->_output( validate_request(params) );
 		}
 
 		no strict "refs";
-		return $provider->$verb( params() );
-		#return $provider->$verb( $request, params() );
+		my $response = $provider->$verb( params() );
+		#debug "response:$response" if $response;
+		#debug "OAIerror:";
+		#debug $provider->OAIerror if $provider->OAIerror;
+		#debug "error:";
+		#debug $provider->error if $provider->error;
+		
+		return $response;
+
 	}
 	else {
 		return welcome();
@@ -90,7 +87,7 @@ any [ 'get', 'post' ] => '/oai' => sub {
 };
 
 hook after => sub {
-	warning "Initial request is danced. How long did it take?";
+	warning "This dance is over. How long did it take?";
 };
 
 dance;
@@ -98,9 +95,6 @@ dance;
 #
 #
 #
-
-
-
 
 =func $provider=init_provider();
 
@@ -113,7 +107,7 @@ sub init_provider {
 
 	#require conditions during start up or die
 	#apply defaults, changes Dancer's config values
-	my $config=Salsa_OAI::Util::configSanity();
+	my $config   = Salsa_OAI::Util::configSanity();
 	my $provider = HTTP::OAI::DataProvider->new($config);
 
 	#according to Demeter's law I should NOT access internal data
@@ -140,39 +134,6 @@ true;
 #
 # CALLBACKS
 #
-
-=func Debug "Message";
-
-Use Dancer's debug function if available or else write to STDOUT. Register this
-callback during init_provider.
-
-=cut
-
-sub salsa_debug {
-	if ( defined(&Dancer::Logger::debug) ) {
-		goto &Dancer::Logger::debug;
-	}
-	else {
-		foreach (@_) {
-			print "$_\n";
-		}
-	}
-}
-
-=func Warning "Message";
-
-Use Dancer's warning function if available or pass message to perl's warn.
-
-=cut
-
-sub salsa_warning {
-	if ( defined(&Dancer::Logger::warning) ) {
-		goto &Dancer::Logger::warning;
-	}
-	else {
-		warn @_;
-	}
-}
 
 =Func my $library = salsa_setLibrary();
 
@@ -225,7 +186,6 @@ sub salsa_setLibrary {
 
 	#return empty-handed and fail
 }
-
 
 1;
 __END__

@@ -65,7 +65,7 @@ Gets called from Salso_OAI.pm and extract.pl.
 =cut
 
 sub configSanity {
-	die "Error: Need baseURL" if (! config->{identify}{baseURL});
+	die "Error: Need baseURL" if ( !config->{identify}{baseURL} );
 
 	#apply defaults, check conditionals
 	if ( !config->{engine}{chunkCache}{maxChunks} ) {
@@ -86,6 +86,30 @@ sub configSanity {
 	config->{engine}{locateXSL} = &{ config->{engine}{locateXSL} };
 	use strict "refs";
 
+	#I am cheating here. Turn on debug in case there is debug in configuration
+	if ( config->{debug} ) {
+		config->{debug} = sub {
+			if ( defined(&Dancer::Logger::debug) ) {
+				goto &Dancer::Logger::debug;
+			}
+			else {
+				foreach (@_) {
+					print "$_\n";
+				}
+			}
+		  }
+	}
+	if ( config->{warning} ) {
+		config->{warning} = sub {
+			if ( defined(&Dancer::Logger::warning) ) {
+				goto &Dancer::Logger::warning;
+			}
+			else {
+				warn @_;
+			}
+		  }
+	}
+
 	#write oai_baseURL also in explicit requestURL
 	config->{requestURL} = config->{identify}{baseURL};
 
@@ -93,5 +117,16 @@ sub configSanity {
 	#lasts too long
 	return config;
 }
+
+=func Debug "Message";
+
+Use Dancer's debug function if available or else write to STDOUT. Register this
+callback during init_provider.
+
+=func Warning "Message";
+
+Use Dancer's warning function if available or pass message to perl's warn.
+
+=cut
 
 1;
