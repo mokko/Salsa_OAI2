@@ -1,53 +1,35 @@
 #
 ##
-### 1 BASIC DANCER CONFIG
+### 1 BASIC DANCER CONFIG AND OTHER SIMPLE STUFF
 ##
 #
 
-#appname: a Dancer config value
-appname: "Salsa_OAI"
-
-#content_type: This is default content type for dancer. Salsa_OAI sets text/xml
-# where appropriate
+appname: "SalsaOAI"
 content_type: "text/html"
-
-#
-##
-### 2 TRANSFORMATIONS
-##
-#
-
-#XSLT_dir (path):
-# dir where mappings are located (transforming native format to target format)
-XSLT_dir: '/home/Mengel/projects/Salsa_OAI2/xslt'
-
-#xslt (path):
-# beautify stylesheet, path relative to public dir in Dancer
+debug: 'Salsa_OAI::Util::Debug'
+warning: 'Salsa_OAI::Util::Warning'
+XSLT_dir: '/home/maurice/projects/Own/SalsaOAI/xslt'
 xslt: '/oai2.xsl'
 
-nativePrefix: 'mpx'
-native_ns_uri: 'http://www.mpx.org/mpx'
-#schemaLocation for validating native format (used in digest.pl)
-nativeSchema: '/home/Mengel/projects/MPX/latest/mpx.xsd'
-
 #
 ##
-### 3 MAPPING / CALLBACKS
+### 2 ENGINE
 ##
 #
 
-#extractRecords (callback): returns HTTP::OAI::Record from source xml
-extractRecords: 'Salsa_OAI::MPX::extractRecords'
-
-#locateXSL (callback): finds xsl for mapping on disk
-locateXSL: 'Salsa_OAI::MPX::locateXSL'
-
-#setLibrary (callback): dont remember what this does
-setLibraryCB: 'Salsa_OAI::salsa_setLibrary'
-
-#TODO: message callback
-debug: 'Salsa_OAI::salsa_debug'
-warning: 'Salsa_OAI::salsa_debug'
+engine:
+  engine: 'HTTP::OAI::DataProvider::Engine::SQLite'
+  nativeFormat: 
+    'mpx': 'http://www.mpx.org/mpx'
+  locateXSL: 'Salsa_OAI::MPX::myLocateXSL'
+  chunkCache:
+    recordsPerChunk: 100
+    maxChunks: 4000
+  dbfile: "/home/maurice/projects/Own/SalsaOAI/data/db"
+  #extractRecords (callback): returns HTTP::OAI::Record from source xml
+  extractRecords: 'Salsa_OAI::MPX::extractRecords'
+  #extractRecords: 'HTTP::OAI::DataProvider::Mapping::MPX::extractRecords'
+  
 
 #
 ##
@@ -55,32 +37,11 @@ warning: 'Salsa_OAI::salsa_debug'
 ##
 #
 
-#adminEmail: for Identify (required)
-adminEmail: "mauricemengel@gmail.com"
-
-#baseURL (url): for Identify verb (required)
-# also used to overwrite real requestURL
-baseURL: "http://localhost:3000/oai"
-
-#deletedRecord: does repository support deletedRecords? (required)
-deletedRecord: "transient"
-
-#repositoryName: Repository name for Identify verb (required)
-repositoryName: "SPK OAI Data Provider for MIMO"
-
-#
-##
-### 5 RESUMPTION CHUNKING
-##
-#
-
-#chunkSize (integer): No of results per chunk.
-chunkSize: 100
-
-#chunkCacheMaxSize (integer): Max no of chunk descriptions stored in request cache
-# before old chunk descriptions are deleted. maxChunkCache must be greater than
-# the max number of chunks per request.
-chunkCacheMaxSize: 4000
+identify:
+ adminEmail: 'mauricemengel@gmail.com'
+ baseURL: 'http://www.MalzkornLebt.de/oai'
+ deletedRecord: 'transient'
+ repositoryName: "SPK OAI Data Provider for MIMO"
 
 #
 ##
@@ -93,7 +54,7 @@ chunkCacheMaxSize: 4000
 #  ns_uri: "http://www.mpx.org/mpx"
 #  ns_schema: "https://github.com/mokko/MPX/raw/master/latest/mpx.xsd"
 
-GlobalFormats:
+globalFormats:
   mpx:
    ns_uri: "http://www.mpx.org/mpx"
    ns_schema: "https://github.com/mokko/MPX/raw/master/latest/mpx.xsd"
@@ -103,9 +64,6 @@ GlobalFormats:
   oai_dc:
    ns_uri: "http://www.openarchives.org/OAI/2.0/oai_dc/"
    ns_schema: "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
-#  museumdat:
-#   ns_uri: "http://museum.zib.de/museumdat/"
-#   ns_schema: "http://museum.zib.de/museumdat/museumdat-v1.0.xsd"
 
 
 #
@@ -128,11 +86,3 @@ setLibrary:
   test:
    setName: 'testing setSpecs - might not work without this one'
 
-#
-##
-### 8 SPECIFIC TO SQLite ENGINE
-##
-#
-
-#dbfile (path): location of sqlite db
-dbfile: "/home/Mengel/projects/Salsa_OAI2/data/db"
