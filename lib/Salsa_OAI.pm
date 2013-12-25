@@ -8,12 +8,10 @@ use XML::LibXML;    #for salsa_setLibrary;
 use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
 use HTTP::OAI::DataProvider;
 use HTTP::OAI::Repository qw/validate_request/;
+use URI;
 
-#use Salsa_OAI::MPX; #should the package be loaded dynamically?
-#use HTTP::OAI::DataProvider::Mapping::MPX; #for alternative extractRecords
 use Salsa_OAI::Util;
 
-#use Data::Dumper qw/Dumper/;    #for debugging, not for production
 our $provider = init_provider();    #do this when starting the webapp
 
 =head1 SYNOPSIS
@@ -72,6 +70,7 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	$requestURL=URI->new($requestURL)->canonical->as_string;
 		
 	debug "requestURL: " . $requestURL;
+
 	#check if verb is valid
 	my $verb = params->{verb} or return welcome();
 
