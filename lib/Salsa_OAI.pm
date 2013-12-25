@@ -64,26 +64,23 @@ L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
 any [ 'get', 'post' ] => '/oai' => sub {
 	content_type 'text/xml';
 
-	#check if verb is valid
-	if ( my $verb = params->{verb} ) {
-		if ( validate_request(params) ) {
-			return $provider->_output( validate_request(params) );
-		}
-
-		no strict "refs";
-		my $response = $provider->$verb( params() );
-		#debug "response:$response" if $response;
-		#debug "OAIerror:";
-		#debug $provider->OAIerror if $provider->OAIerror;
-		#debug "error:";
-		#debug $provider->error if $provider->error;
+    #Under starman requestURL doesn't get set correctly, so let's do it manually
+	my $env        = request->env;
+	#my $requestURL = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
+	my $uri = URI->new(config->{identify}{baseURL});
+	my $requestURL =  'http://'.$uri->host.':'.$uri->port. $env->{'REQUEST_URI'};
+	$requestURL=URI->new($requestURL)->canonical->as_string;
 		
-		return $response;
+	debug "requestURL: " . $requestURL;
+	#check if verb is valid
+	my $verb = params->{verb} or return welcome();
 
+	if ( validate_request(params) ) {
+		return $provider->_output( validate_request(params) );
 	}
-	else {
-		return welcome();
-	}
+	$provider->requestURL($requestURL);
+	no strict "refs";
+	return $provider->$verb( params() );
 };
 
 hook after => sub {
