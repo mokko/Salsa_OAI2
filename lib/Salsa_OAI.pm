@@ -2,17 +2,13 @@ package Salsa_OAI;
 
 # ABSTRACT: Simple OAI data provider
 
-use Dancer ':script';
-use Carp qw/carp croak/;
-use XML::LibXML;    #for salsa_setLibrary;
-use HTTP::OAI;      #for salsa_identify, salsa_setLibrary
+use Dancer;
 use HTTP::OAI::DataProvider;
-use HTTP::OAI::Repository qw/validate_request/;
-use URI;
-
 use Salsa_OAI::Util;
+use URI;            #for manual_rurl()
+use XML::LibXML;    #for salsa_setLibrary();
 
-our $provider = init_provider();    #do this when starting the webapp
+our $prv = init_provider();    #do this when starting the webapp
 
 =head1 SYNOPSIS
 
@@ -62,24 +58,14 @@ L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
 any [ 'get', 'post' ] => '/oai' => sub {
 	content_type 'text/xml';
 
-    #Under starman requestURL doesn't get set correctly, so let's do it manually
-	my $env        = request->env;
-	#my $requestURL = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
-	my $uri = URI->new(config->{identify}{baseURL});
-	my $requestURL =  'http://'.$uri->host.':'.$uri->port. $env->{'REQUEST_URI'};
-	$requestURL=URI->new($requestURL)->canonical->as_string;
-		
-	debug "requestURL: " . $requestURL;
-
-	#check if verb is valid
 	my $verb = params->{verb} or return welcome();
 
-	if ( validate_request(params) ) {
-		return $provider->_output( validate_request(params) );
-	}
-	$provider->requestURL($requestURL);
+	#check if verb is valid.
+	$prv->validateRequest(params) or return $prv->asString( $prv->OAIerrors );
+	$prv->requestURL( manual_rurl() );
 	no strict "refs";
-	return $provider->$verb( params() );
+	my $response = $prv->$verb( params() );    #response for verb or error
+	return $prv->asString($response);
 };
 
 hook after => sub {
@@ -88,11 +74,11 @@ hook after => sub {
 
 dance;
 
-#
-#
-#
+##
+##
+##
 
-=func $provider=init_provider();
+=func $prv=init_provider();
 
 Initialize the data provider with settings either from Dancer's config
 if classic configuration information or from callbacks.
@@ -103,15 +89,40 @@ sub init_provider {
 
 	#require conditions during start up or die
 	#apply defaults, changes Dancer's config values
-	my $config   = Salsa_OAI::Util::configSanity();
-	my $provider = HTTP::OAI::DataProvider->new($config);
+	my $config = Salsa_OAI::Util::configSanity();
+	my $prv    = HTTP::OAI::DataProvider->new($config);
 
 	#according to Demeter's law I should NOT access internal data
 	#instead I should talk to provider's interface and hand over all
 	#these values to the interface and let the provider deal with it
 
 	debug "data provider initialized!";
-	return $provider;
+	return $prv;
+}
+
+=func manual_rurl ();
+
+Returns a version of the de facto requestURL in which host part is replaced 
+by the value specified in the configuration for identify/baseURL.
+
+If de-facto requestURL is 'http://127.0.0.1/oai?verb=Identify' and 
+identify/baseURL is defined as 'http://localhost' then return valued is
+'http://localhost/oai?verb=Identify'.
+
+Background: Under the fabulous Starman server, requestURL doesn't get set 
+correctly in HTTP::OAI, so that I have do it manually using this sub.
+
+=cut
+
+sub manual_rurl {
+
+	my $env = request->env;
+
+	#my $requestURL = 'http://' . $env->{'HTTP_HOST'} . $env->{'REQUEST_URI'};
+	my $uri = URI->new( config->{identify}{baseURL} );
+	my $requestURL =
+	  'http://' . $uri->host . ':' . $uri->port . $env->{'REQUEST_URI'};
+	return URI->new($requestURL)->canonical->as_string;
 }
 
 =func welcome()
@@ -184,6 +195,3 @@ sub salsa_setLibrary {
 }
 
 1;
-__END__
-
-
