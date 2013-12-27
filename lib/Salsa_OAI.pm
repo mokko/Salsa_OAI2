@@ -60,21 +60,24 @@ any [ 'get', 'post' ] => '/oai' => sub {
 	my $verb = params->{verb} or return welcome();
 
 	#check if verb is valid.
-	$prv->validateRequest(params) or return $prv->asString( $prv->OAIerrors );
+	#$prv->validateRequest(params) or return $prv->asString( $prv->OAIerrors );
+	$prv->validateRequest(params);
+	if ($prv->error) {
+		warning "Initial parsing error!";
+		return $prv->asString( $prv->OAIerrors );
+	}
 	$prv->requestURL( manual_rurl() );
 	no strict "refs";
 	my $response = $prv->$verb( params() );    #response for verb or error
 	return $prv->asString($response);
 };
 
-hook after => sub {
-	warning "This dance is over. How long did it take?";
-};
+hook after => sub {debug "\tDANCE OVER\n"};
 
 dance;
 
 ##
-##
+## SUBS
 ##
 
 =func $prv=init_provider();
@@ -86,14 +89,10 @@ if classic configuration information or from callbacks.
 
 sub init_provider {
 
-	#require conditions during start up or die
+	#require conditions during start up or die/carp
 	#apply defaults, changes Dancer's config values
 	my $config = Salsa_OAI::Util::configSanity();
 	my $prv    = HTTP::OAI::DataProvider->new($config);
-
-	#according to Demeter's law I should NOT access internal data
-	#instead I should talk to provider's interface and hand over all
-	#these values to the interface and let the provider deal with it
 
 	debug "data provider initialized!";
 	return $prv;
