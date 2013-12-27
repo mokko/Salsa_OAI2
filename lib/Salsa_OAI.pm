@@ -1,6 +1,5 @@
-package Salsa_OAI;
-
 # ABSTRACT: Simple OAI data provider
+package Salsa_OAI;
 
 use Dancer;
 use HTTP::OAI::DataProvider;
@@ -21,9 +20,9 @@ it
 =back
 
 * does not support all OAI features (see below)
+* it's easy to configure
+* it's easy to install
 * it should be easy to maintain
-* easy to configure
-* easy to install
 
 For a list of OAI features, see L<HTTP::OAI::DataProvider|https://github.com/mokko/HTTP-OAI-DataProvider>
 
