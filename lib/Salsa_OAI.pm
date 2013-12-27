@@ -59,20 +59,13 @@ any [ 'get', 'post' ] => '/oai' => sub {
 
 	my $verb = params->{verb} or return welcome();
 
-	#check if verb is valid.
-	#$prv->validateRequest(params) or return $prv->asString( $prv->OAIerrors );
-	$prv->validateRequest(params);
-	if ($prv->error) {
-		warning "Initial parsing error!";
-		return $prv->asString( $prv->OAIerrors );
-	}
 	$prv->requestURL( manual_rurl() );
-	no strict "refs";
-	my $response = $prv->$verb( params() );    #response for verb or error
+	#response is a HTTP::OAI::Response (verb or error)
+	my $response = $prv->verb( params() );    
 	return $prv->asString($response);
 };
 
-hook after => sub {debug "\tDANCE OVER\n"};
+hook after => sub {debug "\tTHE DANCE OVER\t"};
 
 dance;
 
