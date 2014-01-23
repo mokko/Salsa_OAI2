@@ -28,8 +28,9 @@ digest.pl file.mpx
 
 =over 4
 
-*-n:   no validation
-*-v:   verbose
+=item *-n:   no validation
+
+=item *-v:   verbose
 
 =back
 
@@ -93,7 +94,7 @@ my $nativeURI    = config->{engine}{nativeFormat}{$nativePrefix}
 
 
 if ( !$opts->{n} ) {
-	verbose "About to validate source file before import";
+	verbose "Validateing source file before import ...";
 
 	my $doc = XML::LibXML->new->parse_file( $ARGV[0] );
 	my $xmlschema = XML::LibXML::Schema->new( location => $nativeURI );

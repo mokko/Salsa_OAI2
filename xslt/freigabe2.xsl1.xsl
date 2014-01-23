@@ -46,6 +46,7 @@
 					<xsl:attribute name="freigabe">Web</xsl:attribute>
 					<xsl:attribute name="priorität">10</xsl:attribute>
 				</xsl:when>
+				<!-- that should find only those which end of ' x' -->
 				<xsl:when test="contains (mpx:multimediaDateiname, ' x') and substring-after(mpx:multimediaDateiname, ' x') = ''">
 					<!-- new case: no standardbild, but still a file with x as freigabe 
 						marker at end of dateiname-->
