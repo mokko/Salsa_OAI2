@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet exclude-result-prefixes="mpx" version="1.0"
+<xsl:stylesheet exclude-result-prefixes="mpx" version="2.0"
 	xmlns:mpx="http://www.mpx.org/mpx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<!-- Warum Freigabe? Wir wollen nicht automatisch alle beschriebenen Multimediaobjekte 
@@ -42,14 +42,13 @@
 			<!-- overwrite existing freigabe -->
 			<xsl:choose>
 				<!-- standardbild wird freigeben, ausser wenn Karteikarte '-KK' -->
-				<xsl:when test="mpx:standardbild and not(contains (mpx:multimediaDateiname, ' -KK'))">
+				<xsl:when test="mpx:standardbild and not(matches (mpx:multimediaDateiname, ' -KK'))">
 					<xsl:attribute name="freigabe">Web</xsl:attribute>
 					<xsl:attribute name="priorität">10</xsl:attribute>
 				</xsl:when>
-				<!-- that should find only images whose dateiname ends with ' x' -->
-				<xsl:when test="contains (mpx:multimediaDateiname, ' x') and substring-after(mpx:multimediaDateiname, ' x') = ''">
+				<xsl:when test="matches(mpx:multimediaDateiname, ' x$')">
 					<!-- new case: no standardbild, but still a file with x as freigabe 
-						marker at end of dateiname-->
+						marker -->
 					<xsl:attribute name="freigabe">Web</xsl:attribute>
 					<xsl:attribute name="priorität">
 					<xsl:choose>
