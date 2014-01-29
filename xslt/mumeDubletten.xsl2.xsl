@@ -3,15 +3,11 @@
 	xmlns:mpx="http://www.mpx.org/mpx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<!-- this is working xslt2 version that filters out mume doubles (dubletten)
-
-DF: a mume doublette is the case where more than one mume records describe 
+	<!-- this is working xslt2 version that filters out mume doubles (dubletten) 
+		DF: a mume doublette is the case where more than one mume records describe 
 		the same file (image) redundantly. Occasionally, the same image is supposed 
 		to be used for two different objects, such as a drum and its mallet. So this 
-		case is not a doublette. 
-
--->
-
+		case is not a doublette. -->
 
 	<xsl:output method="xml" version="1.0" encoding="UTF-8"
 		indent="yes" />
@@ -38,7 +34,7 @@ DF: a mume doublette is the case where more than one mume records describe
 				<xsl:for-each-group select="current-group()"
 					group-by="mpx:multimediaDateiname">
 					<xsl:sort select="mpx:verknüpftesObjekt" data-type="number" />
-					<xsl:sort select="mpx:multimediaDateiname" data-type="text"/>
+					<xsl:sort select="mpx:multimediaDateiname" data-type="text" />
 					<xsl:sort select="@quelle" />
 
 					<xsl:variable name="dname" select="mpx:multimediaDateiname" />
@@ -56,9 +52,14 @@ DF: a mume doublette is the case where more than one mume records describe
 							<xsl:copy-of select="current-group()" />
 						</xsl:when>
 						<xsl:otherwise>
-							<!-- xsl:text>&#xa;</xsl:text> <xsl:comment> <xsl:value-of select="' 
-								1+ mume with this vObj and dname:', 'count vs mpx-rif:', count(current-group()), 
-								count(@quelle='mpx-rif')" /> </xsl:comment> <xsl:text>&#xa;</xsl:text -->
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:comment>
+								<xsl:value-of
+									select="
+									'1+ mume with this vObj and dname:', 'count vs mpx-rif:', count(current-group()), 
+								count(@quelle='mpx-rif')" />
+							</xsl:comment>
+							<xsl:text>&#xa;</xsl:text>
 							<xsl:message>
 								<xsl:value-of
 									select="'   1+ mume with this vObj and dname:', 
@@ -74,8 +75,12 @@ DF: a mume doublette is the case where more than one mume records describe
 									<xsl:message>
 										<xsl:text>NONE of the mume with this vObj and dname are faked</xsl:text>
 									</xsl:message>
-									<!-- xsl:text>&#xa;</xsl:text> <xsl:comment> <xsl:text>NONE of the 
-										mume with this vObj and dname are faked</xsl:text> </xsl:comment> <xsl:text>&#xa;</xsl:text -->
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:comment>
+										<xsl:text>NONE of the 
+										mume with this vObj and dname are faked</xsl:text>
+									</xsl:comment>
+									<xsl:text>&#xa;</xsl:text>
 
 									<xsl:copy-of select="current-group()" />
 
@@ -84,8 +89,11 @@ DF: a mume doublette is the case where more than one mume records describe
 									<xsl:message>
 										<xsl:text>ALL mume with this vObj and dname are fake</xsl:text>
 									</xsl:message>
-									<!-- xsl:text>&#xa;</xsl:text> <xsl:comment> <xsl:text>ALL mume 
-										with this vObj and dname are fake</xsl:text> </xsl:comment> <xsl:text>&#xa;</xsl:text -->
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:comment>
+										<xsl:text>ALL mume with this vObj and dname are fake</xsl:text>
+									</xsl:comment>
+									<xsl:text>&#xa;</xsl:text>
 
 									<xsl:copy-of select="current-group()" />
 								</xsl:when>
@@ -96,9 +104,12 @@ DF: a mume doublette is the case where more than one mume records describe
 											select="'this group of mume with this vObj and dname is MIXED:',
 									$vObj, $dname,count(current-group()[not(@quelle)])" />
 									</xsl:message>
-									<!-- xsl:text>&#xa;</xsl:text> <xsl:comment> <xsl:value-of select="'this 
-										group of mume with this vObj and dname is MIXED:', $vObj, $dname,count(current-group()[not(@quelle)])" 
-										/> </xsl:comment> <xsl:text>&#xa;</xsl:text -->
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:comment>
+										<xsl:value-of
+											select="'this group of mume with this vObj and dname was MIXED:', $vObj, $dname,count(current-group()[not(@quelle)])" />
+									</xsl:comment>
+									<xsl:text>&#xa;</xsl:text>
 									<xsl:copy-of select="current-group()[not(@quelle)]" />
 								</xsl:when>
 							</xsl:choose>

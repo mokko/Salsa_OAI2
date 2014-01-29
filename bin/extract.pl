@@ -141,19 +141,7 @@ if ( $opts->{o} ) {
 #
 
 my $provider = HTTP::OAI::DataProvider->new($config);
-
-if ( validate_request( %{$params} ) ) {
-	output $provider->err2XML( validate_request( %{$params} ) );
-	exit 1;
-}
-
-verbose '   request validates';
-
-no strict "refs";
-my $verb   = $params->{verb};
-my $string = $provider->$verb( %{$params} );
-use strict "refs";
-
+my $string = $provider->asString($provider->verb( %{$params} ));
 output($string);
 
 exit 0;
@@ -189,7 +177,7 @@ sub output {
 	if ($response) {
 
 		#encoding terror
-		utf8::encode($response);
+		#utf8::encode($response);
 
 		if ( $opts->{o} ) {
 
