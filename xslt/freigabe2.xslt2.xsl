@@ -2,20 +2,11 @@
 <xsl:stylesheet exclude-result-prefixes="mpx" version="2.0"
 	xmlns:mpx="http://www.mpx.org/mpx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<!-- Warum Freigabe? Wir wollen nicht automatisch alle beschriebenen Multimediaobjekte 
-		auch nach MIMO bewegen, sondern auswählen können, was bei MIMO landet. Die 
-		alte Freigabe, gab im Wesentlichen Standardbilder frei. Wie wäre es, wenn 
-		wir alle digitalen Bilder freigeben (.jpg). Konkreter: Der Workflow hängt 
-		an zwei Stellen von der Freigabe ab a) MPX2LIDO: In mpx werden alle existierenden 
-		Multimediaobjekte angezeigt. Auf Wunsch von Paris werden in in LIDO nur solche 
-		Resourcen angezeigt, die auch freigegeben/hochgeladen wurden. b) MIMO-resmvr.pl: 
-		Der Faker mpx-rif hat seinen eigenen Freigabe Mechanismus. D.h. dieses Skript 
-		muss die existierende Freigabe in der Regel beibehalten. Dieses Script müsste 
-		dann im Wesentlichen die Freigabe für nicht gefakte multimediaobjekte erledigen. 
-		Wie kann ich die nicht gefakten d.h. direkt aus M+ exportierten Multimediaobjekte 
-		wie diejenigen des Borisexport erkennen? Ich könnte in die gefakten ein Attribut 
-		quelle="mpx-rif" schreiben. Strategie: es wir alles Karteikarten kriegen 
-		keine Freigabe. Freigegeben sind diejenigen, -->
+	<!-- 
+	
+	DIESE vERSION IST vERALTET. Siehe freigabe2.xslt1.xsl für aktuelle Fassung!
+	
+	 -->
 
 	<xsl:output method="xml" version="1.0" encoding="UTF-8"
 		indent="yes" />
