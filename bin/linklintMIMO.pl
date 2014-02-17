@@ -50,15 +50,11 @@ verbose: be more verbose
 =head1 DESCRIPTION
 
 Loops thru store and checks every record in set 'MIMO'. For each record look at
-every resource (multimediaobjekt). If this resource on MIMO Server in Paris
-if necessary change to freigegeben=web; if resource is not on server change
-freigabe to 'intern'.
+every resource (multimediaobjekt). If this resource exists on MIMO Server in Paris
+change to freigegeben=web (if not already to that value); if resource is not on server 
+change freigabe to 'intern'.
 
-=head2 TODO
-
-Should this script change the exportdatum of the multimediaobjekt or the
-sammlungsobjekt if it changes a record? Changing the exportdatum could result
-in problems with updating this data.
+N.B Results are reported only after script has cycled through ALL of the data!
 
 =cut
 
@@ -287,9 +283,10 @@ sub _registerNS {
 	#Debug 'Enter _registerNS';
 
 	if ( config->{engine}{nativeFormat} ) {
+		#there can be only one native Format!?
 		my $prefix = ( keys %{ config->{engine}{'nativeFormat'} } )[0];
 		my $uri    = config->{engine}{nativeFormat}{$prefix};
-		debug "registering ns: $prefix:$uri";
+		#debug "registering ns: $prefix:$uri";
 		die "ns_prefix specified, but ns_uri missing" if ( !$uri );
 
 		$doc = XML::LibXML::XPathContext->new($doc);
@@ -298,6 +295,7 @@ sub _registerNS {
 	return $doc;
 }
 
+#produces warning, because it overwrites Dancer's debug, but who cares
 sub debug {
 	my $msg = shift;
 	if ( config->{debug} > 0 ) {
