@@ -4,8 +4,10 @@ package Salsa_OAI::Updater::XML;
 
 use strict;
 use warnings;
-use Salsa_OAI::Messages 'verbose';
+#use Salsa_OAI::Messages 'verbose';
 use Carp 'croak', 'carp';
+use XML::LibXML::XPathContext;
+use Moo::Role;
 
 $Salsa_OAI::Messages::verbose = 1;    #default value
 =head2 $doc=_registerNS ($doc);

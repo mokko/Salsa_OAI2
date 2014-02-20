@@ -12,6 +12,9 @@ use Carp 'croak';
 use Encode qw (from_to);
 use utf8;
 use Debug::Simpler 'debug';
+use Salsa_OAI::Updater::SQLite;
+use Moo;
+with 'Salsa_OAI::Updater::XML';
 
 =head1 SYNOPSIS
 
@@ -63,31 +66,26 @@ Update agent
 
 =cut
 
-sub new {
-	my $class = shift;
-	my %args  = @_;
+has dbfile => (is=>'ro',required=>1 );
+has Debug => (is=>'ro');
 
-	my $self = {};
+sub BUILD {
+	my $self=shift;
 
-	if ( !$args{dbfile} ) {
-		die "Dbfile not found!";
+	if ( !-e $self->dbfile ) {
+		die 'Dbfile not found: '.$self->dbfile.'!';
 	}
 
-	if ( !-e $args{dbfile} ) {
-		die "Dbfile not found: $args{dbfile}!";
-	}
-
-	if ( $args{debug} && $args{debug} gt 0 ) {
+	if ( $self->Debug && $self->Debug gt 0 ) {
 		Debug::Simpler::debug_on();
 	}
 	else {
 		Debug::Simpler::debug_off();
 	}
-	bless $self, $class;
-	$self->_connectDB( $args{dbfile} );
-
+	$self->{store}=Salsa_OAI::Updater::SQLite->new (dbfile=>$self->dbfile);
+	$self->{store}->_connectDB( $self->dbfile );
+	$self->{dbh}=$self->{store}{dbh}; #dirty, but I want to get it working
 	#debug "dbfile exists: $args{dbfile}";
-	return $self;
 }
 
 =method $updater->rmres ($mume_mpx);

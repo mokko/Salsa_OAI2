@@ -7,29 +7,29 @@ use warnings;
 use Carp 'carp', 'croak';
 use Debug::Simpler 'debug';
 use DBI;
-Debug::Simpler::debug_on();
+use Moo; #should I use this as a role instead? Well, let's just fix it as it is...
+has dbfile => (is=>'ro',required=>1 );
+
 #use lib "$FindBin::Bin/../lib";
 
 =head2 SYNOPSIS
 
-	my $store=new Salsa_OAI::Updater($dbfile);
+	my $store=Salsa_OAI::Updater::SQLite->new (dbfile=>$dbfile);
 	my $md=$store->getMd($oaiId);
 	$store->update($oaiId, $md);
 	$store->insert($oaiId, $md);
 	$store->updateOrinsert($oaiId, $md);
 
-=method my $store=new Salsa_OAI::Updater ($dbfile);
+=method my $store=Salsa_OAI::Updater->new (dbfile=>$dbfile);
 
 =cut
 
-sub new {
-	my $class  = shift or carp "Something's really wrong";
-	my $dbfile = shift or carp "Need dbfile";
-	my $store = {};
-	bless $store, $class;
-	$store->_connectDB($dbfile); 
-	$store->_initDB();
-	return $store;
+sub BUILD {
+	my $self=shift;
+	Debug::Simpler::debug_on();
+
+	$self->_connectDB; 
+	$self->_initDB;
 }
 
 =method my $md=$self->getMd ($objId);
@@ -87,8 +87,7 @@ sub insert {
 	my $oaiId = shift or carp "Need oaiId to update store";
 	my $md    = shift or carp "Need metadata to update store";
 
-	my $identifier, $timestamp, $status, $native_md;
-	my $setSpec;
+	my ($identifier, $timestamp, $status, $native_md, $setSpec);
 	#to begin with: I don't even know where to get these values from
 	#can I take timestamp from native_md @exportdatum?
 	#can I assume status somehow? It is only deleted if it is deleted
@@ -129,12 +128,11 @@ sub insertOrUpdate {
 
 sub _connectDB {
 	my $self = shift;
-	my $dbfile = shift or croak "Need dbfile!";
 
-	debug "dbfile: $dbfile";
+	debug 'dbfile: '.$self->dbfile;
 
 	$self->{dbh} = DBI->connect(
-		"dbi:SQLite:dbname=$dbfile",
+		'dbi:SQLite:dbname='.$self->dbfile,
 		"", "",
 		{
 			RaiseError     => 1,

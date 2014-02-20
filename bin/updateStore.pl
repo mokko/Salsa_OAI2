@@ -74,9 +74,11 @@ if (! -f $ARGV[1]) {
 	exit 1;
 }
 
+my $dbfile=config->{engine}{dbfile} || die "dbfile info missing!";
+
 my $updater=new Salsa_OAI::Updater (
-	dbfile=>config->{dbfile},
-	verbose=>$opts->{v},
+	dbfile=>$dbfile,
+	Debug=>$opts->{v},
 );
 
 my $cmd=$ARGV[0];
