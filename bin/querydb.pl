@@ -12,13 +12,14 @@ use Cwd 'realpath';
 use Dancer ':syntax';
 
 use Getopt::Std;
-getopts( 'tdv', my $opts = {} );
+getopts( 'tdvx', my $opts = {} );
 
 sub debug;
 
 =head1 SYNOPSIS
 
-querydb.pl -t '//xpath'
+querydb.pl 'fulltext'
+querydb.pl -tx '//xpath'
 
 //xpath is executed for every record for which has xml
 
@@ -28,15 +29,18 @@ querydb.pl -t '//xpath'
 
 -d  debug
 
+-x interpret string as xpath.
+
 =cut
 
 
 
 Dancer::Config::setting( 'appdir', realpath("$FindBin::Bin/..") );
 Dancer::Config::load();
-config->{xpath}= 0;
 config->{debug}= 0;
 config->{truncate}= 0;
+
+
 
 #
 # getopt and @ARGV
@@ -57,6 +61,14 @@ if ( $opts->{t} ) {
 	config->{truncate} = 1;
 }
 
+config->{xpath}=$opts->{x}? 1: 0 ;
+if (config->{xpath}) {
+	debug 'xpath mode';
+} else {
+	debug 'freetext mode';
+}
+
+
 if ( !$ARGV[0] ) {
 	print "Error: Query missing!\n";
 	exit 1;
@@ -73,7 +85,8 @@ debug "encoding problem: $ARGV[0]";
 #
 # MAIN
 #
-my $dbh = DBI->connect( 'dbi:SQLite:dbname='.config->{dbfile}, "", "" )
+my $dbfile =config->{engine}{dbfile} or die "No dbfile!"; 
+my $dbh = DBI->connect( 'dbi:SQLite:dbname='.$dbfile, "", "" )
   or die "Cannot connect to sqlite";
 
 if ( config->{xpath} == 0 ) {
@@ -142,7 +155,7 @@ sub fulltextSearch {
 sub debug {
 	my $msg = shift;
 	if ( config->{debug} > 0 ) {
-		print $msg. "\n";
+		print STDERR $msg. "\n";
 	}
 }
 
