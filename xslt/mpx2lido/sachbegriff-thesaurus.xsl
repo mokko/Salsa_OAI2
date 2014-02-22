@@ -6,17 +6,21 @@
     exclude-result-prefixes="mpx dict">
 
     <xsl:template match="mpx:sachbegriff" mode="classification">
+    	<!-- in any case: put original sachbegriff -->
         <lido:classification>
-            <lido:term xml:lang="de">
+            <lido:term xml:lang="de" lido:encodinganalog="mpx:sachbegriff">
                 <xsl:value-of select="."/>
             </lido:term>
         </lido:classification>
 
         <xsl:variable name="thesaurus" select="document('dictionary-sachbegriff.xml')"/>
         <xsl:variable name="this" select="text()"/>
-        <xsl:if test="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]">
+        
+        <!-- if there is a pref term in the MIMO Sachbegriff Mapping, put that too -->
+        <xsl:if test="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this] or 
+        	          $thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref">
             <lido:classification>
-                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping">
+                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping" lido:analogencoding="mpx:sachbegriff">
                             <xsl:value-of select="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref"/>
                     </lido:term>
             </lido:classification>

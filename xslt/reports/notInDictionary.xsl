@@ -6,6 +6,9 @@
     <!-- 
     Andreas wants a list of those sachbegriffe which are not in mpxvok Vokabularmapping
     Compare a dump/MIMO harvest with mpxvok and report those
+    	
+       saxon.pl latestHarvest.mpx notInDictionary.xsl list.xml
+    
     -->
     <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
     <xsl:strip-space elements="*"/>
