@@ -1,4 +1,4 @@
-#ABSTRACT: Useful functions for common use
+#ABSTRACT: Useful FUNCATIONS for common use
 package Salsa_OAI::Util;
 use strict;
 use warnings;

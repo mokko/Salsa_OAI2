@@ -4,6 +4,24 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lido="http://www.lido-schema.org"
     xmlns:mpx="http://www.mpx.org/mpx" xmlns:dict="http://www.mpx.org/dictionary"
     exclude-result-prefixes="mpx dict">
+	
+    <!-- 
+    	WHAT IS THE PURPOSE OF THIS MINI-THESAURUS?
+    	1) It adds additional classification terms in lido output for cases
+    	   listed in dictionary-sachbegriff.xml (either as pref or synonym).
+    	2) In the past, the ideas was NOT to provide (output) only sachbegriffe
+    	   that are controlled by Hornbostel-Sachs, but to provide a list that 
+    	   MIMO understands. That is MIMO applies a similar transformation, which at 
+    	   present I know nothing about and I don't have access to.
+    	
+    	   If I remember correctly.
+    	
+    	   This means it would not be bad if we would map everything to a Hornbostel-Sachs
+    	   term. Then our Lido Data would be able to stand on its own.
+    	
+    -->
+    
+    	
 
     <xsl:template match="mpx:sachbegriff" mode="classification">
     	<!-- in any case: put original sachbegriff -->
@@ -20,7 +38,7 @@
         <xsl:if test="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this] or 
         	          $thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref">
             <lido:classification>
-                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping" lido:analogencoding="mpx:sachbegriff">
+                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping" lido:analogencoding="mpx:sachbegriff" lido:pref="preferred">
                             <xsl:value-of select="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref"/>
                     </lido:term>
             </lido:classification>

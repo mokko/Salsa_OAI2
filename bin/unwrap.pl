@@ -44,7 +44,7 @@ if ( !-f $ARGV[0] ) {
 }
 
 if ( !$ARGV[1] ) {
-	verbose "You didnot specify output, so will be using STDOUT!";
+	verbose "You did not specify output, so will be using STDOUT!";
 }
 
 #
