@@ -38,7 +38,7 @@
         <xsl:if test="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this] or 
         	          $thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref">
             <lido:classification>
-                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping" lido:analogencoding="mpx:sachbegriff" lido:pref="preferred">
+                <lido:term xml:lang="de" lido:label="SPK's MIMO Keyword Mapping" lido:encodinganalog="mpx:sachbegriff" lido:pref="preferred">
                             <xsl:value-of select="$thesaurus/dict:dictionary/dict:concept[dict:synonym = $this]/dict:pref"/>
                     </lido:term>
             </lido:classification>
