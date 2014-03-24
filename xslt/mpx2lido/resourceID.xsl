@@ -39,7 +39,9 @@
 		<!-- objId -->
 		<xsl:variable name="objId" select="../mpx:sammlungsobjekt/@objId" />
 
-		<!-- minPriority. Can minPriority be empty? I think so. What happens then? -->
+		<!-- minPriority. Can minPriority be empty? I think so. What happens then? 
+		../mpx:multimediaobjekt[mpx:verknüpftesObjekt = $objId and @typ ='Bild']/@priorität
+		-->
 		<xsl:variable name="minPriority">
 			<xsl:for-each select="../mpx:multimediaobjekt[mpx:verknüpftesObjekt = $objId and @typ ='Bild']/@priorität">
 				<xsl:sort select="." />
@@ -66,7 +68,7 @@
 
 			</xsl:message -->
 			<xsl:if
-				test="@priorität = $minPriority">
+				test="@priorität = $minPriority and @typ ='Bild'">
 
 				<xsl:attribute name="lido:pref">preferred</xsl:attribute>
 			</xsl:if>
