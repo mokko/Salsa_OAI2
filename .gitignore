@@ -9,7 +9,7 @@ config.yml
 *.xml
 *.log
 *.zip
-*.txt
+#*.txt
 SALSA_OAI-*
 .build/*
 data/*

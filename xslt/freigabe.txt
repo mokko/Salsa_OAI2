@@ -1,0 +1,110 @@
+ZUM FREIGABE SKRIPT
+-----------------------------------------------
+
+(1) History
+2014/3/24 
+ a) This document was created from an existing comment in the freigabe script. 
+ b) updated algorithm
+ We're changing the freigabe algorithm again and make standardbild more 
+ important. This addresses an example identified by Paris (Rodolphe) where the 
+ old algorithm selected an instrument part as the preferred image while the
+ the image of the whole was presented, but not selected.
+ http://194.250.19.133/MIMO/doc/IFD/SPK_BERLIN_DE_EM_OBJID_209626/ 
+ http://mimo-project.eu:8080/oai?verb=GetRecord&metadataPrefix=mpx&identifier=spk-berlin.de:EM-objId-209626
+
+(Dies war ein Kommentar in der Freigabe-Transformation. Geriet aber so lang, 
+dass es sich lohnte, diese Informationen einen eigenen File auszugliedern.)
+
+(2) HINTRERGRÜNDE
+
+(2.1) Für MIMO laden wir Bilder auf den Pariser Medienserver hoch. Die URL lässt sich aus der mulId
+ableiten und ist in LIDO enthalten, jedoch nicht explicit als URL. 
+
+Auf Wunsch von Paris werden nur solche Resourcen-Metadaten in Lido angezeigt, die auch ein Resource (Bild) haben. 
+		
+Welche Attribute hängen von der Freigabe ab (mpx:multimediaobjekt)? 
+   freigabe='Web|intern'
+   quelle='mpx-rif' (nur für gefakte Objekte) 
+   priortität=Integer. (Je niedriger die Zahl, desto höher die Priortität.)
+	 	Jede Zahl sollte pro verlinktem Objekt nur einmal vergeben werden. 
+		
+	    LIDO sortiert die Multimediaobjekte pro Sammlungsobjekt so, dass
+		die Resource (Bild) mit der niedrigsten Priorität die bevorzugte Ansicht ist.
+		
+	typ='Bild|Audio|Video' 
+
+(2.2) Update-Politik 
+
+Eine alte Fassung des Freigabe-Skripts veränderte nur Freigaben für 
+Multimediaobjekten die noch keine Freigabe Attribut hatten. Die neue Fassung verändert 
+potentiell alle Freigaben.
+		
+		Gefakte Daten 
+		In 2011 verwendeten wir "gefakte" Multimedia-Daten. D.h. mit einem separaten
+		Skript haben wir multimediaobjekt-Daten zu Resourcen-Files erzeugt ohne sie vorher in M+ 
+	    einzugeben.
+		
+		Inzwischen sollen diese Daten weitgehend in M+ importiert worden sein. Es gibt aber 
+		immer noch gefakte Multimediaobjekt-Daten, obwohl wir mume-Dubletten bereits herausgefiltert
+		haben. Das weist darauf hin, dass möglicherweise nicht alle gefakten Daten korrekt importiert 
+	    worden sind.
+
+(2.3) Freigabe-Algorithmus 
+
+Freigabe könnte auf folgenden Informationen beruhen
+   1) im Dateinamen kodiert, z.B. "vii c 1234c x -A" 
+	
+   2) Information, ob Resource als Standardbild gekennzeichnet ist oder nicht. Obwohl M+ immer nur 1 Standardbild zu
+		einer Zeit haben kann, ist es denkbar das ein mpx Sammlungsobjekt mehr als ein Standardbild
+		besitzt (wenn sich das Standardbild im Laufe der Zeit geändert hat und beide Situationen
+		exportiert wurden). 
+		
+   3) aktuellem Freigabe-Integer (nicht gut, weil das Skript dann
+		bei mehrmaligem Ausführen keine konstanten Ergebnisse erzeugt.) 
+		
+   4) Man kann nur
+		sicherstellen, dass jeder Freigabe-Integer pro verknüpftes Objekt 
+		distinkt (eindeutig) ist, wenn man diese Menge von Mume nach 
+		entsprechenden Werten durchsucht. 
+		
+	Alter Algorithmus 
+	1. Wenn als Standardbild gekennzeichnet und keine Karteikarte (' -KK'
+		in Dateiname) --> freigabe='Web' und priorität=10 
+	2. Wenn Dateiname auf x endet freigabe='Web'
+		Priorität ergibt sich aus Buchstabencode vor 
+		x '-A x' wird 9 
+		'-B x' wird 8 
+		Beabsichtigt ist, dass Freigabe durch Buchstabencode im Dateiname eine höhere 
+		Priorität (kleiner
+		Integer) besitzt als Freigabe durch Standardbild. Es ist aber nicht beabsichtigt,
+		dass -A eine niedrigere Priorität (größerer Integer) besitzt als -B. Also ist dieser
+		Logarithmus verkehrt. Nicht-Eindeutiger Priorität-Integer Außerdem wird hier nicht
+		mit Sicherheit festgestellt, dass Integer pro verknüpftes Objekte eindeutig ist.
+		Das Problem hierbei ist, dass so lange Priorität nicht festgestellt wurde ich die
+		entsprechenden Werte nicht vergleichen kann. Selbst wenn ich sie vergleichen könnte
+		(z.B. mittels einer weiteren Transformation), weiß ich nicht welche Resource dann
+		die höhere Priorität erhalten sollte. Also bleibe ich beim bisherigen Verfahren,
+		wo diese Entscheidung bei nicht eindeutigem Integer von mpx2lido Transformaton getroffen
+		wird (todo: check). 
+		
+	Neuer Algorithmus 
+	Ich muss also nur den oben beschriebenen Fehler korrigieren: 
+	-A x erhält höchste Priorität, d.h. 1 
+	-B x erhält nächst höchste Priorität, d.h. 2
+		etc. Standardbild erhält Priorität 10 
+
+(2.4) Unterschiedliche Prioritäten für Audio, Video und Bild? 
+	
+	Paris will von uns distinkte Prioritäten für Audio, Video und Bilder
+	d.h. genau je eine Bild, Video und Audio Resource soll Priorität 1 haben 
+	http://mimo-project.eu:8080/oai?verb=GetRecord&metadataPrefix=mpx&
+	identifier=spk-berlin.de:EM-objId-1650229
+	
+	Zu diesem Zweck hatte ich irgendwann einmal das Typ-Attribut eingefügt. Gegenwärtig
+	ist das aber nicht mehr vorhanden (inzwischen korrigiert). 
+	
+	Weitere Beispiele mit: 
+	xpath.pl -f mimo.harvest.ohneDupes.mpx
+		-n mpx "//mpx:multimediaobjekt[not(mpx:multimediaErweiterung = 'jpg') and not(mpx:multimediaErweiterung
+		= 'JPG') and not(mpx:multimediaErweiterung = 'tif')]" 
+		
