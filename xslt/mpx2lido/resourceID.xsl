@@ -41,7 +41,7 @@
 
 		<!-- minPriority. Can minPriority be empty? I think so. What happens then? -->
 		<xsl:variable name="minPriority">
-			<xsl:for-each select="../mpx:multimediaobjekt[@typ ='Bild']/@priorität">
+			<xsl:for-each select="../mpx:multimediaobjekt[mpx:verknüpftesObjekt = $objId and @typ ='Bild']/@priorität">
 				<xsl:sort select="." />
 				<xsl:if test="position() = 1">
 					<xsl:value-of select="." />

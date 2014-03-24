@@ -11,8 +11,7 @@
      <lido:term>Production</lido:term>
     </lido:eventType>
     <lido:eventName>
-     <lido:appellationValue xml:lang="de">Herstellung
-     </lido:appellationValue>
+     <lido:appellationValue xml:lang="de">Herstellung</lido:appellationValue>
     </lido:eventName>
 
     <!--
